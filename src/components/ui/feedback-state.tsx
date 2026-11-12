@@ -1,4 +1,4 @@
-import { CircleAlert, Inbox, type LucideIcon } from "lucide-react";
+import { BellOff, CircleAlert, Inbox, LockKeyhole, TimerReset, type LucideIcon } from "lucide-react";
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
@@ -10,9 +10,20 @@ interface StateProps {
   className?: string;
 }
 
-function StateBlock({ title, description, action, icon: Icon, tone, role, className }: StateProps & { tone: string; role?: string }) {
+function StateBlock({
+  title,
+  description,
+  action,
+  icon: Icon,
+  tone,
+  role,
+  className,
+}: StateProps & { tone: string; role?: string }) {
   return (
-    <div role={role} className={cn("flex flex-col items-start gap-3 rounded-[var(--radius-card)] p-5", tone, className)}>
+    <div
+      role={role}
+      className={cn("flex flex-col items-start gap-3 rounded-[var(--radius-card)] p-5", tone, className)}
+    >
       {Icon ? <Icon aria-hidden className="size-7" strokeWidth={1.75} /> : null}
       <div className="flex flex-col gap-1">
         <h3 className="text-card-title font-semibold">{title}</h3>
@@ -29,4 +40,60 @@ export function EmptyState(props: StateProps) {
 
 export function ErrorState(props: StateProps) {
   return <StateBlock icon={CircleAlert} role="alert" {...props} tone="bg-error-soft text-text" />;
+}
+
+type PresetProps = Partial<Pick<StateProps, "title" | "description" | "action" | "className">>;
+
+/** Login session ended. Progress is safe on the server; the user only needs to sign in again. */
+export function SessionExpiredState({
+  title = "Sesimu sudah berakhir",
+  description = "Masuk lagi dengan email yang sama. Catatan ibadahmu tetap tersimpan.",
+  ...rest
+}: PresetProps) {
+  return (
+    <StateBlock
+      icon={TimerReset}
+      role="alert"
+      title={title}
+      description={description}
+      tone="bg-info-soft text-text"
+      {...rest}
+    />
+  );
+}
+
+/** Signed in, but this account or role cannot open the page. */
+export function AccessDeniedState({
+  title = "Halaman ini belum bisa kamu buka",
+  description = "Akunmu belum punya akses ke halaman ini. Hubungi CS jika menurutmu ini keliru.",
+  ...rest
+}: PresetProps) {
+  return (
+    <StateBlock
+      icon={LockKeyhole}
+      role="alert"
+      title={title}
+      description={description}
+      tone="bg-surface-2 text-text"
+      {...rest}
+    />
+  );
+}
+
+/** The browser or OS blocked a permission (for example notifications). Gives a way forward. */
+export function PermissionDeniedState({
+  title = "Izin belum diberikan",
+  description = "Browser memblokir izin ini. Buka pengaturan situs di browser, ubah izin, lalu muat ulang halaman.",
+  ...rest
+}: PresetProps) {
+  return (
+    <StateBlock
+      icon={BellOff}
+      role="alert"
+      title={title}
+      description={description}
+      tone="bg-warning-soft text-text"
+      {...rest}
+    />
+  );
 }

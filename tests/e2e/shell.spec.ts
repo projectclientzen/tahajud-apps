@@ -6,7 +6,9 @@ const ROUTES = ["/", "/dashboard", "/worship", "/quran", "/profile", "/dev/compo
 for (const route of ROUTES) {
   test(`no horizontal scroll on ${route}`, async ({ page }) => {
     await page.goto(route);
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
     expect(overflow).toBeLessThanOrEqual(0);
   });
 }
@@ -19,7 +21,11 @@ test("primary nav: bottom bar on mobile, sidebar on desktop, aria-current set", 
   await expect(visible.getByRole("link", { name: "Amalan" })).toHaveAttribute("aria-current", "page");
   const box = await visible.boundingBox();
   if (info.project.name === "mobile") expect(box!.y).toBeGreaterThan(500);
-  else expect(box!.x).toBeLessThan(10);
+  else {
+    // Sidebar nav sits inside an aside with 16px padding, so x is 16, not 0.
+    expect(box!.x).toBeLessThan(32);
+    expect(box!.y).toBeLessThan(300);
+  }
 });
 
 test("demo badge is visible while mock data is active", async ({ page }) => {
@@ -68,6 +74,28 @@ for (const theme of ["light", "dark"] as const) {
     }
   });
 }
+
+test("entry CTA opens the dashboard", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Buka prototipe" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByRole("heading", { name: "Dashboard Istiqomah" })).toBeVisible();
+});
+
+test("no console errors on any route", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+  page.on("pageerror", (e) => errors.push(e.message));
+  for (const route of ROUTES) await page.goto(route);
+  expect(errors).toEqual([]);
+});
+
+test("enabled controls show a pointer cursor", async ({ page }) => {
+  await page.goto("/dev/components");
+  const cursor = (name: string) => page.getByRole("button", { name }).evaluate((el) => getComputedStyle(el).cursor);
+  expect(await cursor("Buka sheet")).toBe("pointer");
+  expect(await cursor("Belum tersedia")).toBe("not-allowed");
+});
 
 test("manifest is served with standalone display", async ({ request }) => {
   const res = await request.get("/manifest.webmanifest");

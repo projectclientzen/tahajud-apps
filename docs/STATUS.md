@@ -7,8 +7,8 @@ Spesifikasi berlaku: `docs/PRD-v1.2.md`
 
 | Area | Fitur | Status | Catatan / blocker |
 |------|-------|--------|-------------------|
-| Foundation | Project setup, tooling | REAL (WIP) | Next 15.5.29, TS strict, Tailwind v4, Vitest, Playwright, audit bersih. E2E belum dijalankan |
-| Design | Tokens, komponen, app shell | REAL (WIP) | Token light/dark lolos AA (60 unit test). Shell + gallery `/dev/components`. Sisa: SITEMAP, DESIGN_SYSTEM, e2e, screenshot, Floor review |
+| Foundation | Project setup, tooling | REAL | Next 15.5.29, TS strict, Tailwind v4, Vitest, Playwright, audit bersih. Typecheck, lint, 60 unit, 38 e2e (mobile 320px + desktop 1280px) lolos per S1 lanjutan |
+| Design | Tokens, komponen, app shell | REAL | Token light/dark lolos AA (49 unit test + axe 0 serious/critical). Shell, komponen dasar + 3 state baru di `/dev/components`. `docs/SITEMAP.md`, `docs/DESIGN_SYSTEM.md`, screenshot di `docs/screenshots/s1/`, Hallmark Floor 16/16 (manual). Wordmark dan ikon PWA masih placeholder |
 | Domain | Session key, state machine, progression, reporting, counter, wake planner, rotasi | TODO | S2 |
 | UI | Dashboard Istiqomah | TODO | S3 |
 | UI | Worship session + transisi Subuh | TODO | S3 |

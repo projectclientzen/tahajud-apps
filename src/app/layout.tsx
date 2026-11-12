@@ -17,7 +17,7 @@ const amiriQuran = Amiri_Quran({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Tahajud Tracker", template: "%s · Tahajud Tracker" },
+  title: { default: "Tahajud Tracker", template: "%s | Tahajud Tracker" },
   description: "Pendamping ibadah malam dari NgajiGaes.",
   applicationName: "Tahajud Tracker",
   appleWebApp: { capable: true, title: "Tahajud", statusBarStyle: "default" },

@@ -6,8 +6,14 @@ import { AppShell } from "@/components/shell/app-shell";
 import { PageHeader } from "@/components/shell/page-header";
 import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-import { EmptyState, ErrorState } from "@/components/ui/feedback-state";
+import { CardDescription, CardTitle } from "@/components/ui/card";
+import {
+  AccessDeniedState,
+  EmptyState,
+  ErrorState,
+  PermissionDeniedState,
+  SessionExpiredState,
+} from "@/components/ui/feedback-state";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,10 +40,10 @@ const SWATCHES = [
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <Card className="flex flex-col gap-4">
+    <section className="flex flex-col gap-4 border-t border-border pt-6">
       <CardTitle>{title}</CardTitle>
       {children}
-    </Card>
+    </section>
   );
 }
 
@@ -47,9 +53,12 @@ export default function ComponentGallery() {
 
   return (
     <AppShell>
-      <PageHeader title="Komponen" description="Galeri design system S1. Hanya untuk pengembangan." />
+      <PageHeader
+        title="Komponen"
+        description="Galeri design system S1, hanya untuk pengembangan. Tombol dan angka di sini contoh tampilan, bukan data atau aksi nyata."
+      />
       <div className="grid grid-cols-1 gap-4">
-        <Section title="Tampilan">
+        <Section title="Tema">
           <ThemeToggle />
         </Section>
 
@@ -116,18 +125,29 @@ export default function ComponentGallery() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <StatCard label="Malam tuntas" value="12" icon={<CalendarCheck aria-hidden className="size-4" />} />
             <StatCard label="Sebagian" value="3" icon={<Moon aria-hidden className="size-4" />} />
-            <StatCard label="Tingkat tuntas" value="71%" hint="30 hari terakhir" icon={<Flame aria-hidden className="size-4" />} />
+            <StatCard
+              label="Tingkat tuntas"
+              value="71%"
+              hint="30 hari terakhir"
+              icon={<Flame aria-hidden className="size-4" />}
+            />
           </div>
         </Section>
 
         <Section title="State">
-          <EmptyState title="Belum ada catatan" description="Catatan pertamamu muncul di sini setelah sesi malam ini." />
+          <EmptyState
+            title="Belum ada catatan"
+            description="Catatan pertamamu muncul di sini setelah sesi malam ini."
+          />
           <ErrorState
             title="Jadwal belum bisa dimuat"
             description="Kami pakai jadwal tersimpan dulu. Coba muat ulang saat sinyal stabil."
             action={<Button variant="secondary">Muat ulang</Button>}
           />
-          <div className="flex flex-col gap-2" aria-label="Contoh skeleton">
+          <SessionExpiredState action={<Button>Masuk lagi</Button>} />
+          <AccessDeniedState action={<Button variant="secondary">Hubungi CS</Button>} />
+          <PermissionDeniedState action={<Button variant="secondary">Cara mengubah izin</Button>} />
+          <div role="group" className="flex flex-col gap-2" aria-label="Contoh skeleton">
             <Skeleton className="h-6 w-1/2" />
             <Skeleton className="h-24 w-full" />
           </div>

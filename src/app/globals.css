@@ -192,6 +192,24 @@ h3 {
   transition: none;
 }
 
+/* Enabled controls show a pointer, disabled ones show not-allowed (antislop R-39). */
+a[href],
+button:not(:disabled),
+summary,
+select,
+label[for],
+label:has(input[type="radio"], input[type="checkbox"]),
+[role="button"],
+[role="tab"],
+[role="switch"] {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
 .arabic {
   font-family: var(--font-arabic);
   direction: rtl;

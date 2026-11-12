@@ -27,16 +27,14 @@ export function Sheet({ open, onOpenChange, trigger, title, description, placeme
           className={cn(
             "fixed z-50 flex max-h-[85dvh] flex-col gap-4 overflow-y-auto bg-surface p-6 text-text shadow-lg",
             placement === "bottom"
-              ? "inset-x-0 bottom-0 rounded-t-[var(--radius-card)] pb-[max(1.5rem,env(safe-area-inset-bottom))] md:inset-x-auto md:bottom-auto md:left-1/2 md:top-1/2 md:w-[min(32rem,calc(100vw-2rem))] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-[var(--radius-card)]"
+              ? "inset-x-0 bottom-0 rounded-t-[var(--radius-card)] pb-[max(1.5rem,env(safe-area-inset-bottom))] md:inset-x-auto md:bottom-auto md:left-1/2 md:top-1/2 md:w-[min(32rem,calc(100%-2rem))] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-[var(--radius-card)]"
               : "left-1/2 top-1/2 w-[min(32rem,calc(100%-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-card)]",
           )}
         >
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-1">
               <Dialog.Title className="text-card-title font-semibold">{title}</Dialog.Title>
-              {description ? (
-                <Dialog.Description className="text-text-muted">{description}</Dialog.Description>
-              ) : null}
+              {description ? <Dialog.Description className="text-text-muted">{description}</Dialog.Description> : null}
             </div>
             <Dialog.Close
               className="-m-2 grid size-11 shrink-0 place-items-center rounded-full text-text-muted hover:bg-surface-2"
