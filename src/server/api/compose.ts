@@ -29,6 +29,9 @@ export interface PrayerRow {
   maghrib_at: string | null;
   fetched_at: string | null;
   valid_until: string | null;
+  /** Only region rows can have these. Manual and missing rows leave them out. */
+  verification?: "verified" | "needs_review" | "unchecked" | null;
+  attribution?: string | null;
 }
 
 /**
@@ -88,6 +91,9 @@ export function buildPrayerTime(row: PrayerRow, now: Date): PrayerTime {
     fetched_at: s.fetchedAt,
     label: choice.label,
     demo_note: null,
+    // Provider cross-check and attribution, as the job stored them. A manual schedule has neither.
+    verification: s.source === "manual" ? null : (row.verification ?? null),
+    attribution: s.source === "manual" ? null : (row.attribution ?? null),
   });
 }
 

@@ -456,7 +456,9 @@ begin
     'fajr_at', case when t.id is null then null else app_private.iso(t.fajr_at) end,
     'maghrib_at', case when t.id is null or t.maghrib_at is null then null else app_private.iso(t.maghrib_at) end,
     'fetched_at', case when t.id is null then null else app_private.iso(t.fetched_at) end,
-    'valid_until', case when t.id is null or t.valid_until is null then null else app_private.iso(t.valid_until) end);
+    'valid_until', case when t.id is null or t.valid_until is null then null else app_private.iso(t.valid_until) end,
+    'verification', t.verification,
+    'attribution', t.attribution);
 end $$;
 
 create or replace function app_private.list_regions(p_uid uuid, p_now timestamptz) returns jsonb

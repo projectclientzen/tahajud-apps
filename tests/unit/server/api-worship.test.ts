@@ -140,11 +140,9 @@ describe("worship over HTTP: the live data layer end to end", () => {
     it("DZIKIR-05: reset to zero keeps later taps and is an audited correction", async () => {
       const { b, s } = await user("z5@ngajigaes.test");
       const id = counter(s, "istighfar").id;
-      await b
-        .data()
-        .session.applyCounterOperations(id, {
-          operations: [{ kind: "delta", operation_id: "z5-a", delta: 40, client_recorded_at: nowIso() }],
-        });
+      await b.data().session.applyCounterOperations(id, {
+        operations: [{ kind: "delta", operation_id: "z5-a", delta: 40, client_recorded_at: nowIso() }],
+      });
       const r = await b.data().session.applyCounterOperations(id, {
         operations: [
           { kind: "set_zero", operation_id: "z5-b", client_recorded_at: nowIso() },
@@ -162,11 +160,9 @@ describe("worship over HTTP: the live data layer end to end", () => {
     it("refuses a delta of 0 or beyond 1000 per operation, one by one", async () => {
       const { b, s } = await user("z6@ngajigaes.test");
       const id = counter(s, "istighfar").id;
-      const zero = await b
-        .data()
-        .session.applyCounterOperations(id, {
-          operations: [{ kind: "delta", operation_id: "z6-0", delta: 0, client_recorded_at: nowIso() }],
-        });
+      const zero = await b.data().session.applyCounterOperations(id, {
+        operations: [{ kind: "delta", operation_id: "z6-0", delta: 0, client_recorded_at: nowIso() }],
+      });
       expect(zero.results[0]).toMatchObject({ status: "rejected", error_code: "INVALID_DELTA" });
       const big = await b.json(`/session-activities/${id}/counter-operations`, "POST", {
         operations: [{ kind: "delta", operation_id: "z6-big", delta: 1001, client_recorded_at: nowIso() }],
@@ -197,11 +193,9 @@ describe("worship over HTTP: the live data layer end to end", () => {
     it("tells the app when a target is reached", async () => {
       const { b, s } = await user("z8@ngajigaes.test");
       const a = counter(s, "pf_allahu_akbar_kabira", "post_fajr");
-      const r = await b
-        .data()
-        .session.applyCounterOperations(a.id, {
-          operations: [{ kind: "delta", operation_id: "z8", delta: a.target!, client_recorded_at: nowIso() }],
-        });
+      const r = await b.data().session.applyCounterOperations(a.id, {
+        operations: [{ kind: "delta", operation_id: "z8", delta: a.target!, client_recorded_at: nowIso() }],
+      });
       expect(r.results[0]).toMatchObject({ completed: true, authoritative_count: a.target });
       expect(counter(await b.data().session.getSession(s.id), "pf_allahu_akbar_kabira", "post_fajr").completed).toBe(
         true,
@@ -211,11 +205,9 @@ describe("worship over HTTP: the live data layer end to end", () => {
     it("a client clock far ahead does not move the server's record", async () => {
       const { b, s } = await user("z9@ngajigaes.test");
       const id = counter(s, "istighfar").id;
-      await b
-        .data()
-        .session.applyCounterOperations(id, {
-          operations: [{ kind: "delta", operation_id: "z9", delta: 1, client_recorded_at: "2099-01-01T00:00:00.000Z" }],
-        });
+      await b.data().session.applyCounterOperations(id, {
+        operations: [{ kind: "delta", operation_id: "z9", delta: 1, client_recorded_at: "2099-01-01T00:00:00.000Z" }],
+      });
       const row = await env.db.exec(
         "select client_recorded_at < now() + interval '1 day' as sane from public.counter_operations where client_operation_id = 'z9'",
       );
@@ -330,11 +322,9 @@ describe("worship over HTTP: the live data layer end to end", () => {
       expect((await b.data().session.getSession(s.id)).correction_window_open).toBe(false);
       const e = await errorOf(b.data().session.setChecklist(ck.id, { checked: false, version: ck.version + 1 }));
       expect(e).toMatchObject({ code: "SESSION_LOCKED" });
-      const r = await b
-        .data()
-        .session.applyCounterOperations(ct.id, {
-          operations: [{ kind: "delta", operation_id: "late-1", delta: 5, client_recorded_at: nowIso() }],
-        });
+      const r = await b.data().session.applyCounterOperations(ct.id, {
+        operations: [{ kind: "delta", operation_id: "late-1", delta: 5, client_recorded_at: nowIso() }],
+      });
       expect(r.results[0]).toMatchObject({ status: "rejected", error_code: "SESSION_LOCKED" });
       await env.setNow("2026-11-12T02:00:00+07:00");
     });
@@ -546,6 +536,28 @@ describe("worship over HTTP: the live data layer end to end", () => {
       });
     });
 
+    it("passes the provider's cross-check and attribution through, and never invents them (U1b)", async () => {
+      const b = await env.onboarded("f1b@ngajigaes.test");
+      const none = await b.data().prayer.getNextFajr();
+      expect(none.verification ?? null).toBeNull();
+      expect(none.attribution ?? null).toBeNull();
+      await env.db.exec(
+        "update public.prayer_times set verification = 'verified', attribution = 'Bimas Islam Kemenag RI via EQuran.id' where local_date = '2026-11-12'",
+      );
+      expect(await b.data().prayer.getNextFajr()).toMatchObject({
+        verification: "verified",
+        attribution: "Bimas Islam Kemenag RI via EQuran.id",
+      });
+      await env.db.exec("update public.prayer_times set verification = 'needs_review' where local_date = '2026-11-12'");
+      expect((await b.data().prayer.getNextFajr()).verification).toBe("needs_review");
+      const manual = await b
+        .data()
+        .profile.setLocation({ mode: "manual", timezone: "Asia/Jakarta", fajr_time: "04:30" });
+      expect(manual.verification ?? null).toBeNull();
+      expect(manual.attribution ?? null).toBeNull();
+      await env.db.exec("update public.prayer_times set verification = null, attribution = null");
+    });
+
     it("manual schedule: labelled 'Diatur manual', in the user's zone", async () => {
       const b = await env.onboarded("f2@ngajigaes.test");
       const pt = await b
@@ -588,12 +600,10 @@ describe("worship over HTTP: the live data layer end to end", () => {
         source: "provider",
       });
       expect(w.sleep_hours).toBeCloseTo(5.33, 1); // from the default 22:00 bedtime
-      await b
-        .data()
-        .notifications.putPreferences({
-          ...(await b.data().notifications.getPreferences()),
-          bedtime: { enabled: true, target_sleep_time: "23:30", offset_minutes: 30 },
-        });
+      await b.data().notifications.putPreferences({
+        ...(await b.data().notifications.getPreferences()),
+        bedtime: { enabled: true, target_sleep_time: "23:30", offset_minutes: 30 },
+      });
       const late = await b.data().prayer.getWakePlan();
       expect(late.sleep_warning).toContain("jam tidur");
     });
