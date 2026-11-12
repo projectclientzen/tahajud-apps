@@ -1,6 +1,6 @@
 # RESUME: titik lanjut orchestrator
 
-> MODE HEMAT (owner): setelah reset 05.40 WIB 13 Nov, owner memakai kuota untuk chat. Agen R4 dihentikan 05.38 dan dilanjutkan HANYA atas perintah owner. Ronde 4 (brief `docs/briefs/R4.md`): Q1 session_01HkFB338Xvtzv5LD9sWjc7V, T3c session_01HkFB2ykqcyzbFnjAwCpmpw, T6 session_01HkFB32LWyp215Gan64Ep4e, T7 session_01HkFB2xi3B8t4zTiTsD2Y3N, masing-masing push WIP ke branch sesinya. Main @ a234d99 (T3b merged, gerbang hijau). Scalev (T5) dikerjakan owner + Hermes; tetap Supabase sampai pindah ke VPS.
+> DIJEDA OLEH OWNER (13 Nov 2026 06.55 WIB): tidak ada agen atau jadwal aktif. Lanjut HANYA atas perintah owner. Posisi: main @ 90fe8ee (Q1 + T3c + T3b merged, CLAUDE.md auth email+password). Rencana Scalev + auth final: branch claude/scalev-email-pass @ 65adeae, docs/sessions/SCALEV-AUTH-PLAN.md §8. Eksekusi bagian 1 (sesi session_01HkFB32vWd22ucHjTFVhCQu) dihentikan sebelum/sesaat setelah mulai; cek branch itu sebelum melanjutkan. T6 (claude/t6-job-runner) dan T7 (claude/t7-admin) WIP, belum merge. Menunggu jawaban Hermes (prompt di docs/HERMES-PROMPT.md).
  (diperbarui 12 Nov 2026 19.50 WIB)
 
 Dipakai jika sesi orchestrator berhenti (limit token, error) dan dilanjutkan oleh jadwal otomatis atau sesi baru.
