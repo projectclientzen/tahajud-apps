@@ -52,3 +52,18 @@ Pertanyaan owner yang masih terbuka (dari agen):
 2. Ambang dan teks insight (`src/domain/reporting/insight.ts`) dibuat agen, perlu dibaca owner.
 3. Salat dicatat satu centang per salat (usulan agen) atau per rakaat.
 4. Bank pesan bedtime minimal 30 pesan belum ada.
+
+## Merge ronde 2: S3 (Agen A) + S4a (Agen B) oleh orchestrator (2026-11-12)
+- Merge ke `main`: `claude/anti-slop-skill-check-sfmm61` (A, `fb40814`) lalu `claude/peaceful-thompson-lwndtd` (B, `452727a`). Tanpa konflik git.
+- Perbaikan integrasi oleh orchestrator: `src/components/dev-panel/dev-panel.tsx` kurang label untuk 2 skenario baru dari S4a (`no_active_access`, `onboarding_pending`), sehingga typecheck merah. Ditambah 2 label.
+- Penyimpangan pembagian file (diterima, kecil): A menambah `DataProvider` + `DevPanel` di `src/app/(app)/layout.tsx`; B menambah 6 baris `ServiceWorkerRegister` di `src/app/layout.tsx`, path baru `src/app/dev/pwa/`, `public/sw.js`, `public/offline.html`, `src/domain/auth/`, `vitest.config.ts`, `.env.example`.
+- Verifikasi di hasil gabungan: typecheck lolos, lint lolos, unit 333/333, e2e 96 passed + 10 skipped (test screenshot, sengaja hanya desktop), `pnpm audit --prod` bersih.
+- Laporan: `docs/sessions/S3.md`, `docs/sessions/S4a.md`.
+
+Belum tersambung (ronde 3): antrean offline S4a ke counter (`TODO(S4a)` di `counter-screen.tsx`), dialog logout, layar login/onboarding, `InstallGuide`/`UpdatePrompt` di layar, Quran Reader, laporan detail, settings.
+
+Pertanyaan owner baru:
+1. Label "Sedang berjalan" untuk sesi `in_progress` (belum ada di PRD §7.7).
+2. Legenda "Amalan tanpa label Opsional adalah syarat sesi tuntas di aplikasi": cukup jelas, tidak terbaca sebagai hukum fikih?
+3. Login perangkat ke-4: keluarkan perangkat terlama (default sekarang) atau tolak.
+4. Sesi login 30 hari dan batas 3 perangkat (PROV).

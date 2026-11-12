@@ -17,6 +17,8 @@ const SCENARIO_LABEL: Record<ScenarioName, string> = {
   stale_schedule: "Jadwal tersimpan (basi)",
   purchase_pending: "Pembelian belum terverifikasi",
   manual_schedule: "Jadwal manual",
+  no_active_access: "Tidak ada akses aktif",
+  onboarding_pending: "Belum onboarding",
 };
 
 const fieldClass =
