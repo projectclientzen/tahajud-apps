@@ -28,7 +28,8 @@ Status: MENUNGGU "gas" dari owner.
 |-------|--------|--------|---------------------|
 | R3 | T1 | T2 | Folder route dan komponen terpisah. `src/components/providers/**` dan `shell/**` hanya milik T1; T2 memakai hooks yang ada |
 | R3+ | T4 (Agen C, mulai lebih awal karena file tidak beririsan dengan T1/T2) | | T4: `scripts/`, `content/quran/`, `src/server/prayer|push/`, `tests/unit/server/`. Environment `tahajud-apps` (izin tanzil.net) |
-| R4 | T3 | (T4 lanjutan: sambung teks ke Reader setelah T2 merged) | T3: `supabase/`, `src/server/` (kecuali `prayer/`, `push/`), `api/v1`, `src/data/http` |
+| R3+ | T3a (Agen B lama: skema DB, RLS, fungsi SQL; hanya `supabase/**`, `tests/db/**`) | | Tidak beririsan dengan T1/T2/T4 |
+| R4 | T3b (route handler, http layer, auth server) | (T4 lanjutan: sambung teks ke Reader setelah T2 merged) | T3: `supabase/`, `src/server/` (kecuali `prayer/`, `push/`), `api/v1`, `src/data/http` |
 | R5 | T5 | T6 | Migration dipisah per prefix nama file; folder server berbeda |
 | R6 | T7 | (kosong) | Admin menyentuh banyak area; dikerjakan sendiri |
 | R7 | T8 | (kosong) | QA lintas modul |
