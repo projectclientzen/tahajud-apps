@@ -22,6 +22,14 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     timeout: 240_000,
     reuseExistingServer: !process.env.CI,
-    env: { NEXT_PUBLIC_ENABLE_DEV_ROUTES: "true", NEXT_PUBLIC_DATA_MODE: "mock", NEXT_TELEMETRY_DISABLED: "1" },
+    env: {
+      NEXT_PUBLIC_ENABLE_DEV_ROUTES: "true",
+      NEXT_PUBLIC_DATA_MODE: "mock",
+      // A fresh browser starts signed in as the demo user, so specs that test other features need no login steps.
+      // Specs for sign-in itself switch to "Belum masuk" through the demo tools.
+      NEXT_PUBLIC_DEMO_AUTH_SCENARIO: "logged_in",
+      NEXT_PUBLIC_CS_WHATSAPP: "6281234567890",
+      NEXT_TELEMETRY_DISABLED: "1",
+    },
   },
 });

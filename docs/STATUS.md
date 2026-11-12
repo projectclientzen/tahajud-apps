@@ -14,10 +14,10 @@ Spesifikasi berlaku: `docs/PRD-v1.2.md`
 | UI | Worship session + transisi Subuh | SIMULATED | S3: `/worship`, `/worship/session`, banner Subuh, ringkasan inline. Al-Waqi'ah dan Ayat Seribu Dinar berupa centang, Reader menyusul |
 | UI | Dzikir counter | SIMULATED | S3: tap 176px, coalescing domain S2, reset `set_zero`, Wake Lock. Antrean di memori, IndexedDB queue di S4a. Wake Lock dan getar belum diuji di perangkat nyata |
 | UI | Level journey | SIMULATED | S3: `/levels`, state terkunci, milestone Level 3. Syarat level PROVISIONAL |
-| UI | Auth, onboarding, access status | TODO | S4 |
+| UI | Auth, onboarding, access status | SIMULATED | T1: `/login`, `/auth/verify` (OTP 6 digit diketik di app), `/access-status` (3 varian), batas 3 perangkat (perangkat ke-4 ditolak, user memilih satu untuk dikeluarkan), onboarding 3 layar + langkah tambahan, guard route, logout dengan dialog antrean. Semua lewat mock auth (kode OTP hanya dari alat demo, tidak ada email terkirim). Mode live = stub sampai T3. Nomor WhatsApp CS dan link beli Scalev kosong sampai owner mengisi env. Detail: `docs/sessions/T1.md` |
 | UI | Quran Reader | TODO | S4 (UI) / S7 (dataset) |
 | UI | Reports, calendar, settings, notifications, help | TODO | S4 |
-| Offline | IndexedDB queue + service worker | REAL (logic), belum di layar | S4a di branch sesi (belum merge): antrean per user, sender, trigger, SW (shell + aset statis, `/api/` tidak di-cache), offline fallback, komponen panduan pasang. Diuji di Chromium; Safari iOS belum. Auth OTP + profil repository SIMULATED (mock), live = stub sampai S5. Pemasangan ke UI di ronde 3. Detail: `docs/sessions/S4a.md` |
+| Offline | IndexedDB queue + service worker | REAL (logic + terpasang) | T1: `DataProvider` membuat antrean per user, counter menulis ke antrean (IndexedDB) lalu dikirim dari sana, indikator Tersimpan di perangkat / Tersinkron membaca antrean, logout menutup antrean lalu menghapus `tahajud-<userId>`. Checklist belum lewat antrean (masih langsung ke data layer). Diuji di Chromium; Safari iOS belum. Server sungguhan (live) menunggu T3. Detail: `docs/sessions/T1.md`, `docs/sessions/S4a.md` |
 | Backend | Supabase schema + RLS | TODO | S5, butuh project Supabase |
 | Backend | Auth OTP + entitlement guard | TODO | S5 |
 | Backend | API v1 + server progression | TODO | S5 |

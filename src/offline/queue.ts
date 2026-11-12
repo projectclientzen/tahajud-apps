@@ -24,8 +24,9 @@ export class OfflineQueue {
   private items = new Map<number, QueueItem>();
   private loaded: Promise<void> | null = null;
   private listeners = new Set<() => void>();
-  private snap: QueueSnapshot = { pending: 0, rejected: 0, lastSyncedAt: null, flushing: false };
+  private snap: QueueSnapshot = { pending: 0, rejected: 0, lastSyncedAt: null, flushing: false, lastError: null };
   private running: Promise<FlushResult> | null = null;
+  private closed = false;
   private readonly now: () => number;
   private readonly online: () => boolean;
 
@@ -76,6 +77,14 @@ export class OfflineQueue {
     return this.snap.pending;
   }
 
+  /** Notes still waiting (pending or being sent), oldest first. The counter shows them again after a reload. */
+  async listPending(entityId?: string): Promise<QueueItem[]> {
+    await this.ready();
+    return [...this.items.values()]
+      .filter((i) => i.sync_status !== "rejected" && (entityId === undefined || i.entity_id === entityId))
+      .sort((a, b) => a.seq - b.seq);
+  }
+
   async listRejected(): Promise<QueueItem[]> {
     await this.ready();
     return [...this.items.values()].filter((i) => i.sync_status === "rejected");
@@ -103,8 +112,19 @@ export class OfflineQueue {
   }
 
   // ---------- writing ----------
-  /** Add a mutation. Same `operation_id` twice returns the first one. */
+  /**
+   * Stop for good: wait for a send in progress, then ignore every later call. Logout calls this before it
+   * deletes the database, so nothing can write into a database that is about to disappear (SECURITY-06).
+   */
+  async close(): Promise<void> {
+    this.closed = true;
+    await this.running?.catch(() => undefined);
+    this.listeners.clear();
+  }
+
+  /** Add a mutation. Same `operation_id` twice returns the first one. After `close()` nothing is stored. */
   async enqueue(input: NewQueueItem): Promise<QueueItem> {
+    if (this.closed) return this.unstored(input);
     await this.ready();
     const dup = [...this.items.values()].find((i) => i.operation_id === input.operation_id);
     if (dup) return dup;
@@ -127,6 +147,22 @@ export class OfflineQueue {
     this.refresh();
     if (this.o.flushOnEnqueue ?? true) void this.flushDue();
     return stored;
+  }
+
+  private unstored(input: NewQueueItem): QueueItem {
+    return {
+      operation_id: input.operation_id,
+      user_id: this.o.userId,
+      entity_id: input.entity_id,
+      operation_type: input.operation_type,
+      payload: input.payload,
+      client_timestamp: input.client_timestamp ?? new Date(this.now()).toISOString(),
+      sync_status: "rejected",
+      attempt_count: 0,
+      next_attempt_at: null,
+      last_error: "CLOSED",
+      seq: -1,
+    };
   }
 
   /** Remove refused notes after the UI has shown them. No ids means all. */
@@ -154,6 +190,7 @@ export class OfflineQueue {
   }
 
   private flush(force: boolean): Promise<FlushResult> {
+    if (this.closed) return Promise.resolve({ status: "offline" });
     this.running ??= this.run(force).finally(() => {
       this.running = null;
       this.refresh({ flushing: false });
@@ -163,16 +200,22 @@ export class OfflineQueue {
 
   private async run(force: boolean): Promise<FlushResult> {
     await this.ready();
-    if (!this.online()) return { status: "offline" };
+    if (!this.online()) {
+      if (this.snap.pending > 0) this.refresh({ lastError: "OFFLINE" });
+      return { status: "offline" };
+    }
     this.refresh({ flushing: true });
     const db = await openUserDb(this.o.userId);
     const total = { synced: 0, rejected: 0, retry: 0 };
+    let lastError: string | null = null;
+    let attempted = false;
     for (;;) {
       const due = [...this.items.values()]
         .filter((i) => i.sync_status === "pending" && (force || (i.next_attempt_at ?? 0) <= this.now()))
         .sort((a, b) => a.seq - b.seq)
         .slice(0, CHUNK);
       if (due.length === 0) break;
+      attempted = true;
       for (const it of due) {
         it.sync_status = "syncing";
         await db.put(STORE_QUEUE, it);
@@ -203,12 +246,14 @@ export class OfflineQueue {
           await db.put(STORE_QUEUE, it);
           total.retry++;
           hadRetry = true;
+          lastError = out.error;
         }
       }
       this.refresh(total.synced > 0 ? { lastSyncedAt: this.now() } : {});
       if (hadRetry) break; // do not hammer a server that just failed
       force = false; // later chunks respect backoff of items that were retried earlier
     }
+    if (attempted) this.refresh({ lastError });
     return { status: "done", ...total };
   }
 }
