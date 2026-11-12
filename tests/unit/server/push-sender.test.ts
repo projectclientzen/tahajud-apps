@@ -38,15 +38,36 @@ function makeSub(path: string): PushSubscriptionRecord {
   };
 }
 
-const payload: NotificationPayload = { type: "tahajud", title: "Waktunya tahajud", body: "Yuk bangun pelan-pelan.", url: "/dashboard" };
+const payload: NotificationPayload = {
+  type: "tahajud",
+  title: "Waktunya tahajud",
+  body: "Yuk bangun pelan-pelan.",
+  url: "/dashboard",
+};
 
 beforeAll(async () => {
   dir = mkdtempSync(join(tmpdir(), "push-test-"));
-  execFileSync("openssl", [
-    "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1", "-subj", "/CN=127.0.0.1",
-    "-addext", "subjectAltName=IP:127.0.0.1",
-    "-keyout", join(dir, "key.pem"), "-out", join(dir, "cert.pem"),
-  ], { stdio: "ignore" });
+  execFileSync(
+    "openssl",
+    [
+      "req",
+      "-x509",
+      "-newkey",
+      "rsa:2048",
+      "-nodes",
+      "-days",
+      "1",
+      "-subj",
+      "/CN=127.0.0.1",
+      "-addext",
+      "subjectAltName=IP:127.0.0.1",
+      "-keyout",
+      join(dir, "key.pem"),
+      "-out",
+      join(dir, "cert.pem"),
+    ],
+    { stdio: "ignore" },
+  );
   const cert = readFileSync(join(dir, "cert.pem"));
   server = createServer({ key: readFileSync(join(dir, "key.pem")), cert }, (req, res) => {
     req.resume();
@@ -66,8 +87,7 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-const sender = (extra = {}) =>
-  new WebPushSender({ vapid: toVapid(), agent, sleep: async () => {}, ...extra });
+const sender = (extra = {}) => new WebPushSender({ vapid: toVapid(), agent, sleep: async () => {}, ...extra });
 
 describe("WebPushSender", () => {
   it("sends with VAPID auth and a TTL", async () => {

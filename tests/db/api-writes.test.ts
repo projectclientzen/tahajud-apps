@@ -676,8 +676,8 @@ describe("devices, sessions and the 3 device limit (PRD §24.1)", () => {
       ids[2],
       NOW,
     ]);
-    // the device_sessions row is gone, so the cookie no longer matches anything
-    expect((await resolve(ids[2]!, "r3", NOW)).state).toBe("none");
+    // the cookie of the removed device now reads as revoked, which the app explains to the user
+    expect((await resolve(ids[2]!, "r3", NOW)).state).toBe("revoked");
     expect((await start(u, "D4", "r4")).status).toBe("ok");
   });
 
@@ -703,7 +703,7 @@ describe("devices, sessions and the 3 device limit (PRD §24.1)", () => {
     const a = (await start(u, "A", "o1")).device_id!;
     const b = (await start(u, "B", "o2")).device_id!;
     await pg.query("select app_private.logout_device($1::uuid, $2::uuid, $3::timestamptz)", [u, a, NOW]);
-    expect((await resolve(a, "o1", NOW)).state).toBe("none");
+    expect((await resolve(a, "o1", NOW)).state).toBe("revoked");
     expect((await resolve(b, "o2", NOW)).state).toBe("ok");
   });
 
@@ -745,7 +745,7 @@ describe("devices, sessions and the 3 device limit (PRD §24.1)", () => {
       const res = (r as { ok: true; rows: { r: { status: string; device_id: string; user_id: string } }[] }).rows[0]!.r;
       expect(res).toMatchObject({ status: "ok", user_id: u });
       expect((await resolve(res.device_id, "new-session", NOW)).state).toBe("ok");
-      expect((await resolve(ids[1]!, `p2-${u}`, NOW)).state).toBe("none");
+      expect((await resolve(ids[1]!, `p2-${u}`, NOW)).state).toBe("revoked");
       const again = await complete("t-once", ids[0]!);
       expect(again).toMatchObject({ ok: false, error: { message: "PENDING_LOGIN_INVALID" } });
       expect((await resolve(ids[0]!, `p1-${u}`, NOW)).state).toBe("ok"); // the second try removed nothing

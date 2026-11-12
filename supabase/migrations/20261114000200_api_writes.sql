@@ -142,7 +142,7 @@ end $$;
 create or replace function app_private.devices_json(p_uid uuid, p_current uuid) returns jsonb
 language sql stable set search_path = '' as $$
   select coalesce(pg_catalog.jsonb_agg(pg_catalog.jsonb_build_object(
-    'id', d.id, 'label', d.label, 'last_seen_at', app_private.iso(d.last_seen_at), 'is_current', d.id = p_current)
+    'id', d.id, 'label', d.label, 'last_seen_at', app_private.iso(d.last_seen_at), 'is_current', coalesce(d.id = p_current, false))
     order by d.last_seen_at desc), '[]'::jsonb)
   from public.user_devices d where d.user_id = p_uid and d.revoked_at is null
 $$;
@@ -188,7 +188,6 @@ begin
   update public.user_devices set revoked_at = p_now
     where id = p_revoke_device_id and user_id = pl.user_id and revoked_at is null;
   if not found then perform app_private.fail('NOT_FOUND', 'device'); end if;
-  delete from public.device_sessions where device_id = p_revoke_device_id;
   update public.pending_logins set used_at = p_now where token_hash = p_token_hash;
   v_res := app_private.start_device_session(pl.user_id, p_label, p_session_hash, p_now);
   return v_res || pg_catalog.jsonb_build_object('user_id', pl.user_id);
@@ -218,10 +217,10 @@ begin
     'device_id', d.id, 'expires_at', app_private.iso(v_exp));
 end $$;
 
+-- A revoked device keeps its cookie hash on purpose: the cookie then reads as "revoked", not as "never signed in" (PRD §24.1).
 create or replace function app_private.logout_device(p_uid uuid, p_device_id uuid, p_now timestamptz) returns void
 language sql set search_path = '' as $$
-  with d as (update public.user_devices set revoked_at = p_now where id = p_device_id and user_id = p_uid and revoked_at is null returning id)
-  delete from public.device_sessions where device_id in (select id from d)
+  update public.user_devices set revoked_at = p_now where id = p_device_id and user_id = p_uid and revoked_at is null
 $$;
 
 create or replace function app_private.revoke_device(p_uid uuid, p_current uuid, p_target uuid, p_now timestamptz) returns void
@@ -230,7 +229,6 @@ begin
   if p_target = p_current then perform app_private.fail('VALIDATION_ERROR', 'current device'); end if;
   update public.user_devices set revoked_at = p_now where id = p_target and user_id = p_uid and revoked_at is null;
   if not found then perform app_private.fail('NOT_FOUND'); end if;
-  delete from public.device_sessions where device_id = p_target;
 end $$;
 
 -- ---------- profile, location, onboarding, display preferences ----------
