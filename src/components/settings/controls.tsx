@@ -8,13 +8,16 @@ export function Section({
   title,
   description,
   children,
+  id,
 }: {
   title: string;
   description?: string;
   children: React.ReactNode;
+  /** Anchor for the jump links at the top of the settings screen. */
+  id?: string;
 }) {
   return (
-    <Card className="flex flex-col gap-4">
+    <Card id={id} className="flex scroll-mt-4 flex-col gap-4">
       <div className="flex flex-col gap-1">
         <CardTitle>{title}</CardTitle>
         {description ? <p className="text-text-muted">{description}</p> : null}

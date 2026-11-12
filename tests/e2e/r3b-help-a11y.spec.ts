@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { seedSignedIn, withQuranFixture } from "./r3b-fixtures";
+import { seedSignedIn } from "./r3b-fixtures";
 
 test("bantuan: referensi dari konten owner, disclaimer, CS tersembunyi bila env kosong", async ({ page }) => {
   await page.goto("/help");
@@ -30,11 +30,10 @@ async function serious(page: Page, label: string) {
 for (const theme of ["light", "dark"] as const) {
   test(`axe dan overflow: rute T2 (${theme})`, async ({ page }) => {
     await page.addInitScript((t) => localStorage.setItem("tt-theme", t), theme);
-    await withQuranFixture(page);
     await seedSignedIn(page);
     const routes: [string, string][] = [
       ["/quran", "Yasin"],
-      ["/quran/36", "Ayat uji 1"],
+      ["/quran/36", "Progres bacaan"],
       ["/reports", "Tingkat tuntas"],
       ["/reports/calendar", "Riwayat istiqomah"],
       ["/settings", "Tampilan"],

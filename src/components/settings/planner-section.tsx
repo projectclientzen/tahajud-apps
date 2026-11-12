@@ -63,6 +63,7 @@ export function PlannerSection({ prefs, onPrefs, fajr, level }: Props) {
 
   return (
     <Section
+      id="jam-bangun"
       title="Jam bangun"
       description="Jam bangun = Subuh dikurangi durasi ibadah dan waktu persiapan. Angka awal masih usulan (belum disetujui)."
     >

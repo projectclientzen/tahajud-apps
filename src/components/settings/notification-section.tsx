@@ -42,6 +42,7 @@ export function NotificationSection({
 
   return (
     <Section
+      id="pengingat"
       title="Notifikasi"
       description="Pengingat bersifat usaha terbaik. Tetap pasang alarm di perangkat sebagai cadangan."
     >

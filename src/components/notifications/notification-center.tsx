@@ -9,6 +9,8 @@ import { PageHeader } from "@/components/shell/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { EmptyState, PermissionDeniedState } from "@/components/ui/feedback-state";
+import { cn } from "@/lib/cn";
+import { ScheduleNote } from "@/components/settings/schedule-note";
 import { formatClock, tzLabel } from "@/lib/format-id";
 import { detectPlatform, isStandalone } from "@/offline/platform";
 import { DEMO_HISTORY } from "./demo-history";
@@ -45,6 +47,7 @@ function ManualAlarm({ highlight }: { highlight: boolean }) {
           "Jadwal Subuh belum tersedia. Atur wilayah di Pengaturan untuk melihat jam bangun."
         )}
       </p>
+      {data ? <ScheduleNote fajr={data.fajr} /> : null}
       <ol className="list-decimal pl-5 text-text-muted">
         <li>Buka aplikasi Jam di HP.</li>
         <li>Buat alarm di jam bangun tadi, lalu beri nama Tahajud.</li>
@@ -77,7 +80,7 @@ export function NotificationCenter() {
       <PageHeader
         title="Notifikasi"
         actions={
-          <Link href="/settings" className={buttonVariants({ variant: "secondary" })}>
+          <Link href="/settings" className={cn(buttonVariants({ variant: "secondary" }), "min-h-11 px-4")}>
             Atur pengingat
           </Link>
         }

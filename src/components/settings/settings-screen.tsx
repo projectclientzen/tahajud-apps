@@ -12,6 +12,13 @@ import { LocationSection } from "./location-section";
 import { NotificationSection } from "./notification-section";
 import { PlannerSection } from "./planner-section";
 
+const SECTIONS = [
+  ["tampilan", "Tampilan"],
+  ["jam-bangun", "Jam bangun"],
+  ["pengingat", "Pengingat"],
+  ["wilayah", "Wilayah"],
+] as const;
+
 export function SettingsScreen() {
   const { data, error, loading, reload } = useLoad(async (l) => {
     const [profile, prefs, regions, fajr, level] = await Promise.all([
@@ -43,6 +50,20 @@ export function SettingsScreen() {
       >
         {(d) => (
           <div className="flex flex-col gap-6">
+            <nav aria-label="Bagian pengaturan" className="-mt-2">
+              <ul className="flex flex-wrap gap-2">
+                {SECTIONS.map(([id, label]) => (
+                  <li key={id}>
+                    <a
+                      href={`#${id}`}
+                      className="inline-flex min-h-11 items-center rounded-full border border-border-strong bg-surface px-4 text-helper font-medium hover:bg-surface-2"
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
             <AppearanceSection profile={d.profile} onChange={setProfile} />
             <PlannerSection prefs={d.prefs} onPrefs={setPrefs} fajr={d.fajr} level={d.level} />
             <NotificationSection prefs={d.prefs} onPrefs={setPrefs} />
