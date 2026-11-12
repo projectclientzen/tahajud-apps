@@ -45,7 +45,7 @@ import {
 } from "@/server/auth/service";
 import { clearSessionCookie } from "@/server/auth/cookie";
 import { one, UUID_RE, type Queryable } from "@/server/db";
-import { deleteAccount, exportData } from "./account";
+import { deleteAccount, exportData, selfDeleteEnabled } from "./account";
 import { getDashboard, getPrayerTime, getReport, getWakePlan } from "./compose";
 import { jsonResponse, readBody } from "./http";
 import { getSurah, listSurahs } from "./quran";
@@ -497,6 +497,15 @@ export const h = {
   deleteAccount: route({
     auth: "user",
     handler: async (c) => {
+      // Switched off by default: refuse before reading the body, so nothing about the request matters.
+      if (!selfDeleteEnabled())
+        throw new ApiError(
+          "FEATURE_DISABLED",
+          "Hapus akun mandiri belum tersedia. Hubungi CS untuk permintaan penghapusan data.",
+          {
+            reason: "self_delete_disabled",
+          },
+        );
       await readBody(c.req, deleteAccountRequestSchema);
       const r = await deleteAccount(c.d, c.user, c.caller.secure);
       c.cookies.push(r.cookie);

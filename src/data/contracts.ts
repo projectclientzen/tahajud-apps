@@ -28,6 +28,8 @@ export const API_ERROR_CODES = [
   "FORBIDDEN_ORIGIN",
   /** An unexpected failure on the server that is not a lost connection. 500. */
   "INTERNAL_ERROR",
+  /** The feature exists but the operator has switched it off (for example ACCOUNT_SELF_DELETE). 403. */
+  "FEATURE_DISABLED",
 ] as const;
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
 export const apiErrorSchema = z.object({

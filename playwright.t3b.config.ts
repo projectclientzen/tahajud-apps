@@ -37,6 +37,8 @@ export default defineConfig({
       TAHAJUD_ALLOW_LOCAL_AUTH: "true",
       TAHAJUD_MAIL_DIR: MAIL_DIR,
       TAHAJUD_TEST_DB_SQL: "tests/e2e/t3b-fixtures.sql,tests/e2e/t3c-fixtures.sql",
+      // The delete flow is tested here, so self-service deletion is on. Off by default everywhere else.
+      ACCOUNT_SELF_DELETE: "true",
       SESSION_PEPPER: "e2e-pepper-e2e-pepper-e2e-pepper-123456",
     },
   },

@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ApiError, dataExportSchema, quranSurahDetailSchema, quranSurahListSchema } from "@/data/contracts";
 import { createHttpDataLayer } from "@/data/http";
 import { hmacHex } from "@/server/auth/crypto";
+import { selfDeleteEnabled } from "@/server/api/account";
 import { getSurah, listSurahs } from "@/server/api/quran";
 import { createApiEnv, dispatch, ORIGIN, type ApiEnv, type TestBrowser } from "./api-harness";
 
@@ -574,7 +575,13 @@ describe("account export and delete (PRD §24.4, PRIV-02)", () => {
     });
   });
 
-  describe("delete", () => {
+  describe("delete (switched on)", () => {
+    beforeAll(() => {
+      process.env.ACCOUNT_SELF_DELETE = "true";
+    });
+    afterAll(() => {
+      delete process.env.ACCOUNT_SELF_DELETE;
+    });
     it("without confirm: true it does nothing", async () => {
       const u = await fill("del-confirm@ngajigaes.test");
       for (const body of [undefined, {}, { confirm: false }, { confirm: "true" }, { confirm: 1 }, []]) {
@@ -744,6 +751,63 @@ describe("account export and delete (PRD §24.4, PRIV-02)", () => {
       ).toBe(0);
       expect((await u.auth().getSession()).authenticated).toBe(true);
     });
+  });
+});
+
+describe("self-service delete is off by default (ACCOUNT_SELF_DELETE)", () => {
+  let env: ApiEnv;
+  beforeAll(async () => {
+    env = await createApiEnv();
+  });
+  afterAll(async () => {
+    delete process.env.ACCOUNT_SELF_DELETE;
+    await env.close();
+  });
+
+  it.each([undefined, "", "false", "0", "yes", "1", "TRUEISH"])(
+    "ACCOUNT_SELF_DELETE=%s answers 403 FEATURE_DISABLED and deletes nothing",
+    async (value) => {
+      if (value === undefined) delete process.env.ACCOUNT_SELF_DELETE;
+      else process.env.ACCOUNT_SELF_DELETE = value;
+      const email = `off-${String(value).toLowerCase()}@ngajigaes.test`;
+      const u = await env.onboarded(email);
+      const res = await u.json("/me/delete-account", "POST", { confirm: true });
+      expect(res.status).toBe(403);
+      const err = (await res.json()).error;
+      expect(err.code).toBe("FEATURE_DISABLED");
+      expect(err.details).toMatchObject({ reason: "self_delete_disabled" });
+      expect(err.message).toMatch(/CS/);
+      expect((await u.auth().getSession()).authenticated).toBe(true);
+      expect((await env.db.exec("select 1 from public.profiles where email_normalized = $1", [email])).length).toBe(1);
+      expect((await env.db.exec("select 1 from public.data_deletion_requests")).length).toBe(0);
+    },
+  );
+
+  it("answers the same with an empty body, and still needs a session and the right Origin", async () => {
+    delete process.env.ACCOUNT_SELF_DELETE;
+    const u = await env.onboarded("off-empty@ngajigaes.test");
+    expect((await u.json("/me/delete-account", "POST", undefined)).status).toBe(403);
+    expect((await env.browser().json("/me/delete-account", "POST", { confirm: true })).status).toBe(401);
+    const evil = await u.raw("/me/delete-account", {
+      method: "POST",
+      headers: { origin: "https://evil.example" },
+      body: "{}",
+    });
+    expect((await evil.json()).error.code).toBe("FORBIDDEN_ORIGIN");
+  });
+
+  it("the http client surfaces the code, and data export stays on", async () => {
+    delete process.env.ACCOUNT_SELF_DELETE;
+    const u = await env.onboarded("off-client@ngajigaes.test");
+    await expect(u.data().account.deleteAccount()).rejects.toMatchObject({ code: "FEATURE_DISABLED" });
+    expect((await u.data().account.exportData()).account.email).toBe("off-client@ngajigaes.test");
+  });
+
+  it("is on only for the exact value true (any case, spaces ignored)", () => {
+    expect(selfDeleteEnabled({ ACCOUNT_SELF_DELETE: " True " })).toBe(true);
+    expect(selfDeleteEnabled({ ACCOUNT_SELF_DELETE: "true" })).toBe(true);
+    expect(selfDeleteEnabled({})).toBe(false);
+    expect(selfDeleteEnabled({ ACCOUNT_SELF_DELETE: "false" })).toBe(false);
   });
 });
 

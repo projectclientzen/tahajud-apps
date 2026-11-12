@@ -22,6 +22,14 @@ async function userLimit(d: Deps, scope: string, userId: string, windowSeconds: 
   }
 }
 
+/**
+ * Self-service account deletion is off unless the operator turns it on (ACCOUNT_SELF_DELETE=true). Access follows the
+ * purchase email, so for now deletion requests go through support. The deletion function itself stays and is tested.
+ */
+export function selfDeleteEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return env.ACCOUNT_SELF_DELETE?.trim().toLowerCase() === "true";
+}
+
 /** POST /me/data-export. A big read, so a few per hour. Works for a user whose access ended. */
 export async function exportData(d: Deps, user: AuthedUser): Promise<DataExport> {
   await userLimit(d, "export", user.userId, 3600, 5);
@@ -40,6 +48,15 @@ export async function deleteAccount(
   user: AuthedUser,
   secure: boolean,
 ): Promise<{ body: DeleteAccountResponse; cookie: string }> {
+  if (!selfDeleteEnabled()) {
+    throw new ApiError(
+      "FEATURE_DISABLED",
+      "Hapus akun mandiri belum tersedia. Hubungi CS untuk permintaan penghapusan data.",
+      {
+        reason: "self_delete_disabled",
+      },
+    );
+  }
   await userLimit(d, "delete", user.userId, 3600, 5);
   const now = d.now().toISOString();
   const out = await d.db.asService(async (q) => {
