@@ -1,5 +1,5 @@
 import { ApiError } from "../contracts";
-import type { DataLayer } from "../repositories";
+import type { AuthRepository, DataLayer } from "../repositories";
 
 /** Real client arrives with the /api/v1 backend in S5. Until then every call fails with a clear message. */
 const UNAVAILABLE = "Mode live belum tersedia sampai S5. Set NEXT_PUBLIC_DATA_MODE=mock untuk data demo.";
@@ -24,5 +24,10 @@ export function createHttpDataLayer(): DataLayer {
     prayer: stub(),
     quran: stub(),
     notifications: stub(),
+    profile: stub(),
   };
+}
+
+export function createHttpAuthRepository(): AuthRepository {
+  return stub();
 }

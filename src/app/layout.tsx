@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Amiri_Quran, Plus_Jakarta_Sans } from "next/font/google";
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
@@ -45,7 +46,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {/* Sets data-theme before first paint to avoid a bright flash at night. */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ServiceWorkerRegister />
+      </body>
     </html>
   );
 }

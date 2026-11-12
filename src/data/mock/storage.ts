@@ -1,26 +1,19 @@
-import { openDB } from "idb";
+import { openUserDb, STORE_STATE } from "../user-db";
 import type { MockState, StateStorage } from "./state";
 
-const STORE = "state";
 const KEY = "mock";
 
-/** IndexedDB database `tahajud-<userId>`: one database per user (PRD §21.2). */
+/** IndexedDB database `tahajud-<userId>`, shared with the offline queue (see ../user-db). */
 export function idbStorage(userId: string): StateStorage {
-  const db = () =>
-    openDB(`tahajud-${userId}`, 1, {
-      upgrade(d) {
-        d.createObjectStore(STORE);
-      },
-    });
   return {
     async load() {
-      return ((await (await db()).get(STORE, KEY)) as MockState | undefined) ?? null;
+      return ((await (await openUserDb(userId)).get(STORE_STATE, KEY)) as MockState | undefined) ?? null;
     },
     async save(state) {
-      await (await db()).put(STORE, state, KEY);
+      await (await openUserDb(userId)).put(STORE_STATE, state, KEY);
     },
     async clear() {
-      await (await db()).delete(STORE, KEY);
+      await (await openUserDb(userId)).delete(STORE_STATE, KEY);
     },
   };
 }
