@@ -1,26 +1,19 @@
 import { openDB } from "idb";
 import { PENDING_LOGIN_TTL_MS, checkDeviceLimit, checkPendingLogin, type PendingLogin } from "@/domain/auth/devices";
 import { isPlausibleEmail, normalizeEmail } from "@/domain/auth/email";
-import {
-  OTP_RULES,
-  checkOtp,
-  decideOtpRequest,
-  generateOtp,
-  isValidOtpFormat,
-  newOtpRecord,
-  type OtpRecord,
-} from "@/domain/auth/otp";
+import { normalizePhone } from "@/domain/auth/phone";
+import { PASSWORD_PROBLEM_MESSAGE, checkPassword, normalizePassword } from "@/domain/auth/password-policy";
+import { addAttempt, isThrottled } from "@/domain/auth/throttle";
 import { PROVISIONAL_AUTH } from "@/domain/config/provisional";
 import {
   ApiError,
-  requestOtpRequestSchema,
-  verifyOtpRequestSchema,
+  activateRequestSchema,
+  loginRequestSchema,
   type Access,
   type AuthSession,
   type Device,
-  type RequestOtpResponse,
-  type VerifyOtpResponse,
-  type VerifyOtpResult,
+  type SignInResponse,
+  type SignInResult,
 } from "../contracts";
 import type { AuthRepository } from "../repositories";
 import type { Clock } from "./engine";
@@ -43,19 +36,33 @@ export interface MockSession {
   expiresAt: number;
 }
 
+/** DEMO order: the email and phone a buyer used at checkout. The phone is stored normalized, as `628...`. */
+export interface DemoOrder {
+  phone: string;
+}
+
+/** DEMO account. The hash is SHA-256 for the demo only: it never protects anything real. */
+export interface DemoAccount {
+  userId: string;
+  passwordHash: string;
+}
+
 /** What the mock auth "server" remembers. Not per user: it exists before anyone is signed in. */
 export interface AuthState {
-  schemaVersion: 1;
+  schemaVersion: 2;
   scenario: AuthScenarioName;
-  otps: Record<string, OtpRecord>;
-  sentAt: Record<string, number[]>;
-  /** Dev tools only. A real server emails the code; the production UI never shows it. */
-  outbox: { to: string; code: string; sentAt: number }[];
+  /** Paid demo orders by email. Activation needs email AND phone to match one of them. */
+  orders: Record<string, DemoOrder>;
+  accounts: Record<string, DemoAccount>;
+  /** Failed attempts by key (`login:<email>`, `act:<email>`, `act:phone:<digits>`), as times. */
+  fails: Record<string, number[]>;
+  /** Admin reset links made in the dev tools. Token -> account. */
+  resetTokens: Record<string, { email: string; expiresAt: number; used: boolean }>;
   entitlements: Record<string, EntitlementStatus>;
   session: MockSession | null;
   signedOutReason: "none" | "expired" | "revoked";
   devices: Record<string, DeviceRecord[]>;
-  /** Right code but 3 devices active (PRD §24.1). Token -> who is waiting. Absent in older saved states. */
+  /** Right password but 3 devices active (PRD §24.1). Token -> who is waiting. */
   pendingLogins?: Record<string, PendingLogin>;
   clockOverride: string | null;
 }
@@ -98,8 +105,19 @@ export interface AuthOptions {
   onboardingCompleted?: (userId: string) => Promise<boolean>;
 }
 
-const GENERIC_SENT = "Jika email ini punya akses, kode 6 digit sudah dikirim. Cek juga folder spam.";
-const BAD_CODE = "Kode tidak valid atau sudah kedaluwarsa.";
+const BAD_LOGIN = "Email atau password salah.";
+const ACTIVATION_FAILED = "Data tidak cocok atau akun sudah aktif. Coba masuk, atau hubungi CS.";
+const TOO_MANY = "Terlalu sering mencoba. Coba lagi sebentar.";
+const FAIL_WINDOW_MS = 15 * 60_000;
+
+/** Demo hashing only. Real hashing is scrypt on the server (src/server/auth/password.ts). */
+async function demoHash(password: string): Promise<string> {
+  const buf = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(`tt-demo-only:${normalizePassword(password)}`),
+  );
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 const cryptoInt = (max: number): number => {
   const a = new Uint32Array(1);
@@ -138,7 +156,9 @@ export class MockAuth implements AuthRepository {
     const epoch = this.epoch;
     const stored = await this.o.storage.load();
     if (epoch !== this.epoch) return this.s();
-    const st = stored ?? buildAuthScenario(this.o.scenario ?? "logged_out", this.o.clock.now().getTime());
+    // Saved state from before the email + password change (OTP era) is dropped: it has no accounts or orders.
+    const usable = stored && stored.schemaVersion === 2 ? stored : null;
+    const st = usable ?? buildAuthScenario(this.o.scenario ?? "logged_out", this.o.clock.now().getTime());
     st.pendingLogins ??= {};
     this.state = st;
     await this.save();
@@ -155,47 +175,18 @@ export class MockAuth implements AuthRepository {
     return next;
   };
 
-  async requestOtp(raw: string): Promise<RequestOtpResponse> {
-    const { email: input } = requestOtpRequestSchema.parse({ email: raw });
-    if (!isPlausibleEmail(input)) throw new ApiError("VALIDATION_ERROR", "Format email belum benar.");
-    const st = await this.s();
-    const email = normalizeEmail(input);
-    const now = this.nowMs();
-    const d = decideOtpRequest(st.sentAt[email] ?? [], now);
-    if (!d.ok) {
-      throw new ApiError("RATE_LIMITED", "Terlalu sering meminta kode. Coba lagi sebentar.", {
-        reason: d.reason,
-        retry_after_seconds: d.retryAfterSeconds,
-      });
-    }
-    // Same path for every email: the answer below never depends on entitlement.
-    const code = generateOtp(this.random);
-    st.otps[email] = newOtpRecord(code, now);
-    st.sentAt[email] = [...(st.sentAt[email] ?? []).filter((t) => now - t < OTP_RULES.windowMs), now];
-    st.outbox.push({ to: email, code, sentAt: now });
-    await this.save();
-    return { ok: true, message: GENERIC_SENT, resend_after_seconds: OTP_RULES.resendCooldownMs / 1000 };
-  }
-
-  async verifyOtp(raw: string, code: string, deviceLabel = "Perangkat baru"): Promise<VerifyOtpResult> {
-    const req = verifyOtpRequestSchema.safeParse({ email: raw, code });
-    if (!req.success || !isValidOtpFormat(code)) throw new ApiError("INVALID_OTP", BAD_CODE);
-    const st = await this.s();
-    const email = normalizeEmail(req.data.email);
-    const now = this.nowMs();
-    const r = checkOtp(st.otps[email] ?? null, code, now);
-    if (!r.ok) {
-      if (r.record) st.otps[email] = r.record;
-      await this.save();
-      throw new ApiError("INVALID_OTP", BAD_CODE); // one message for wrong, expired, and locked codes
-    }
-    st.otps[email] = r.record;
-
-    const userId = userIdFor(email);
+  /** Opens a session, or answers with the device limit when 3 devices are already active. */
+  private async signIn(
+    st: AuthState,
+    userId: string,
+    email: string,
+    deviceLabel: string,
+    now: number,
+  ): Promise<SignInResult> {
     const active = (st.devices[userId] ?? []).filter((d) => d.revokedAt === null);
     const limit = checkDeviceLimit(active);
     if (!limit.ok) {
-      // The code was right, so the person owns the mailbox. They may remove one device and continue.
+      // The password was right. The person may remove one device and continue.
       const token = this.newToken();
       const pending = (st.pendingLogins ??= {});
       pending[token] = { email, userId, createdAt: now, used: false };
@@ -218,18 +209,146 @@ export class MockAuth implements AuthRepository {
     return { status: "ok", ...(await this.startSession(st, userId, email, deviceLabel, now)) };
   }
 
+  private throttled(st: AuthState, keys: string[], limit: number, now: number): boolean {
+    return keys.some((k) => isThrottled(st.fails[k] ?? [], now, FAIL_WINDOW_MS, limit));
+  }
+  private recordFails(st: AuthState, keys: string[], now: number): void {
+    for (const k of keys) st.fails[k] = addAttempt(st.fails[k] ?? [], now, FAIL_WINDOW_MS);
+  }
+
+  async login(rawEmail: string, password: string, deviceLabel = "Perangkat baru"): Promise<SignInResult> {
+    const req = loginRequestSchema.safeParse({ email: rawEmail, password });
+    if (!req.success) throw new ApiError("INVALID_CREDENTIALS", BAD_LOGIN);
+    const st = await this.s();
+    const email = normalizeEmail(req.data.email);
+    const now = this.nowMs();
+    const key = [`login:${email}`];
+    if (this.throttled(st, key, PROVISIONAL_AUTH.limits.loginFailsPerEmail, now)) {
+      throw new ApiError("RATE_LIMITED", TOO_MANY, { retry_after_seconds: 900 });
+    }
+    const acct = st.accounts[email];
+    // Same work for a missing account and a wrong password.
+    const hash = await demoHash(password);
+    if (!acct || acct.passwordHash !== hash) {
+      this.recordFails(st, key, now);
+      await this.save();
+      throw new ApiError("INVALID_CREDENTIALS", BAD_LOGIN);
+    }
+    return this.signIn(st, acct.userId, email, deviceLabel, now);
+  }
+
+  /** Demo of activation: email + phone of a paid demo order, then a new password, in one request. */
+  async activate(input: {
+    email: string;
+    phone: string;
+    password: string;
+    deviceLabel?: string;
+  }): Promise<SignInResult> {
+    const req = activateRequestSchema.safeParse({ email: input.email, phone: input.phone, password: input.password });
+    if (!req.success || !isPlausibleEmail(req.data.email)) {
+      throw new ApiError("VALIDATION_ERROR", "Data yang dikirim belum sesuai.");
+    }
+    const st = await this.s();
+    const email = normalizeEmail(req.data.email);
+    const phone = normalizePhone(req.data.phone);
+    const now = this.nowMs();
+    const keys = [`act:${email}`, ...(phone ? [`act:phone:${phone}`] : [])];
+    if (this.throttled(st, keys, PROVISIONAL_AUTH.limits.activateFailsPerEmail, now)) {
+      throw new ApiError("RATE_LIMITED", TOO_MANY, { retry_after_seconds: 900 });
+    }
+    const problem = checkPassword(req.data.password, { email, phone: req.data.phone });
+    if (problem) throw new ApiError("WEAK_PASSWORD", PASSWORD_PROBLEM_MESSAGE[problem], { reason: problem });
+    const order = st.orders[email];
+    const paid = st.entitlements[email] === "active";
+    if (!order || !phone || order.phone !== phone || !paid || st.accounts[email]) {
+      this.recordFails(st, keys, now);
+      await this.save();
+      throw new ApiError("ACTIVATION_FAILED", ACTIVATION_FAILED);
+    }
+    const userId = userIdFor(email);
+    st.accounts[email] = { userId, passwordHash: await demoHash(req.data.password) };
+    return this.signIn(st, userId, email, input.deviceLabel ?? "Perangkat baru", now);
+  }
+
+  /** Demo of the buyer's own reset: same proof, then a new password. Signs every device out, opens no session. */
+  async resetPassword(input: { email: string; phone: string; newPassword: string }): Promise<void> {
+    if (!isPlausibleEmail(input.email)) throw new ApiError("VALIDATION_ERROR", "Format email belum benar.");
+    const st = await this.s();
+    const email = normalizeEmail(input.email);
+    const phone = normalizePhone(input.phone);
+    const now = this.nowMs();
+    const keys = [`rst:${email}`, ...(phone ? [`rst:phone:${phone}`] : [])];
+    if (this.throttled(st, keys, PROVISIONAL_AUTH.limits.activateFailsPerEmail, now)) {
+      throw new ApiError("RATE_LIMITED", TOO_MANY, { retry_after_seconds: 900 });
+    }
+    const problem = checkPassword(input.newPassword, { email, phone: input.phone });
+    if (problem) throw new ApiError("WEAK_PASSWORD", PASSWORD_PROBLEM_MESSAGE[problem], { reason: problem });
+    const acct = st.accounts[email];
+    const order = st.orders[email];
+    if (!acct || !order || !phone || order.phone !== phone) {
+      this.recordFails(st, keys, now);
+      await this.save();
+      throw new ApiError("ACTIVATION_FAILED", ACTIVATION_FAILED);
+    }
+    acct.passwordHash = await demoHash(input.newPassword);
+    this.revokeAllDevices(st, acct.userId, now);
+    await this.save();
+  }
+
+  /** Demo of an admin reset link (made in the dev tools). Works once, expires, signs in on success. */
+  async setPasswordWithToken(token: string, password: string, deviceLabel = "Perangkat baru"): Promise<SignInResult> {
+    const st = await this.s();
+    const now = this.nowMs();
+    const problem = checkPassword(password);
+    if (problem) throw new ApiError("WEAK_PASSWORD", PASSWORD_PROBLEM_MESSAGE[problem], { reason: problem });
+    const t = st.resetTokens[token];
+    if (!t || t.used || t.expiresAt <= now || !st.accounts[t.email]) {
+      throw new ApiError("INVALID_TOKEN", "Tautan tidak berlaku atau sudah dipakai. Minta tautan baru ke CS.");
+    }
+    t.used = true;
+    const acct = st.accounts[t.email]!;
+    acct.passwordHash = await demoHash(password);
+    this.revokeAllDevices(st, acct.userId, now);
+    return this.signIn(st, acct.userId, t.email, deviceLabel, now);
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    const { st, ses } = await this.requireSession();
+    const now = this.nowMs();
+    const key = [`chpw:${ses.userId}`];
+    if (this.throttled(st, key, PROVISIONAL_AUTH.limits.changePasswordFailsPer15Min, now)) {
+      throw new ApiError("RATE_LIMITED", TOO_MANY, { retry_after_seconds: 900 });
+    }
+    const acct = st.accounts[ses.email];
+    if (!acct || acct.passwordHash !== (await demoHash(currentPassword))) {
+      this.recordFails(st, key, now);
+      await this.save();
+      throw new ApiError("INVALID_CREDENTIALS", "Password lama belum benar.");
+    }
+    const problem = checkPassword(newPassword, { email: ses.email });
+    if (problem) throw new ApiError("WEAK_PASSWORD", PASSWORD_PROBLEM_MESSAGE[problem], { reason: problem });
+    acct.passwordHash = await demoHash(newPassword);
+    for (const d of st.devices[ses.userId] ?? []) if (d.id !== ses.deviceId && d.revokedAt === null) d.revokedAt = now;
+    await this.save();
+  }
+
+  private revokeAllDevices(st: AuthState, userId: string, now: number): void {
+    for (const d of st.devices[userId] ?? []) if (d.revokedAt === null) d.revokedAt = now;
+    if (st.session?.userId === userId) st.signedOutReason = "revoked";
+  }
+
   /** Second step of a 4th-device login. Removes the chosen device, then signs in. The token works once. */
   async completePendingLogin(
     token: string,
     revokeDeviceId: string,
     deviceLabel = "Perangkat baru",
-  ): Promise<VerifyOtpResponse> {
+  ): Promise<SignInResponse> {
     const st = await this.s();
     const now = this.nowMs();
     const pending = st.pendingLogins?.[token];
     const check = checkPendingLogin(pending, now);
     if (!check.ok || !pending) {
-      throw new ApiError("PENDING_LOGIN_INVALID", "Waktu untuk melanjutkan sudah habis. Masuk lagi dengan kode baru.");
+      throw new ApiError("PENDING_LOGIN_INVALID", "Waktu untuk melanjutkan sudah habis. Masuk lagi dengan password.");
     }
     const dev = st.devices[pending.userId]?.find((d) => d.id === revokeDeviceId && d.revokedAt === null);
     if (!dev) throw new ApiError("NOT_FOUND", "Perangkat tidak ditemukan.");
@@ -248,7 +367,7 @@ export class MockAuth implements AuthRepository {
     email: string,
     deviceLabel: string,
     now: number,
-  ): Promise<VerifyOtpResponse> {
+  ): Promise<SignInResponse> {
     const list = st.devices[userId] ?? [];
     const deviceId = `dev_${userId}_${list.length + 1}`;
     list.push({ id: deviceId, label: deviceLabel, lastSeenAt: now, revokedAt: null });
@@ -354,13 +473,16 @@ export class MockAuth implements AuthRepository {
   }
 
   // ---------- dev tools (never shown in production UI) ----------
-  /** Latest code sent to this email, or null. Stands in for opening the email. */
-  async dev_peekOtp(email: string): Promise<string | null> {
+  /** Makes an admin reset link for a demo account, like CS would. Returns the token for `/reset#t=<token>`. */
+  async dev_issueResetToken(email: string): Promise<string | null> {
     const st = await this.s();
-    return st.otps[normalizeEmail(email)]?.code ?? null;
-  }
-  async dev_outbox(): Promise<AuthState["outbox"]> {
-    return structuredClone((await this.s()).outbox);
+    const e = normalizeEmail(email);
+    if (!st.accounts[e]) return null;
+    const token = `demo_${this.random(10 ** 9).toString(36)}${this.random(10 ** 9).toString(36)}${this.random(10 ** 9).toString(36)}`;
+    for (const t of Object.values(st.resetTokens)) if (t.email === e && !t.used) t.used = true;
+    st.resetTokens[token] = { email: e, expiresAt: this.nowMs() + PROVISIONAL_AUTH.adminResetTokenMinutes * 60_000, used: false };
+    await this.save();
+    return token;
   }
   async dev_setNow(iso: string | null): Promise<void> {
     (await this.s()).clockOverride = iso;

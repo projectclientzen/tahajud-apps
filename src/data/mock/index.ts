@@ -92,9 +92,8 @@ export function createMockDataLayer(opts: CreateMockOptions): MockDataLayer {
 export { SCENARIOS, type ScenarioName } from "./state";
 
 export interface MockAuthDevTools {
-  /** Code in the "email" for this address. Dev panel only. */
-  peekOtp(email: string): Promise<string | null>;
-  outbox(): Promise<AuthState["outbox"]>;
+  /** Makes an admin reset link for a demo account, like CS would. Returns the token. Dev panel only. */
+  issueResetToken(email: string): Promise<string | null>;
   setNow(iso: string | null): Promise<void>;
   advance(ms: number): Promise<void>;
   setEntitlement(email: string, status: EntitlementStatus): Promise<void>;
@@ -114,16 +113,18 @@ export function createMockAuth(opts: CreateMockAuthOptions = {}): MockAuthLayer 
   return {
     mode: "mock",
     engine: a,
-    requestOtp: (e) => a.requestOtp(e),
-    verifyOtp: (e, c, l) => a.verifyOtp(e, c, l),
+    login: (e, p, l) => a.login(e, p, l),
+    activate: (i) => a.activate(i),
+    resetPassword: (i) => a.resetPassword(i),
+    setPasswordWithToken: (t, p, l) => a.setPasswordWithToken(t, p, l),
+    changePassword: (c, n) => a.changePassword(c, n),
     completePendingLogin: (t, d, l) => a.completePendingLogin(t, d, l),
     getSession: () => a.getSession(),
     logout: () => a.logout(),
     listDevices: () => a.listDevices(),
     revokeDevice: (id) => a.revokeDevice(id),
     dev: {
-      peekOtp: (e) => a.dev_peekOtp(e),
-      outbox: () => a.dev_outbox(),
+      issueResetToken: (e) => a.dev_issueResetToken(e),
       setNow: (i) => a.dev_setNow(i),
       advance: (m) => a.dev_advance(m),
       setEntitlement: (e, s) => a.dev_setEntitlement(e, s),

@@ -27,7 +27,7 @@ export function resolveDriver(env: Record<string, string | undefined> = process.
     return "pglite";
   }
   if (!env.DATABASE_URL) {
-    throw new DbConfigError("DATABASE_URL is not set. Point it at the Supabase Postgres connection string.");
+    throw new DbConfigError("DATABASE_URL is not set. Point it at the Postgres connection string.");
   }
   return "pg";
 }
