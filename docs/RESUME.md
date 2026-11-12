@@ -1,4 +1,4 @@
-# RESUME: titik lanjut orchestrator (diperbarui 12 Nov 2026 15.25 WIB)
+# RESUME: titik lanjut orchestrator (diperbarui 12 Nov 2026 15.35 WIB)
 
 Dipakai jika sesi orchestrator berhenti (limit token, error) dan dilanjutkan oleh jadwal otomatis atau sesi baru.
 
@@ -11,8 +11,9 @@ Dipakai jika sesi orchestrator berhenti (limit token, error) dan dilanjutkan ole
 ## Urutan berikutnya (prioritas owner: UI/UX dulu)
 1. T1b selesai → merge ke integrasi → gerbang penuh 0 failed → push integrasi ke `main`.
 2. Paralel segera: T4c (Agen C, koordinat Wikidata, `docs/briefs/T4c.md`) karena file terpisah.
-3. Ronde UI/UX U1a + U1b (`docs/briefs/U1.md`), dua sesi Sonnet baru, basis main.
-4. Setelah U1 merged dan dicek owner: T3b (API + data live), lalu T5, T6, T7, T8, lalu prompt audit Fable untuk owner.
+3. Sedang jalan paralel: U1a fase A (agen a lama), U1b (sesi T2), T3b (agen b lama). Brief: `docs/briefs/U1.md`, `docs/briefs/T3b.md`.
+4. Setelah T1b merged: kabari U1a/U1b masuk fase B. Setelah T3b merged: T5 + T6 paralel, lalu T7, T8, lalu prompt audit Fable untuk owner.
+Catatan limit: owner menyebut limit token RESET pukul 16.00 WIB (bukan habis).
 
 ## Keputusan owner yang berlaku (ringkas)
 Batas 3 perangkat (ke-4 ditolak), sesi 30 hari, label "Sedang berjalan", legenda syarat aplikasi, post-Fajr semua level, tilawah malam opsional, Al-Waqi'ah wajib, tanpa terjemahan Qur'an (default), EQuran.id dipakai (izin komersial dikirim owner setelah MVP, sebelum launch), nomor CS dan link Scalev diisi saat build produksi, logo/nama app belum final.
