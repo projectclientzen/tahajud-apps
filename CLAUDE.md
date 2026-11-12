@@ -15,7 +15,7 @@ Baca file ini setiap awal sesi. Lalu baca `docs/AGENT_BRIEF.md` dan kerjakan HAN
 - JANGAN mengisi `source_classification` atau `review_status = approved` berdasarkan tebakan. Default: `unverified` / `draft`.
 - JANGAN menganggap nilai berstatus PROVISIONAL (lihat brief §5) sebagai final. Simpan sebagai config, tandai `provisional: true`.
 - JANGAN mengasumsikan kredensial (Scalev, SIHAT, Supabase, VAPID, email) tersedia. Pakai adapter + mock, baca dari env, gagal dengan pesan jelas.
-- JANGAN memalsukan response API eksternal di mode production. Mock hanya aktif saat `NEXT_PUBLIC_DATA_MODE=mock`, dan UI wajib menampilkan badge "DEMO DATA".
+- JANGAN memalsukan response API eksternal di mode production. Mock hanya aktif saat `NEXT_PUBLIC_DATA_MODE=mock`, dan UI wajib menampilkan badge "Data demo" (sentence case, komponen `DemoBadge`).
 - JANGAN memberi akses berbayar dari klaim client atau dari payload webhook saja. Entitlement aktif hanya setelah order diverifikasi ke API Scalev (atau approve manual admin). Server adalah sumber kebenaran untuk entitlement, status sesi, dan kelulusan level.
 - Browser hanya memakai Supabase untuk Auth. Semua baca/tulis data lewat `/api/v1`. Role `authenticated` tidak punya INSERT/UPDATE/DELETE langsung di tabel tracking.
 - Service worker tidak boleh cache respons `/api/`. Data offline per user di IndexedDB, dihapus saat logout.
@@ -36,4 +36,4 @@ Baca file ini setiap awal sesi. Lalu baca `docs/AGENT_BRIEF.md` dan kerjakan HAN
 ## Akhir setiap sesi
 1. Update `docs/STATUS.md` (fitur REAL vs SIMULATED vs BLOCKED + alasan).
 2. Tambah entri di `docs/SESSION_LOG.md`: apa yang dikerjakan, test yang lulus/gagal, sisa pekerjaan, pertanyaan untuk owner.
-3. Commit + push ke branch sesi. Jangan buat PR kecuali user minta.
+3. Commit + push ke branch sesi. Jangan push ke `main`: orchestrator yang merge. Jangan buat PR kecuali user minta.

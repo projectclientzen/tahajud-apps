@@ -933,7 +933,7 @@ State khusus:
 | Counter syncing | Operasi tersimpan lokal, menunggu sinkron |
 | Unsynced on logout | Ada catatan belum tersinkron saat logout |
 | Content not reviewed | Konten belum bisa dipublikasikan |
-| Demo data | Badge "DATA DEMO" saat mode mock |
+| Demo data | Badge "Data demo" saat mode mock |
 
 ---
 

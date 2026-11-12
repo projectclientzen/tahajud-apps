@@ -32,3 +32,23 @@ Hasil test:
 - `pnpm test:e2e`: BELUM dijalankan (spec sudah ditulis di `tests/e2e/`).
 
 Sisa S1 untuk agen: lihat prompt "S1 lanjutan" di `docs/AGENT_BRIEF.md` §8.
+
+## Merge S1 lanjutan (Agen A) + S2 (Agen B) oleh orchestrator (2026-11-12)
+- Merge ke `main`: `claude/anti-slop-skill-check-sfmm61` (A) lalu `claude/peaceful-thompson-lwndtd` (B). Kedua branch hanya mengubah file miliknya sesuai `docs/briefs/PARALLEL-RULES.md`. Satu konflik di `docs/STATUS.md` (baris berbeda), diselesaikan dengan mengambil baris A untuk Foundation/Design dan baris B untuk Domain.
+- Verifikasi di hasil gabungan: `pnpm typecheck` lolos, `pnpm lint` lolos, `pnpm test` 210/210, `pnpm test:e2e --trace off` 38 passed + 4 skipped (screenshot, sengaja hanya desktop), `pnpm audit --prod` bersih.
+- Laporan lengkap: `docs/sessions/S1.md`, `docs/sessions/S2.md`.
+
+Keputusan owner (12 Nov 2026):
+- Nama app dan logo belum final. Wordmark teks "Tahajud Tracker" dan ikon bulan sabit tetap placeholder sampai owner mengirim versi final. Jangan buat logo.
+- Review harakat (`docs/CONTENT-REVIEW.md`) ditunda sampai owner bisa melihat UI. Teks owner tampil apa adanya.
+
+Keputusan orchestrator:
+- Teks badge demo diseragamkan "Data demo" (CLAUDE.md, PRD §26, kode).
+- CLAUDE.md: agen push ke branch sesi saja, orchestrator yang merge ke `main`.
+- Aturan `no-restricted-imports` untuk `src/domain/**` disetujui, dikerjakan di S3.
+
+Pertanyaan owner yang masih terbuka (dari agen):
+1. `program_start_date`: sesi pertama yang bisa dikerjakan (usulan agen, S2-3) atau tanggal kalender onboarding.
+2. Ambang dan teks insight (`src/domain/reporting/insight.ts`) dibuat agen, perlu dibaca owner.
+3. Salat dicatat satu centang per salat (usulan agen) atau per rakaat.
+4. Bank pesan bedtime minimal 30 pesan belum ada.
