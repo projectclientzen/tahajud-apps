@@ -93,7 +93,7 @@ export function buildSeedSql(content: RawContent, sourceSha256: string): string 
   const defRows = [...defs.values()].map((a) => {
     const d = a.dhikr_ref ? content.dhikr[a.dhikr_ref]! : null;
     const description = [a.guidance, a.note].filter(Boolean).join("\n") || null;
-    return `(${lit(a.activity_key)}, ${lit(a.type)}, ${lit(a.title)}, ${lit(d?.arabic_text)}, ${lit(d?.transliteration)}, ${lit(d?.meaning_id)}, ${lit(description)}, ${lit(a.unit)}, ${lit(d?.source_classification ?? "unverified")}, ${lit(content.review_status)}, 1, ${a.quran_ref ? json(a.quran_ref) : "null"})`;
+    return `(${lit(a.activity_key)}, ${lit(a.type)}, ${lit(a.title)}, ${lit(d?.arabic_text)}, ${lit(d?.transliteration)}, ${lit(d?.meaning_id)}, ${lit(description)}, ${lit(a.guidance)}, ${lit(a.unit)}, ${lit(d?.source_classification ?? "unverified")}, ${lit(content.review_status)}, 1, ${a.quran_ref ? json(a.quran_ref) : "null"})`;
   });
 
   const s = PROVISIONAL_SETTINGS;
@@ -132,12 +132,12 @@ values ${levelRows.join(",\n       ")}
 on conflict (level_number) do update set title = excluded.title;
 
 insert into public.activity_definitions
-  (activity_key, activity_type, title, arabic_text, transliteration, meaning, description, counter_unit, source_classification, review_status, published_version, quran_ref)
+  (activity_key, activity_type, title, arabic_text, transliteration, meaning, description, guidance, counter_unit, source_classification, review_status, published_version, quran_ref)
 values ${defRows.join(",\n       ")}
 on conflict (activity_key) do update set
   activity_type = excluded.activity_type, title = excluded.title, arabic_text = excluded.arabic_text,
   transliteration = excluded.transliteration, meaning = excluded.meaning, description = excluded.description,
-  counter_unit = excluded.counter_unit, source_classification = excluded.source_classification,
+  guidance = excluded.guidance, counter_unit = excluded.counter_unit, source_classification = excluded.source_classification,
   review_status = excluded.review_status, published_version = excluded.published_version, quran_ref = excluded.quran_ref;
 
 insert into public.level_activity_config
