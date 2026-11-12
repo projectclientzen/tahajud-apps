@@ -1,0 +1,217 @@
+/* Hallmark direction: soft-austere night shell in NgajiGaes earth tones. Weakest decision: a text wordmark stands in for the missing NgajiGaes logo. */
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Brand palette (PRD v1.2 §7.2). Sage is decorative only: 2.6:1 on cream, never text. */
+:root {
+  --brand-sage: #88a189;
+  --brand-forest: #354f40;
+  --brand-cream: #faf7ed;
+  --brand-sand: #d9c6a5;
+  --brand-olive: #b7bda1;
+  --brand-earth: #25372f;
+
+  --radius-control: 0.875rem;
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --nav-height: 4.25rem;
+  --sidebar-width: 15.5rem;
+  --content-max: 60rem;
+}
+
+/* Light theme (default). Contrast verified in tests/unit/contrast.test.ts */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #faf7ed;
+  --surface: #fffdf7;
+  --surface-2: #f2eddf;
+  --border: #e4dccb;
+  --border-strong: #7d8577;
+  --text: #354f40;
+  --text-muted: #566459;
+  --primary: #354f40;
+  --on-primary: #faf7ed;
+  --primary-soft: #dce5da;
+  --accent: #88a189;
+  --highlight: #d9c6a5;
+  --highlight-soft: #efe5d3;
+  --success: #2e6a45;
+  --success-soft: #dcebdf;
+  --warning: #835710;
+  --warning-soft: #f4e6c8;
+  --error: #a13c2b;
+  --error-soft: #f6dcd5;
+  --info: #2d5b70;
+  --info-soft: #d9e7ee;
+  --disabled-bg: #ebe6d8;
+  --disabled-text: #7a7f73;
+  --focus: #354f40;
+  --overlay: rgb(37 55 47 / 0.45);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #25372f;
+  --surface: #2d4237;
+  --surface-2: #354c40;
+  --border: #42594c;
+  --border-strong: #8ba190;
+  --text: #faf7ed;
+  --text-muted: #c8c9b8;
+  --primary: #a9c0a9;
+  --on-primary: #25372f;
+  --primary-soft: #3b5446;
+  --accent: #88a189;
+  --highlight: #d9c6a5;
+  --highlight-soft: #4a4a38;
+  --success: #9ed0ac;
+  --success-soft: #33503f;
+  --warning: #e8be74;
+  --warning-soft: #4d4430;
+  --error: #f2a493;
+  --error-soft: #533a33;
+  --info: #a2c9db;
+  --info-soft: #33495a;
+  --disabled-bg: #34463c;
+  --disabled-text: #9aa597;
+  --focus: #faf7ed;
+  --overlay: rgb(10 18 14 / 0.6);
+}
+
+/* No-JS fallback: follow the OS when the theme script has not set data-theme. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --bg: #25372f;
+    --surface: #2d4237;
+    --surface-2: #354c40;
+    --border: #42594c;
+    --border-strong: #8ba190;
+    --text: #faf7ed;
+    --text-muted: #c8c9b8;
+    --primary: #a9c0a9;
+    --on-primary: #25372f;
+    --primary-soft: #3b5446;
+    --highlight-soft: #4a4a38;
+    --success: #9ed0ac;
+    --success-soft: #33503f;
+    --warning: #e8be74;
+    --warning-soft: #4d4430;
+    --error: #f2a493;
+    --error-soft: #533a33;
+    --info: #a2c9db;
+    --info-soft: #33495a;
+    --disabled-bg: #34463c;
+    --disabled-text: #9aa597;
+    --focus: #faf7ed;
+    --overlay: rgb(10 18 14 / 0.6);
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-highlight: var(--highlight);
+  --color-highlight-soft: var(--highlight-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-error: var(--error);
+  --color-error-soft: var(--error-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-disabled-bg: var(--disabled-bg);
+  --color-disabled-text: var(--disabled-text);
+  --color-focus: var(--focus);
+  --color-overlay: var(--overlay);
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: var(--font-amiri-quran), "Amiri Quran", "Scheherazade New", serif;
+
+  --radius-control: var(--radius-control);
+  --radius-card: var(--radius-card);
+
+  --text-helper: 0.8125rem;
+  --text-helper--line-height: 1.35;
+  --text-body: 1rem;
+  --text-body--line-height: 1.55;
+  --text-card-title: 1.125rem;
+  --text-card-title--line-height: 1.35;
+  --text-page-title: 1.625rem;
+  --text-page-title--line-height: 1.2;
+  --text-stat: 2rem;
+  --text-stat--line-height: 1.1;
+  --text-dhikr: 1.875rem;
+  --text-dhikr--line-height: 2.1;
+  --text-quran: 1.875rem;
+  --text-quran--line-height: 2.3;
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3 {
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  transition: none;
+}
+
+.arabic {
+  font-family: var(--font-arabic);
+  direction: rtl;
+  unicode-bidi: isolate;
+  font-feature-settings: normal;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

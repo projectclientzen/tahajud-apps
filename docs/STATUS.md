@@ -2,13 +2,13 @@
 
 Update di akhir setiap sesi. Legend: REAL = jalan dengan logic/data sungguhan · SIMULATED = mock berlabel DEMO · BLOCKED = butuh kredensial/approval · TODO = belum dikerjakan.
 
-Sesi terakhir: S0c (konten amalan owner) · 2026-11-12
+Sesi terakhir: S1 WIP (dimulai orchestrator, dilanjutkan agen) · 2026-11-12
 Spesifikasi berlaku: `docs/PRD-v1.2.md`
 
 | Area | Fitur | Status | Catatan / blocker |
 |------|-------|--------|-------------------|
-| Foundation | Project setup, tooling | TODO | S1 |
-| Design | Tokens, komponen, app shell | TODO | S1 |
+| Foundation | Project setup, tooling | REAL (WIP) | Next 15.5.29, TS strict, Tailwind v4, Vitest, Playwright, audit bersih. E2E belum dijalankan |
+| Design | Tokens, komponen, app shell | REAL (WIP) | Token light/dark lolos AA (60 unit test). Shell + gallery `/dev/components`. Sisa: SITEMAP, DESIGN_SYSTEM, e2e, screenshot, Floor review |
 | Domain | Session key, state machine, progression, reporting, counter, wake planner, rotasi | TODO | S2 |
 | UI | Dashboard Istiqomah | TODO | S3 |
 | UI | Worship session + transisi Subuh | TODO | S3 |

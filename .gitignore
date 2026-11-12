@@ -11,3 +11,8 @@ test-results/
 .DS_Store
 .vercel
 supabase/.temp/
+/build
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+.pnp.*

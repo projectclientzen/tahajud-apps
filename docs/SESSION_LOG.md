@@ -17,3 +17,18 @@
 - Dikerjakan: teks Arab & susunan amalan Level 1-3 dari owner disimpan di `content/amalan.v1.json`; PRD jadi v1.2.1; `docs/CONTENT-REVIEW.md` berisi 8 usulan koreksi harakat dan 5 pertanyaan terbuka.
 - Verifikasi: total dzikir malam 400/1.550/1.863 dan rakaat 5/9/11 dihitung dari JSON, cocok dengan PRD.
 - Pertanyaan untuk owner: `docs/CONTENT-REVIEW.md` bagian pertanyaan terbuka.
+
+## S1 WIP: dimulai orchestrator (2026-11-12)
+Dikerjakan:
+- Scaffold Next.js 15.5.29 + React 19.1.10 + TS strict (`noUncheckedIndexedAccess`) + Tailwind v4 + ESLint + Vitest + Playwright 1.63.0 + axe.
+- `pnpm audit --prod`: 0 advisory (pakai overrides postcss/sharp). Keputusan di `docs/DECISIONS.md`.
+- Token warna light/dark + no-JS fallback di `src/app/globals.css`; tema: Ikuti perangkat / Terang / Gelap / Gelap saat malam.
+- Komponen: Button (4 varian, loading, disabled), Card, ProgressBar, ProgressRing, StatCard, StatusChip (ikon+label), Skeleton, EmptyState, ErrorState, Sheet (Radix), Wordmark, DemoBadge, BottomNav, SidebarNav, OfflineBanner, PageHeader, ThemeToggle, AppShell.
+- Route: `/` (entry), `/dashboard`, `/worship`, `/quran`, `/profile` (placeholder jujur), `/dev/components` (gallery, mati di production kecuali flag), `manifest.webmanifest`, ikon PWA placeholder.
+- Skill dipakai: ui-ux-pro-max, hallmark (Floor saja, referensi upstream tidak ada), stop-slop, avoid-ai-writing.
+
+Hasil test:
+- `pnpm typecheck`: lolos. `pnpm lint`: lolos. `pnpm test`: 60/60 lolos (kontras AA 49, tema 4, konten 7). `pnpm build`: lolos, First Load JS 104-134 KB.
+- `pnpm test:e2e`: BELUM dijalankan (spec sudah ditulis di `tests/e2e/`).
+
+Sisa S1 untuk agen: lihat prompt "S1 lanjutan" di `docs/AGENT_BRIEF.md` §8.

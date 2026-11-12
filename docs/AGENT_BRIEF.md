@@ -173,7 +173,7 @@ Simpan di `src/domain/content/provisional.ts` (atau tabel config) dengan `provis
 
 ## 6. Aturan skill & tools untuk agen
 
-Zen menyebut skill: hallmark, ui-ux-pro-max, antislop, superpowers, ponytail. Ketersediaan skill tergantung sesi.
+Skill yang sudah tersinkron per 12 Nov 2026: hallmark, ponytail, ui-ux-pro-max, using-superpowers, stop-slop, avoid-ai-writing. Zen menambah 6 skill anti-slop baru yang mungkin baru muncul di sesi berikutnya. Ketersediaan skill tergantung sesi.
 - Di awal sesi, cek daftar skill yang tersedia. Pakai yang ada, sebut di SESSION_LOG skill mana yang dipakai.
 - Jika `ui-ux-pro-max` / desain skill tersedia: pakai untuk S1 (design system) dan S3-S4 (screen).
 - Jika `superpowers` tersedia: pakai alur brainstorm → write-plan → TDD untuk S2 (domain engine).
@@ -224,6 +224,22 @@ Done: build lulus, gallery bisa dibuka di 320px & 1280px, screenshot Playwright 
 Prompt:
 ```
 Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S1 (Foundation, design system, app shell) sesuai §8 brief. Mulai dari main terbaru. Pakai skill desain/UI yang tersedia di sesi ini. Jangan kerjakan scope sesi lain. Di akhir: jalankan typecheck, lint, test, e2e; update docs/STATUS.md dan docs/SESSION_LOG.md; commit dan push. Laporkan apa yang REAL vs SIMULATED.
+```
+
+### S1 lanjutan (WIP sudah ada di repo, mulai dari sini)
+Status awal: scaffold, token, komponen, shell, gallery, 60 unit test, dan build sudah lolos. Lihat SESSION_LOG entri "S1 WIP" dan `docs/DECISIONS.md`.
+Sisa pekerjaan:
+1. Jalankan `pnpm test:e2e --trace off` (project mobile 320px + desktop 1280px). Perbaiki semua yang gagal, termasuk temuan axe serious/critical. Jangan hapus atau skip test untuk membuatnya hijau.
+2. Ambil screenshot: `pnpm test:e2e --trace off --grep @screens`, lalu lihat sendiri hasilnya di `docs/screenshots/s1/` (light/dark, 390 & 1280). Perbaiki masalah visual.
+3. Tulis `docs/SITEMAP.md`: sitemap route PRD v1.2 §5 + 4 user flow Mermaid (pembelian→aktivasi, onboarding jalur minimum, alur ibadah harian, transisi Subuh).
+4. Tulis `docs/DESIGN_SYSTEM.md`: tabel token light/dark + rasio kontras (ambil dari unit test), tipografi, aturan pemakaian sage, daftar komponen + state, aturan copy.
+5. Tambah `.prettierrc` dan format kode. Tambah README singkat (cara run, script, data mode).
+6. Jalankan pemeriksaan Hallmark Floor (16 item) secara manual dan tulis hasil PASS/FAIL di SESSION_LOG.
+7. Update STATUS + SESSION_LOG, commit, push ke branch sesi dan `main`.
+
+Prompt:
+```
+Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan "S1 lanjutan" di §8: WIP S1 sudah ada di repo. Pakai skill ui-ux-pro-max, hallmark, ponytail, stop-slop / avoid-ai-writing / skill anti-slop lain yang tersedia. Jangan kerjakan scope S2. Di akhir: typecheck, lint, test, test:e2e --trace off; update docs/STATUS.md dan docs/SESSION_LOG.md; commit, push ke branch sesi dan main. Laporkan REAL vs SIMULATED dan hasil test apa adanya.
 ```
 
 ### S2: Domain engines + data contracts + mock repository (TDD)
