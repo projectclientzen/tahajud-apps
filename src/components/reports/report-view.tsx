@@ -28,7 +28,7 @@ export function ReportBody({ report }: { report: ReportResponse }) {
     .sort((a, b) => b.times_completed / b.sessions - a.times_completed / a.sessions);
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:items-start">
         <StatCard
           label="Tingkat tuntas"
           value={<span data-testid="completion-rate">{formatRate(report.completion_rate)}</span>}

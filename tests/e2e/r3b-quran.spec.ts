@@ -22,30 +22,35 @@ test("QURAN-02: bookmark ayat pulih setelah reload dan progres mengikuti", async
   );
 });
 
-test("reader tanpa teks (dataset gagal dimuat) menampilkan state jujur dan posisi manual tetap tersimpan", async ({
-  page,
-}) => {
-  await blockDatasetChunk(page);
-  await page.goto("/quran/36");
-  await expect(page.getByRole("heading", { name: "Teks ayat belum bisa dimuat" })).toBeVisible();
-  await expect(page.locator(".arabic")).toHaveCount(0);
-  await page.getByLabel("Ayat terakhir dibaca").fill("200");
-  await page.getByRole("button", { name: "Simpan" }).click();
-  await expect(page.getByText("Isi nomor ayat 1 sampai 83")).toBeVisible();
-  await page.getByLabel("Ayat terakhir dibaca").fill("12");
-  await page.getByRole("button", { name: "Simpan" }).click();
-  await expect(page.getByRole("status").filter({ hasText: "Ayat terakhir dicatat: 12" })).toBeVisible();
-  await page.reload();
-  await expect(page.getByRole("progressbar", { name: "Progres bacaan" })).toHaveAttribute(
-    "aria-valuetext",
-    "Ayat 12 dari 83",
-  );
-  await page.goto("/quran");
-  await expect(page.getByRole("link", { name: /Yasin/ })).toContainText("12 dari 83 ayat");
-  await expect(page.getByRole("link")).toContainText(
-    ["Yasin", "Al-Waqi'ah", "Al-Mulk", "Ar-Rahman", "Al-Kahfi", "At-Talaq"],
-    { useInnerText: true },
-  );
+test.describe("teks gagal dimuat", () => {
+  // The service worker would answer the chunk request itself, so Playwright could not abort it.
+  test.use({ serviceWorkers: "block" });
+
+  test("reader tanpa teks (dataset gagal dimuat) menampilkan state jujur dan posisi manual tetap tersimpan", async ({
+    page,
+  }) => {
+    await blockDatasetChunk(page);
+    await page.goto("/quran/36");
+    await expect(page.getByRole("heading", { name: "Teks ayat belum bisa dimuat" })).toBeVisible();
+    await expect(page.locator(".arabic")).toHaveCount(0);
+    await page.getByLabel("Ayat terakhir dibaca").fill("200");
+    await page.getByRole("button", { name: "Simpan" }).click();
+    await expect(page.getByText("Isi nomor ayat 1 sampai 83")).toBeVisible();
+    await page.getByLabel("Ayat terakhir dibaca").fill("12");
+    await page.getByRole("button", { name: "Simpan" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Ayat terakhir dicatat: 12" })).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole("progressbar", { name: "Progres bacaan" })).toHaveAttribute(
+      "aria-valuetext",
+      "Ayat 12 dari 83",
+    );
+    await page.goto("/quran");
+    await expect(page.getByRole("link", { name: /Yasin/ })).toContainText("12 dari 83 ayat");
+    await expect(page.getByRole("link")).toContainText(
+      ["Yasin", "Al-Waqi'ah", "Al-Mulk", "Ar-Rahman", "Al-Kahfi", "At-Talaq"],
+      { useInnerText: true },
+    );
+  });
 });
 
 test("At-Talaq hanya ayat 2 sampai 3, tanpa basmalah", async ({ page }) => {
@@ -86,8 +91,8 @@ async function blockDatasetChunk(page: Page) {
   await page.route("**/_next/static/chunks/**", async (route) => {
     const res = await route.fetch();
     const body = await res.text();
-    // Only the full dataset (86 KB of text) is this big and carries the source name.
-    if (body.length > 60_000 && body.includes("tanzil-uthmani")) return route.abort();
+    // Only the full dataset (86 KB of text, about 55k characters) is this big and carries the source name.
+    if (body.length > 30_000 && body.includes("tanzil-uthmani")) return route.abort();
     return route.fulfill({ response: res, body });
   });
 }
