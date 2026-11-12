@@ -129,3 +129,9 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Perbaikan: `onChanged` memanggil `reload()` (fetch ulang layar ini saja) alih-alih `bump()`. Diterapkan di main.
 - Gerbang: typecheck 0, lint 0, unit 593 + 3 skip, e2e 260 passed / 0 failed.
 - T3b diminta sinkron ke main dan menghapus `fixme` pada test centang live.
+
+## Merge T3b oleh orchestrator (2026-11-13 00.55 WIB)
+- Merge `claude/t3b-api-v1` (`fbafd61`): 4 migration, 32 route `/api/v1`, driver pg + PGlite, auth server (Supabase GoTrue atau local untuk test), DataLayer + AuthRepository HTTP, PrayerTime verification/attribution dari DB.
+- Orchestrator melepas `test.fixme` di `tests/e2e/t3b-level1.live.ts` (perbaikan loop sudah di main sejak da88b12).
+- Gerbang: typecheck 0, lint 0, unit 815 + 3 skip, audit bersih, e2e mock 260 passed / 0 failed, e2e live 12 passed / 0 failed.
+- Keputusan owner: tetap Supabase (Auth + Postgres) sampai semua fix; pindah ke VPS menyusul (dibantu Hermes, termasuk Scalev). Scalev (T5) TIDAK dikerjakan orchestrator.

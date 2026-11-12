@@ -172,11 +172,8 @@ test("live: an email whose purchase is not verified yet waits on its own screen"
   await expect(page).toHaveURL(/\/access-status$/);
 });
 
-// Blocked by a UI bug that only shows with real network latency: ticking a checklist item makes the session page
-// reload in a loop (SessionView passes bump() as onChanged, which flushes the queue, which fires onChanged again,
-// and every reload is cancelled by the next bump). One-line fix, see docs/sessions/T3b.md. Remove fixme once it is in.
+// Regression guard for the live-mode reload loop fixed in session-view.tsx (onChanged calls reload(), not bump()).
 test("live: a checklist tick is saved on the server and survives a reload", async ({ page }, info) => {
-  test.fixme(true, "SessionView reload loop in live mode, see docs/sessions/T3b.md");
   await signIn(page, mail("live-tick", info.project.name));
   await page.getByRole("button", { name: "Mulai", exact: true }).click();
   await page.getByRole("radio", { name: /Jakarta/ }).check();
