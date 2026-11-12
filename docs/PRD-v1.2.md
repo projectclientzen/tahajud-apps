@@ -631,7 +631,7 @@ Normalisasi email: trim, lowercase, Unicode NFC. Tidak menghapus titik atau `+ta
 
 **user_roles**: user_id; role (`super_admin`, `content_admin`, `support_admin`, `reporting_admin`); granted_by; granted_at. PK (user_id, role).
 
-**user_devices** [v1.2: SEC-15]: id; user_id; label; user_agent_summary; last_seen_at; revoked_at. Batas perangkat aktif 3 (PROV).
+**user_devices** [v1.2: SEC-15]: id; user_id; label; user_agent_summary; last_seen_at; revoked_at. Batas perangkat aktif 3 (disetujui owner); perangkat ke-4 ditolak, lihat §24.1.
 
 **purchase_orders**: id; scalev_order_id UNIQUE; customer_email_normalized; buyer_name; payment_status; amount; currency; verified_via (`scalev_api` / `admin_manual`); payment_verified_at; created_at; updated_at.
 
