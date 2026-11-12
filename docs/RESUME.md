@@ -27,3 +27,19 @@ Agen push ke branch sesi; hanya orchestrator yang merge ke main setelah typechec
 
 ## Catatan biaya
 Sesi agen lama (agen a, agen b) membawa context 570-620 ribu token, sehingga tiap langkahnya mahal. Tugas baru berikutnya dijalankan di sesi baru (create_session); sesi baru menerima tugas dari prompt pembukanya, sedangkan sesi lama yang tidak dibuat orchestrator bisa menolak pesan antar-sesi.
+
+## Status WIP R4 saat dihentikan (05.39 WIB 13 Nov)
+| Agen | Branch @ commit | Sudah | Belum |
+|------|-----------------|-------|-------|
+| Q1 | claude/q1-e2e-flaky @ 24f055e | merge main, unit 819, audit bersih, 1 run penuh e2e 260/0 failed | bukti 3 run penuh berturut-turut |
+| T3c | claude/t3c-api-missing @ 31f2bda | 8 endpoint, migration 20261115010000, kode error baru, http repo, unit 966 | test:e2e, test:e2e:live, audit |
+| T6 | claude/t6-job-runner @ df299d9 | jobs/notifications/worker/cron, test per file lulus, test:db 210 | test TTL push, gerbang penuh, smoke worker, .env.example |
+| T7 | claude/t7-admin @ becd1a2 | migration admin, MFA TOTP sendiri, audit, workflow, support tools, API admin, 17 test | UI /admin, test workflow/PRIV-01, e2e, bootstrap super_admin, gerbang penuh |
+
+Catatan integrasi saat merge (orchestrator):
+- Tambah `INTERNAL_ERROR` dan `FORBIDDEN_ORIGIN` ke TRANSIENT di `src/offline/sender.ts`, kalau tidak 500 membuat antrean offline membuang operasi (temuan T3c).
+- Penamaan migration bentrok aturan 14 digit di `tests/db/schema.test.ts`; T6 melonggarkan regex, T7 pakai `20261115c*`. Seragamkan: T3c 20261115010000, T6 20261115020000, T7 20261115030000.
+- Daftar tabel/RPC di `tests/db/schema.test.ts` perlu digabung (admin_sessions, admin_mfa_factors, RPC T6/T7).
+- `regions` di DB baru berisi DEMO: muat wilayah EQuran (`content/regions/`) ke DB agar `prayer_sync` T6 bekerja.
+- T7: MFA dibuat sendiri (bukan Supabase MFA) karena sesi admin pakai cookie sendiri; review keamanan saat merge.
+- Keputusan owner tertunda: email yang sudah menghapus akun lalu daftar ulang = tanpa akses (default T3c).
