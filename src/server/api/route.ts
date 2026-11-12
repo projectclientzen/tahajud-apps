@@ -17,8 +17,9 @@ export interface RouteContext {
 }
 
 export type Handler = (c: RouteContext) => Promise<unknown | Response>;
+/** The second argument Next passes to a route handler. `string[]` is what a catch-all segment gives. */
 export interface NextCtx {
-  params?: Promise<Record<string, string>>;
+  params: Promise<Record<string, string | string[]>>;
 }
 
 const SAFE = new Set(["GET", "HEAD", "OPTIONS"]);
@@ -35,7 +36,7 @@ export interface RouteOptions {
  * One pipeline for every endpoint: Origin check on mutations, sign-in check, handler, one error shape,
  * `Cache-Control: private, no-store` on every answer.
  */
-export function route(opts: RouteOptions): (req: Request, ctx?: NextCtx) => Promise<Response> {
+export function route(opts: RouteOptions): (req: Request, ctx: NextCtx) => Promise<Response> {
   return async (req, nextCtx) => {
     const url = new URL(req.url);
     const cookies: string[] = [];
@@ -50,7 +51,10 @@ export function route(opts: RouteOptions): (req: Request, ctx?: NextCtx) => Prom
       if (opts.auth === "user" && session.state !== "ok") {
         throw new ApiError("UNAUTHENTICATED", "Masuk dulu untuk melanjutkan.");
       }
-      const params = nextCtx?.params ? await nextCtx.params : {};
+      const params: Record<string, string> = {};
+      // Next gives a promise of the dynamic segments. Routes without any may resolve to nothing at all.
+      for (const [k, v] of Object.entries((await nextCtx?.params) ?? {}))
+        params[k] = Array.isArray(v) ? v.join("/") : v;
       const out = await opts.handler({
         req,
         url,

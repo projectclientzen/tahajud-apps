@@ -7,7 +7,7 @@ import { setDepsForTests } from "@/server/api/deps";
 import { setDbForTests } from "@/server/db";
 import { createPgliteDb, type PgliteDb } from "@/server/db/pglite";
 
-type Handler = (req: Request, ctx?: { params?: Promise<Record<string, string>> }) => Promise<Response>;
+type Handler = (req: Request, ctx: { params: Promise<Record<string, string>> }) => Promise<Response>;
 interface Route {
   segs: string[];
   methods: Record<string, Handler>;

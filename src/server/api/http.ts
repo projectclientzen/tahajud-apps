@@ -43,6 +43,8 @@ export function toApiError(e: unknown, path: string): ApiError {
   if (mapped) return mapped;
   // Only the SQLSTATE is logged: error messages from the database can contain row values.
   console.error("api_error", { path, name: (e as Error)?.name, sqlstate: (e as { code?: string })?.code });
+  // Set API_DEBUG_ERRORS=1 on a developer machine to see the whole error. Never in production: it may hold row values.
+  if (process.env.API_DEBUG_ERRORS === "1") console.error(e);
   return new ApiError("NOT_AVAILABLE", "Terjadi gangguan di server. Coba lagi sebentar.");
 }
 

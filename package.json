@@ -14,7 +14,8 @@
     "import:quran": "node --experimental-strip-types scripts/import-quran.ts",
     "db:seed": "tsx scripts/db-seed.ts",
     "test:db": "vitest run tests/db",
-    "import:regions": "node --experimental-strip-types scripts/import-regions.ts"
+    "import:regions": "node --experimental-strip-types scripts/import-regions.ts",
+    "test:e2e:live": "playwright test -c playwright.t3b.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.3.1",
