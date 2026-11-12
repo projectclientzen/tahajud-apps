@@ -173,7 +173,7 @@ Simpan di `src/domain/content/provisional.ts` (atau tabel config) dengan `provis
 
 ## 6. Aturan skill & tools untuk agen
 
-Skill yang sudah tersinkron per 12 Nov 2026: hallmark, ponytail, ui-ux-pro-max, using-superpowers, stop-slop, avoid-ai-writing. Zen menambah 6 skill anti-slop baru yang mungkin baru muncul di sesi berikutnya. Ketersediaan skill tergantung sesi.
+Skill yang sudah tersinkron per 12 Nov 2026: hallmark, ponytail, ui-ux-pro-max, using-superpowers, stop-slop, avoid-ai-writing. Ditambah 6 skill anti-slop: antislop, antislop-code, antislop-copywriting, antislop-human, antislop-layoutmobile, antislop-ui. Ketersediaan skill tergantung sesi.
 - Di awal sesi, cek daftar skill yang tersedia. Pakai yang ada, sebut di SESSION_LOG skill mana yang dipakai.
 - Jika `ui-ux-pro-max` / desain skill tersedia: pakai untuk S1 (design system) dan S3-S4 (screen).
 - Jika `superpowers` tersedia: pakai alur brainstorm → write-plan → TDD untuk S2 (domain engine).

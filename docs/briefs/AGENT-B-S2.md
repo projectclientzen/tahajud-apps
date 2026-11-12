@@ -37,7 +37,7 @@ Baca dulu: `CLAUDE.md`, `docs/briefs/PARALLEL-RULES.md`, `docs/PRD-v1.2.md` §9-
 `zod`, `idb` (atau `dexie`), `fake-indexeddb` (dev), `@vitest/coverage-v8` (dev). Selain itu catat alasannya di file sesi.
 
 ## Skill
-using-superpowers (alur brainstorm → plan → TDD jika skill pendukung tersedia), ponytail (solusi paling sederhana yang benar), stop-slop / avoid-ai-writing untuk dokumen.
+using-superpowers (alur brainstorm → plan → TDD jika skill pendukung tersedia), ponytail (solusi paling sederhana yang benar), antislop-code (komentar kode), antislop-copywriting / stop-slop untuk dokumen dan label UI di `session-status.ts`.
 
 ## Definition of done
 - `pnpm typecheck && pnpm lint && pnpm test` lolos. Coverage `src/domain/**` ≥ 90% lines (`vitest run --coverage`).

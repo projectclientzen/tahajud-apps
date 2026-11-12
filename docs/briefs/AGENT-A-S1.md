@@ -15,7 +15,11 @@ Next.js 15.5.29 + TS strict + Tailwind v4. Token light/dark di `src/app/globals.
 7. Periksa Hallmark Floor 16 item secara manual. Tulis PASS/FAIL per item di `docs/sessions/S1.md`; perbaiki yang FAIL.
 
 ## Skill
-ui-ux-pro-max, hallmark, ponytail (perubahan sekecil mungkin), stop-slop / avoid-ai-writing / skill anti-slop lain yang tersedia untuk semua copy UI dan dokumen.
+- Desain & review UI: ui-ux-pro-max, hallmark, antislop (Delivery Gate sebelum selesai), antislop-ui, antislop-human (aksesibilitas), antislop-layoutmobile (320px, tap target).
+- Copy UI & dokumen: antislop-copywriting, stop-slop, avoid-ai-writing.
+- Komentar kode: antislop-code.
+- Gaya kerja: ponytail (perubahan sekecil mungkin).
+- Di `docs/sessions/S1.md`, catat skill mana yang benar-benar dipakai dan hasil Delivery Gate antislop.
 
 ## Definition of done
 - `pnpm typecheck && pnpm lint && pnpm test && pnpm test:e2e --trace off` lolos. Tempel ringkasan output asli di `docs/sessions/S1.md`.
