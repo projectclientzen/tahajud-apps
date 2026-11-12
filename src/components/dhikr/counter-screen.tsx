@@ -220,11 +220,19 @@ export function CounterScreen({
   }
 
   return (
-    <div className="flex flex-col items-center gap-6">
+    <div className="flex flex-col items-center gap-5">
       {a.arabic_text ? (
-        <p lang="ar" className="arabic w-full text-center text-dhikr">
-          {a.arabic_text}
-        </p>
+        // Long dhikr text scrolls inside its own box, so the tap button never leaves the thumb zone.
+        <div
+          role="region"
+          aria-label="Teks dzikir"
+          tabIndex={0}
+          className="max-h-[28dvh] w-full overflow-y-auto rounded-[var(--radius-control)]"
+        >
+          <p lang="ar" className="arabic text-center text-dhikr">
+            {a.arabic_text}
+          </p>
+        </div>
       ) : null}
       {a.dhikr_review_status && a.dhikr_review_status !== "published" ? (
         <p role="note" className="rounded-full bg-warning-soft px-3 py-1 text-helper text-warning">
@@ -233,40 +241,46 @@ export function CounterScreen({
       ) : null}
       {a.guidance ? <p className="max-w-prose text-center text-text-muted">{a.guidance}</p> : null}
 
-      <ProgressRing label={a.title} value={Math.min(count, state.target)} max={Math.max(state.target, 1)} size={176}>
-        <span className="flex flex-col items-center leading-tight">
-          <span className="text-stat font-semibold tabular-nums" data-testid="count">
-            {count}
-          </span>
-          <span className="text-helper text-text-muted">
-            dari {state.target}
-            {a.unit ? ` ${a.unit}` : ""}
-          </span>
-        </span>
-      </ProgressRing>
-
-      {reached ? (
-        <p
-          role="status"
-          className="rounded-[var(--radius-control)] bg-success-soft px-4 py-2 text-success"
-          data-testid="reached"
+      {/* One big target: the whole circle is the button, the arc around it shows progress. Nothing here changes size while counting. */}
+      <div className="relative w-[min(78vw,17rem)]">
+        <ProgressRing
+          fluid
+          label={a.title}
+          value={Math.min(count, state.target)}
+          max={Math.max(state.target, 1)}
+          size={272}
+          stroke={12}
+          done={reached}
+        />
+        <button
+          type="button"
+          onClick={() => onTap(1)}
+          aria-label="Tambah satu hitungan"
+          className="absolute inset-[7%] grid touch-manipulation select-none place-items-center rounded-full bg-primary text-on-primary transition-transform duration-[var(--dur-fast)] ease-[var(--ease-out)] active:scale-[0.97]"
         >
-          Target tercapai.{extra > 0 ? ` +${extra} lebih.` : " Tap berikutnya tetap dihitung."}
-        </p>
-      ) : null}
+          <span className="flex flex-col items-center leading-none">
+            <span className="text-[4.5rem] font-bold tabular-nums" data-testid="count">
+              {count}
+            </span>
+            {reached ? (
+              <span className="mt-2 inline-flex items-center gap-1.5 text-body font-semibold" data-testid="reached">
+                <Check aria-hidden className="size-5" strokeWidth={2.5} />
+                {extra > 0 ? `Target tercapai, +${extra} lebih` : "Target tercapai"}
+              </span>
+            ) : (
+              <span className="mt-2 text-body">
+                dari {state.target}
+                {a.unit ? ` ${a.unit}` : ""}
+              </span>
+            )}
+          </span>
+        </button>
+      </div>
+      <p role="status" className="sr-only">
+        {reached ? "Target tercapai" : ""}
+      </p>
 
-      <button
-        type="button"
-        onClick={() => onTap(1)}
-        aria-label="Tambah satu hitungan"
-        className="grid size-44 touch-manipulation select-none place-items-center rounded-full bg-primary text-on-primary transition-transform duration-[var(--dur-fast)] active:scale-[0.97]"
-      >
-        <span aria-hidden className="text-stat font-bold">
-          +1
-        </span>
-      </button>
-
-      <div className="flex items-center gap-3">
+      <div className="flex w-[min(78vw,17rem)] items-center justify-between">
         <Button
           variant="secondary"
           size="icon"
