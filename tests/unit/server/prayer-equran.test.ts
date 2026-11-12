@@ -83,11 +83,21 @@ describe("validateEquranMonth", () => {
       m.data.jadwal[1]!.imsak = "02:50";
     }, /subuh .* out of range/],
     ["maghrib is out of range", (m) => {
-      m.data.jadwal[1]!.maghrib = "19:10";
-      m.data.jadwal[1]!.isya = "19:40";
+      m.data.jadwal[1]!.maghrib = "19:30";
+      m.data.jadwal[1]!.isya = "20:00";
     }, /maghrib .* out of range/],
     ["an unknown field appears (strict)", (m) => (m.data.jadwal[0]!.extra = "x"), /schema/],
   ];
+  it("accepts zone-edge times such as Central Kalimantan maghrib 17:12 WIB", () => {
+    expect(() =>
+      validateEquranMonth(
+        mutated((m) => {
+          m.data.jadwal[1]!.maghrib = "17:12";
+        }),
+        REQ,
+      ),
+    ).not.toThrow();
+  });
   it.each(broken)("rejects the whole month when %s", (_name, fn, re) => {
     expect(() => validateEquranMonth(mutated(fn), REQ)).toThrow(re);
   });
