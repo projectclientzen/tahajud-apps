@@ -90,12 +90,16 @@ for (const [name, size] of [
   test(`${name}: tidak ada luapan horizontal pada 320px dan huruf terbesar`, async ({ page }) => {
     await page.goto(`/quran/${size}`);
     await expect(page.locator("[data-ayah]").first()).toBeVisible();
-    for (let i = 0; i < 10; i++) {
-      const plus = page.getByRole("button", { name: "Perbesar huruf" });
-      if (await plus.isDisabled()) break;
+    const plus = page.getByRole("button", { name: "Perbesar huruf" });
+    const label = page.getByTestId("reader-font");
+    // The size on screen changes once it is saved, so wait for each step to show before the next tap.
+    for (let i = 0; i < 20 && !(await plus.isDisabled()); i++) {
+      const before = await label.textContent();
       await plus.click();
+      await expect(label).not.toHaveText(before ?? "");
     }
-    await expect(page.getByTestId("reader-font")).toHaveText("44 px");
+    await expect(label).toHaveText("44 px");
+    await expect(plus).toBeDisabled();
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
