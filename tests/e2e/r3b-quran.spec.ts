@@ -25,6 +25,10 @@ test("QURAN-02: bookmark ayat pulih setelah reload dan progres mengikuti", async
 test.describe("teks gagal dimuat", () => {
   // The service worker would answer the chunk request itself, so Playwright could not abort it.
   test.use({ serviceWorkers: "block" });
+  // A handler still fetching when the page navigates or closes would throw "Response has been disposed" into the test.
+  test.afterEach(async ({ page }) => {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+  });
 
   test("reader tanpa teks (dataset gagal dimuat) menampilkan state jujur dan posisi manual tetap tersimpan", async ({
     page,
@@ -89,10 +93,15 @@ test("surah di luar enam bacaan menampilkan 404", async ({ page }) => {
 /** Aborts the lazy chunk that holds the verse text, as a failed or offline download would. */
 async function blockDatasetChunk(page: Page) {
   await page.route("**/_next/static/chunks/**", async (route) => {
-    const res = await route.fetch();
-    const body = await res.text();
-    // Only the full dataset (86 KB of text, about 55k characters) is this big and carries the source name.
-    if (body.length > 30_000 && body.includes("tanzil-uthmani")) return route.abort();
-    return route.fulfill({ response: res, body });
+    try {
+      const res = await route.fetch();
+      const body = await res.text();
+      // Only the full dataset (86 KB of text, about 55k characters) is this big and carries the source name.
+      if (body.length > 30_000 && body.includes("tanzil-uthmani")) return await route.abort();
+      return await route.fulfill({ response: res, body });
+    } catch {
+      // The page navigated or closed while this chunk was in flight: that request no longer matters.
+      await route.abort().catch(() => undefined);
+    }
   });
 }

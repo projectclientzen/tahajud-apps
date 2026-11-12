@@ -43,8 +43,7 @@ export function route(opts: RouteOptions): (req: Request, ctx: NextCtx) => Promi
     try {
       const d = await getDeps();
       if (!SAFE.has(req.method) && !originAllowed(req, d.cfg.allowedOrigins)) {
-        // No code in the shared list fits "wrong origin" better than a sign-in problem.
-        throw new ApiError("UNAUTHENTICATED", "Permintaan ini tidak berasal dari aplikasi.", { reason: "origin" });
+        throw new ApiError("FORBIDDEN_ORIGIN", "Permintaan ini tidak berasal dari aplikasi.", { reason: "origin" });
       }
       const caller = callerOf(req);
       const session = await resolveSession(d, req);

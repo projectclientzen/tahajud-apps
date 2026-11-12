@@ -1,3 +1,4 @@
+import { csLink } from "@/components/help/help-view";
 import * as React from "react";
 import { DemoBadge } from "@/components/brand/demo-badge";
 import { Wordmark } from "@/components/brand/wordmark";
@@ -22,4 +23,5 @@ export const fieldClass =
 
 /** Optional links from env. Shown only when set, so no link ever points at a made-up address. */
 export const SCALEV_URL = process.env.NEXT_PUBLIC_SCALEV_URL ?? "";
-export const CS_WHATSAPP_URL = process.env.NEXT_PUBLIC_CS_WHATSAPP_URL ?? "";
+// Same env and normalisation as /help and /settings/account (digits only, built into a wa.me link).
+export const CS_WHATSAPP_URL = csLink(process.env.NEXT_PUBLIC_CS_WHATSAPP) ?? "";

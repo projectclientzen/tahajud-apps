@@ -110,6 +110,9 @@ const cryptoInt = (max: number): number => {
 /** Mock of the sign-in endpoints. Rules come from src/domain/auth. Simulated: nothing is emailed. */
 export class MockAuth implements AuthRepository {
   private state: AuthState | null = null;
+  private loading: Promise<AuthState> | null = null;
+  private writes: Promise<void> = Promise.resolve();
+  private epoch = 0;
   private readonly random: (max: number) => number;
 
   constructor(private readonly o: AuthOptions) {
@@ -121,19 +124,35 @@ export class MockAuth implements AuthRepository {
     return c ? Date.parse(c) : this.o.clock.now().getTime();
   }
 
-  private async s(): Promise<AuthState> {
-    if (!this.state) {
-      this.state =
-        (await this.o.storage.load()) ??
-        buildAuthScenario(this.o.scenario ?? "logged_out", this.o.clock.now().getTime());
-      this.state.pendingLogins ??= {};
-      await this.o.storage.save(this.state);
-    }
-    return this.state;
+  /** One shared load: concurrent first calls must not each read storage and replace `this.state` under one another. */
+  private s(): Promise<AuthState> {
+    if (this.state) return Promise.resolve(this.state);
+    this.loading ??= this.readInitial().catch((err: unknown) => {
+      this.loading = null;
+      throw err;
+    });
+    return this.loading;
   }
 
-  private save = async (): Promise<void> => {
-    if (this.state) await this.o.storage.save(this.state);
+  private async readInitial(): Promise<AuthState> {
+    const epoch = this.epoch;
+    const stored = await this.o.storage.load();
+    if (epoch !== this.epoch) return this.s();
+    const st = stored ?? buildAuthScenario(this.o.scenario ?? "logged_out", this.o.clock.now().getTime());
+    st.pendingLogins ??= {};
+    this.state = st;
+    await this.save();
+    return st;
+  }
+
+  /** Writes reach storage in the order they were requested. */
+  private save = (): Promise<void> => {
+    const write = async () => {
+      if (this.state) await this.o.storage.save(this.state);
+    };
+    const next = this.writes.then(write, write);
+    this.writes = next.catch(() => undefined);
+    return next;
   };
 
   async requestOtp(raw: string): Promise<RequestOtpResponse> {
@@ -357,11 +376,15 @@ export class MockAuth implements AuthRepository {
   }
   async dev_loadScenario(name: AuthScenarioName): Promise<void> {
     const keep = this.state?.clockOverride ?? null;
+    this.epoch++;
+    this.loading = null;
     this.state = buildAuthScenario(name, keep ? Date.parse(keep) : this.o.clock.now().getTime());
     this.state.clockOverride = keep;
     await this.save();
   }
   async dev_reset(): Promise<void> {
+    this.epoch++;
+    this.loading = null;
     this.state = null;
     await this.o.storage.clear();
   }

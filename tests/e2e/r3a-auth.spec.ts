@@ -124,6 +124,8 @@ test("access turned on later: the waiting screen moves on to onboarding", async 
   await expect(page.getByText("Pembelianmu sedang diverifikasi")).toBeVisible();
   await page.getByRole("button", { name: "Buka alat demo masuk" }).click();
   await page.getByRole("button", { name: "Aktif", exact: true }).click();
+  // The panel writes the new entitlement to IndexedDB, then shows this line. A reload before it can cancel the write.
+  await expect(page.getByRole("status").filter({ hasText: `Akses ${PENDING_EMAIL}: active` })).toBeVisible();
   await page.keyboard.press("Escape");
   await page.reload();
   await expect(page).toHaveURL(/\/onboarding$/);

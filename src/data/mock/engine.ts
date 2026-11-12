@@ -93,6 +93,10 @@ const QURAN_SURAHS = new Set([18, 36, 55, 56, 67, 65]);
  */
 export class MockEngine {
   private state: MockState | null = null;
+  private loading: Promise<MockState> | null = null;
+  private writes: Promise<void> = Promise.resolve();
+  /** Bumped when the state is replaced on purpose (scenario, reset), so a read that started earlier is dropped. */
+  private epoch = 0;
   private readonly content: AmalanContent;
   private readonly settings: DomainSettings;
 
@@ -107,19 +111,40 @@ export class MockEngine {
     return o ? new Date(o) : this.opts.clock.now();
   }
 
-  private async load(): Promise<MockState> {
-    if (!this.state) {
-      const stored = await this.opts.storage.load();
-      this.state =
-        stored ?? buildScenario(this.opts.scenario ?? "new_account", this.opts.clock.now(), this.opts.userId);
-      this.state.profile ??= { ...DEFAULT_PROFILE };
-      if (!stored) await this.opts.storage.save(this.state);
-    }
-    return this.state;
+  /**
+   * One shared load. Several repository calls start together on a fresh page (the settings screen fires five reads),
+   * and each used to read storage on its own. The last read replaced `this.state`, so a write made on the earlier copy
+   * was never saved.
+   */
+  private load(): Promise<MockState> {
+    if (this.state) return Promise.resolve(this.state);
+    this.loading ??= this.readInitial().catch((err: unknown) => {
+      this.loading = null;
+      throw err;
+    });
+    return this.loading;
   }
 
-  private async save(): Promise<void> {
-    if (this.state) await this.opts.storage.save(this.state);
+  private async readInitial(): Promise<MockState> {
+    const epoch = this.epoch;
+    const stored = await this.opts.storage.load();
+    // A scenario load or reset ran while storage was being read: what we read is stale, so start over.
+    if (epoch !== this.epoch) return this.load();
+    const st = stored ?? buildScenario(this.opts.scenario ?? "new_account", this.opts.clock.now(), this.opts.userId);
+    st.profile ??= { ...DEFAULT_PROFILE };
+    this.state = st;
+    if (!stored) await this.save();
+    return st;
+  }
+
+  /** Writes reach storage one at a time, in the order they were requested, so an older snapshot never lands last. */
+  private save(): Promise<void> {
+    const write = async () => {
+      if (this.state) await this.opts.storage.save(this.state);
+    };
+    const next = this.writes.then(write, write);
+    this.writes = next.catch(() => undefined);
+    return next;
   }
 
   /** Load, settle derived level state, hand back the state. */
@@ -159,6 +184,8 @@ export class MockEngine {
   }
   async dev_loadScenario(name: ScenarioName): Promise<void> {
     const keep = this.state?.clockOverride ?? null;
+    this.epoch++;
+    this.loading = null;
     this.state = buildScenario(name, keep ? new Date(keep) : this.opts.clock.now(), this.opts.userId);
     this.state.clockOverride = keep;
     await this.save();
@@ -169,6 +196,8 @@ export class MockEngine {
     await this.save();
   }
   async dev_reset(): Promise<void> {
+    this.epoch++;
+    this.loading = null;
     this.state = null;
     await this.opts.storage.clear();
   }
