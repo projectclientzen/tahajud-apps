@@ -29,20 +29,18 @@ State loading dan error tidak difoto terpisah: `LoadGate` (skeleton, ErrorState,
 | `ProgressBar` | prop opsional `hideText` (sembunyikan baris label/nilai, `aria-label` dan `aria-valuetext` tetap). |
 | `ProgressRing` | prop opsional `fluid` (ikut lebar induk, kotak persegi) dan `done` (busur hijau). Trek memakai `border-strong/35`. Pemakaian lama tetap sama. |
 
-## Gerbang (output asli)
-- `pnpm typecheck`: bersih. `pnpm lint`: bersih. `pnpm test`: 30 file, 549 passed, 3 skipped (live DB).
-- `pnpm audit --prod`: "No known vulnerabilities found".
-- `pnpm test:e2e --trace off` (penuh, port 3200): 209 passed, 30 skipped, 1 failed: `r3b-settings.spec.ts:20` (U1b, tidak saya sentuh). Lihat "Masalah lingkungan" di bawah.
-- Spec baru `tests/e2e/u1a-night-flow.spec.ts`: 7 passed di desktop, 10 passed di dua project (sebelum menambah axe). Mencakup: posisi tombol tap tidak bergeser saat target tercapai dan berada di atas nav pada 390x844, tombol >= 160px, progres syarat, tombol Lanjut, tautan Subuh, header satu baris, batang langkah onboarding, axe 0 serious/critical untuk sesi dan counter saat target tercapai di light dan dark.
-- axe: spec yang sudah ada (`s3-a11y`, `shell`, `r3a-auth`, `r3a-session`, `r3a-devices`) tetap lulus, termasuk route dashboard, worship, levels, login, verify, onboarding, access status dalam light dan dark.
+## Sinkron main (b3a43ea) dan permintaan U1b
+- `git merge origin/main` bersih, tanpa konflik.
+- Kartu jadwal dashboard kini memakai `ScheduleNote` (`@/components/settings/schedule-note`): label sumber, Terverifikasi/Perlu dicek ulang/Belum diverifikasi (ikon + teks), atribusi "Bimas Islam Kemenag RI via EQuran.id" hanya untuk jadwal penyedia asli. Baris "jadwal tersimpan" dan "terakhir sinkron" tetap.
+- `PageHeader` padat di 390 px: sudah (aksi + badge + Keluar sebaris, diuji di `u1a-night-flow`).
+- `s3-a11y` dark mobile di `/worship/dhikr/[id]` (document-title): tidak bisa direproduksi (4/4 lulus terisolasi). Penyebab yang masuk akal: judul dokumen diperbarui Next sesaat setelah navigasi klien, axe kadang jalan lebih dulu saat beban tinggi. Perbaikan: test menunggu `toHaveTitle(/Dzikir/)` sebelum axe (aturan axe tidak dilonggarkan).
 
-## Masalah lingkungan (perlu orchestrator)
-`r3b-settings.spec.ts:20` ("jam tenang dan durasi ibadah bertahan setelah reload", U1b) gagal pada port 3100 (`Target tidur` kembali 22:00, bukan 23:00). Bukti bukan dari U1a:
-1. Worktree bersih `origin/main` (tanpa perubahan saya) gagal di port 3100 dan lulus di 3200.
-2. Branch ini dengan `src` dikembalikan ke main juga gagal di 3100 dan lulus di 3200.
-3. Pada run penuh di 3200 test ini masih sekali gagal di bawah beban paralel, lulus saat dijalankan sendiri.
-Dugaan: kondisi balapan simpan lalu reload di `planner-section` (preferensi hanya di perangkat) yang peka waktu, bukan masalah port itu sendiri. Perlu diperiksa U1b/T2. Dua test lain (`r3a-devices:121`, `r3b-quran:57`) gagal sekali di run penuh pertama dan lulus saat diulang sendiri (flake beban). Saya tidak mengubah file U1b. `playwright.config.ts` tidak diubah (port 3200 hanya sementara saat verifikasi lokal).
-Catatan lain: run e2e penuh menjalankan spec `@screens`/`@s3screens` lama yang menimpa PNG di `docs/screenshots/s1,s3`. Saya mengembalikannya dengan `git checkout` agar diff bersih.
+## Gerbang akhir pada hasil gabungan (output asli)
+- `pnpm typecheck`, `pnpm lint`: bersih. `pnpm test`: 33 file, 593 passed, 3 skipped (live DB). `pnpm audit --prod`: "No known vulnerabilities found".
+- `pnpm test:e2e --trace off` (penuh, port 3100): 258 passed, 46 skipped, 2 failed. Keduanya `r3b-quran.spec.ts:29` (U1b), mobile dan desktop, galat di kode test: `apiResponse.text: Response has been disposed` pada `route.fetch()` di baris 92-93. Bukan U1a: pada worktree `origin/main` murni, test yang sama di project mobile lulus sekali dan gagal sekali dengan galat identik (flake balapan intersepsi rute). Terisolasi di branch ini: desktop lulus, mobile gagal sekali.
+- Spec `u1a-night-flow` (10 test, dua project) dan semua spec a11y lain lulus (axe 0 serious/critical di route U1a, light dan dark).
+- Run sebelum merge: 209 passed, 1 failed `r3b-settings:20` (U1b, lingkungan/balapan; gagal juga di `main` lama pada port 3100). Tidak muncul lagi di run gabungan ini.
+- Run e2e penuh menimpa PNG lama di `docs/screenshots/s1,s3`; dikembalikan dengan `git checkout`.
 
 ## Penelusuran Hallmark Floor dan antislop (manual)
 Token hanya lewat variabel (tanpa literal warna/font baru), tanpa `transition: all`, tanpa animasi width/height (cincin `stroke-dashoffset`, bar `scaleX`), `overflow-x: clip`, `:focus-visible` instan, reduced-motion di CSS global, tanpa eyebrow/huruf kapital berlabel, tanpa em-dash dan tanpa titik tengah di copy baru, tanpa emoji, tanpa angka karangan (semua dari data sesi), semua kontrol berupa `button`/`a`/`input`, nama aksesibel ada. Tombol utama satu gaya. Copy baru: "Lanjut: ...", "Ke amalan Subuh", "Target tercapai", "x dari y": pendek, tanpa menyalahkan.

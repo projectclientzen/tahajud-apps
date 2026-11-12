@@ -47,6 +47,8 @@ for (const theme of ["light", "dark"] as const) {
 
     await openCounter(page, "Istighfar");
     await page.getByRole("button", { name: "Tambah satu hitungan" }).click();
+    // The title follows the client-side navigation a moment later. Wait for it so axe never sees the old one.
+    await expect(page).toHaveTitle(/Dzikir/);
     found.push(...(await serious(page, "/worship/dhikr/[id]")));
     await noOverflow(page, "/worship/dhikr/[id]");
 
