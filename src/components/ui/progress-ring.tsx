@@ -47,7 +47,14 @@ export function ProgressRing({
         aria-hidden
         className="-rotate-90"
       >
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} className="stroke-border-strong/35" />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          strokeWidth={stroke}
+          className="stroke-border-strong/35"
+        />
         <circle
           cx={size / 2}
           cy={size / 2}
