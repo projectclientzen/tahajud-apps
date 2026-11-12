@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
+import { LogoutButton } from "@/components/auth/logout-button";
 import { Wordmark } from "@/components/brand/wordmark";
 import { isActive, NAV_ITEMS } from "./nav-items";
 
@@ -73,6 +74,7 @@ export function SidebarNav() {
           })}
         </ul>
       </nav>
+      <LogoutButton className="mt-auto justify-start">Keluar</LogoutButton>
     </aside>
   );
 }

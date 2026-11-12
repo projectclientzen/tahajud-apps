@@ -2,6 +2,7 @@
 
 import { Wrench } from "lucide-react";
 import * as React from "react";
+import { useAuth } from "@/components/providers/auth-provider";
 import { useData, useNow } from "@/components/providers/data-provider";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
@@ -31,6 +32,7 @@ export function DevPanel() {
 
 function DevPanelInner() {
   const { dev, bump, requests, resetRequests } = useData();
+  const auth = useAuth();
   const now = useNow();
   const [open, setOpen] = React.useState(false);
   const [scenario, setScenario] = React.useState<ScenarioName>("new_account");
@@ -173,6 +175,19 @@ function DevPanelInner() {
             Nol-kan
           </Button>
         </div>
+
+        {auth.dev ? (
+          <Button
+            variant="secondary"
+            disabled={busy}
+            onClick={async () => {
+              await auth.dev!.advance(31 * 86_400_000);
+              await auth.refresh();
+            }}
+          >
+            Majukan sesi login 31 hari
+          </Button>
+        ) : null}
 
         <Button
           variant="danger"

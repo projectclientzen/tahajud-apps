@@ -1,5 +1,10 @@
+"use client";
+
 import { BellRing, MapPinned, Smartphone, type LucideIcon } from "lucide-react";
+import { InstallGuide } from "@/components/pwa/install-guide";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Sheet } from "@/components/ui/sheet";
 import type { Dashboard } from "@/data";
 
 const COPY: Record<Dashboard["setup_cards"][number]["key"], { icon: LucideIcon; title: string; text: string }> = {
@@ -32,7 +37,17 @@ export function SetupCards({ cards }: { cards: Dashboard["setup_cards"] }) {
                 <Icon aria-hidden className="size-6" strokeWidth={1.75} />
                 <p className="font-semibold">{title}</p>
                 <p className="text-text-muted">{text}</p>
-                <p className="text-helper text-text-muted">Segera tersedia di Pengaturan.</p>
+                {c.key === "install_app" ? (
+                  <Sheet
+                    title="Pasang di layar utama"
+                    description="Langkah singkat sesuai perangkatmu."
+                    trigger={<Button variant="secondary">Lihat panduan</Button>}
+                  >
+                    <InstallGuide />
+                  </Sheet>
+                ) : (
+                  <p className="text-helper text-text-muted">Segera tersedia di Pengaturan.</p>
+                )}
               </Card>
             </li>
           );

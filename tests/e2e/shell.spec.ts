@@ -75,9 +75,8 @@ for (const theme of ["light", "dark"] as const) {
   });
 }
 
-test("entry CTA opens the dashboard", async ({ page }) => {
+test("entry page sends a signed-in visitor to the dashboard", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Buka prototipe" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByRole("heading", { name: "Dashboard Istiqomah" })).toBeVisible();
 });

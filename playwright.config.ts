@@ -4,6 +4,7 @@ const PORT = 3100;
 
 export default defineConfig({
   testDir: "tests/e2e",
+  globalSetup: "./tests/e2e/global-setup.ts",
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"]],
@@ -12,6 +13,8 @@ export default defineConfig({
     trace: "off",
     locale: "id-ID",
     timezoneId: "Asia/Jakarta",
+    // Returning demo user, saved once by global-setup. Login specs override this with an empty state.
+    storageState: "tests/e2e/.auth/demo.json",
   },
   projects: [
     { name: "mobile", use: { ...devices["Desktop Chrome"], viewport: { width: 320, height: 720 }, hasTouch: true } },

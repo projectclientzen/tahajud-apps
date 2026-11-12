@@ -12,12 +12,12 @@ Spesifikasi berlaku: `docs/PRD-v1.2.md`
 | Domain | Session key, state machine, progression, reporting, counter, wake planner, rotasi | REAL | S2 merged ke main. 210 test lulus, coverage domain 100% lines. Mock repository + skenario SIMULATED (DEMO DATA). Mode live = stub sampai S5. Insight: ambang dari agen, perlu persetujuan owner. Detail: `docs/sessions/S2.md` |
 | UI | Dashboard Istiqomah | SIMULATED | S3: section A-I, filter 7/30/90, kalender, mode berhalangan. Data dari mock layer (badge Data demo). Tanpa ikon notifikasi dan pengaturan (ronde 3) |
 | UI | Worship session + transisi Subuh | SIMULATED | S3: `/worship`, `/worship/session`, banner Subuh, ringkasan inline. Al-Waqi'ah dan Ayat Seribu Dinar berupa centang, Reader menyusul |
-| UI | Dzikir counter | SIMULATED | S3: tap 176px, coalescing domain S2, reset `set_zero`, Wake Lock. Antrean di memori, IndexedDB queue di S4a. Wake Lock dan getar belum diuji di perangkat nyata |
+| UI | Dzikir counter | SIMULATED | S3: tap 176px, coalescing domain S2, reset `set_zero`, Wake Lock. T1: operasi lewat antrean IndexedDB per user (offline 30 tap lalu online = 30 di server). Wake Lock dan getar belum diuji di perangkat nyata |
 | UI | Level journey | SIMULATED | S3: `/levels`, state terkunci, milestone Level 3. Syarat level PROVISIONAL |
-| UI | Auth, onboarding, access status | TODO | S4 |
+| UI | Auth, onboarding, access status | SIMULATED | T1: `/login`, `/auth/verify` (OTP diketik di app), `/onboarding` 3 layar, `/access-status`, logout dengan peringatan antrean. Server dan email disimulasikan mock (kode OTP lewat dev panel). Magic link tidak dibuat. Detail: `docs/sessions/T1.md` |
 | UI | Quran Reader | TODO | S4 (UI) / S7 (dataset) |
 | UI | Reports, calendar, settings, notifications, help | TODO | S4 |
-| Offline | IndexedDB queue + service worker | REAL (logic), belum di layar | S4a di branch sesi (belum merge): antrean per user, sender, trigger, SW (shell + aset statis, `/api/` tidak di-cache), offline fallback, komponen panduan pasang. Diuji di Chromium; Safari iOS belum. Auth OTP + profil repository SIMULATED (mock), live = stub sampai S5. Pemasangan ke UI di ronde 3. Detail: `docs/sessions/S4a.md` |
+| Offline | IndexedDB queue + service worker | REAL (logic), belum di layar | S4a di branch sesi (belum merge): antrean per user, sender, trigger, SW (shell + aset statis, `/api/` tidak di-cache), offline fallback, komponen panduan pasang. Diuji di Chromium; Safari iOS belum. Auth OTP + profil repository SIMULATED (mock), live = stub sampai S5. T1: antrean terpasang ke counter, trigger online/visible/timer aktif, `UpdatePrompt` di shell, panduan pasang di kartu dashboard, data user dihapus saat logout. Checklist belum lewat antrean. Detail: `docs/sessions/S4a.md`, `docs/sessions/T1.md` |
 | Backend | Supabase schema + RLS | TODO | S5, butuh project Supabase |
 | Backend | Auth OTP + entitlement guard | TODO | S5 |
 | Backend | API v1 + server progression | TODO | S5 |
