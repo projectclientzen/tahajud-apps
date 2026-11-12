@@ -10,3 +10,11 @@ export const SESSION_STATUS_LABEL: Record<SessionStatus, string> = {
   excused: "Berhalangan",
   upcoming: "Akan datang",
 };
+
+/** Active-session UI state that has no stored status. Owner decision 12 Nov 2026: label "Sedang berjalan" (PRD v1.2.3 §7.7). */
+export const IN_PROGRESS_LABEL = "Sedang berjalan";
+export type DisplayStatus = SessionStatus | "in_progress";
+export const DISPLAY_STATUS_LABEL: Record<DisplayStatus, string> = {
+  ...SESSION_STATUS_LABEL,
+  in_progress: IN_PROGRESS_LABEL,
+};
