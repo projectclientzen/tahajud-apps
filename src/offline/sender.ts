@@ -3,7 +3,16 @@ import type { DataLayer } from "@/data/repositories";
 import type { CounterDeltaPayload, ChecklistPayload, QueueItem, QueueSender, SendOutcome } from "./types";
 
 /** Errors worth retrying. Everything else is a refusal the user must see. */
-const TRANSIENT = new Set(["OFFLINE", "NOT_AVAILABLE", "RATE_LIMITED", "UNAUTHENTICATED", "ENTITLEMENT_INACTIVE"]);
+// INTERNAL_ERROR / FORBIDDEN_ORIGIN are retried: an unexpected 500 or a proxy origin glitch must never drop a user note.
+const TRANSIENT = new Set([
+  "OFFLINE",
+  "NOT_AVAILABLE",
+  "RATE_LIMITED",
+  "UNAUTHENTICATED",
+  "ENTITLEMENT_INACTIVE",
+  "INTERNAL_ERROR",
+  "FORBIDDEN_ORIGIN",
+]);
 
 const MAX_BATCH = 50;
 

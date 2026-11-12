@@ -179,6 +179,24 @@ describe("sender outcomes", () => {
     expect(none).toEqual([{ kind: "retry", error: "VERSION_CONFLICT" }]);
   });
 
+  it("retries an unexpected server error or origin refusal instead of dropping the note", async () => {
+    for (const code of ["INTERNAL_ERROR", "FORBIDDEN_ORIGIN"] as const) {
+      const layer = {
+        session: {
+          setChecklist: async () => {
+            throw new ApiError(code, "x");
+          },
+        },
+      } as never;
+      const item = {
+        operation_type: "checklist_set",
+        payload: { checked: true, version: 0 },
+        entity_id: "e",
+      } as unknown as QueueItem;
+      expect(await createLayerSender(layer).send([item])).toEqual([{ kind: "retry", error: code }]);
+    }
+  });
+
   it("classifies errors: transient ones retry, refusals are kept, unknown errors retry", async () => {
     const throwing = (e: unknown) =>
       ({
