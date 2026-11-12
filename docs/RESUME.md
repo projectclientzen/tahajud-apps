@@ -11,7 +11,7 @@ Dipakai jika sesi orchestrator berhenti (limit token, error) dan dilanjutkan ole
 ## Urutan berikutnya (prioritas owner: UI/UX dulu)
 1. T1b selesai → merge ke integrasi → gerbang penuh 0 failed → push integrasi ke `main`.
 2. Paralel segera: T4c (Agen C, koordinat Wikidata, `docs/briefs/T4c.md`) karena file terpisah.
-3. Sedang jalan paralel: U1a fase A (agen a lama), U1b (sesi T2), T3b (agen b lama). Brief: `docs/briefs/U1.md`, `docs/briefs/T3b.md`.
+3. Sedang jalan paralel: U1a fase A (agen a lama session_01HkFB31nuh3ixhXSEc2U9by), U1b (sesi baru session_01HkFB2zxRfGDMijRrJho6k9; sesi T2 lama menolak tugas lewat pesan antar-sesi), T3b (agen b lama session_01HkFB32cEmv1CJ8uQzVTKou), T1b (session_01HkFB31AmZWqwfK4SsUgoiW), T4c (Agen C session_01HkFB2xqrE6x4NAZUwbMajW). Brief: `docs/briefs/U1.md`, `docs/briefs/T3b.md`.
 4. Setelah T1b merged: kabari U1a/U1b masuk fase B. Setelah T3b merged: T5 + T6 paralel, lalu T7, T8, lalu prompt audit Fable untuk owner.
 Catatan limit: owner menyebut limit token RESET pukul 16.00 WIB (bukan habis).
 
@@ -20,3 +20,6 @@ Batas 3 perangkat (ke-4 ditolak), sesi 30 hari, label "Sedang berjalan", legenda
 
 ## Aturan orchestrator
 Agen push ke branch sesi; hanya orchestrator yang merge ke main setelah typecheck, lint, test, test:e2e --trace off, audit lolos di hasil gabungan. Jangan force-push. Tanya owner hanya untuk approval, kredensial, biaya, legal, konten agama, keputusan produk baru.
+
+## Catatan biaya
+Sesi agen lama (agen a, agen b) membawa context 570-620 ribu token, sehingga tiap langkahnya mahal. Tugas baru berikutnya dijalankan di sesi baru (create_session); sesi baru menerima tugas dari prompt pembukanya, sedangkan sesi lama yang tidak dibuat orchestrator bisa menolak pesan antar-sesi.
