@@ -1,5 +1,5 @@
 import { openDB } from "idb";
-import { devicesToRevoke } from "@/domain/auth/devices";
+import { PENDING_LOGIN_TTL_MS, checkDeviceLimit, checkPendingLogin, type PendingLogin } from "@/domain/auth/devices";
 import { isPlausibleEmail, normalizeEmail } from "@/domain/auth/email";
 import {
   OTP_RULES,
@@ -20,10 +20,12 @@ import {
   type Device,
   type RequestOtpResponse,
   type VerifyOtpResponse,
+  type VerifyOtpResult,
 } from "../contracts";
 import type { AuthRepository } from "../repositories";
 import type { Clock } from "./engine";
-import { AUTH_SCENARIOS, buildAuthScenario, userIdFor, type AuthScenarioName } from "./fixtures/auth";
+import { AUTH_SCENARIOS, buildAuthScenario, seedScenarioFor, userIdFor, type AuthScenarioName } from "./fixtures/auth";
+import type { ScenarioName } from "./state";
 
 export type EntitlementStatus = "active" | "pending_verification" | "suspended" | "none";
 
@@ -54,6 +56,10 @@ export interface AuthState {
   session: MockSession | null;
   signedOutReason: "none" | "expired" | "revoked";
   devices: Record<string, DeviceRecord[]>;
+  /** Right code but 3 devices active (PRD §24.1). Token -> who is waiting. Absent in older saved states. */
+  pendingLogins?: Record<string, PendingLogin>;
+  /** Data scenario each user's mock database starts from. Mock only: a real server just has the data. */
+  seeds?: Record<string, ScenarioName>;
   clockOverride: string | null;
 }
 
@@ -123,6 +129,8 @@ export class MockAuth implements AuthRepository {
       this.state =
         (await this.o.storage.load()) ??
         buildAuthScenario(this.o.scenario ?? "logged_out", this.o.clock.now().getTime());
+      this.state.pendingLogins ??= {};
+      this.state.seeds ??= {};
       await this.o.storage.save(this.state);
     }
     return this.state;
@@ -154,7 +162,7 @@ export class MockAuth implements AuthRepository {
     return { ok: true, message: GENERIC_SENT, resend_after_seconds: OTP_RULES.resendCooldownMs / 1000 };
   }
 
-  async verifyOtp(raw: string, code: string, deviceLabel = "Perangkat baru"): Promise<VerifyOtpResponse> {
+  async verifyOtp(raw: string, code: string, deviceLabel = "Perangkat baru"): Promise<VerifyOtpResult> {
     const req = verifyOtpRequestSchema.safeParse({ email: raw, code });
     if (!req.success || !isValidOtpFormat(code)) throw new ApiError("INVALID_OTP", BAD_CODE);
     const st = await this.s();
@@ -169,9 +177,64 @@ export class MockAuth implements AuthRepository {
     st.otps[email] = r.record;
 
     const userId = userIdFor(email);
+    const active = (st.devices[userId] ?? []).filter((d) => d.revokedAt === null);
+    const limit = checkDeviceLimit(active);
+    if (!limit.ok) {
+      // The code was right, so the person owns the mailbox. They may remove one device and continue.
+      const token = this.newToken();
+      const pending = (st.pendingLogins ??= {});
+      pending[token] = { email, userId, createdAt: now, used: false };
+      await this.save();
+      return {
+        status: "device_limit",
+        max_devices: limit.max,
+        pending_token: token,
+        pending_expires_at: new Date(now + PENDING_LOGIN_TTL_MS).toISOString(),
+        devices: [...active]
+          .sort((a, b) => b.lastSeenAt - a.lastSeenAt)
+          .map((d) => ({
+            id: d.id,
+            label: d.label,
+            last_seen_at: new Date(d.lastSeenAt).toISOString(),
+            is_current: false,
+          })),
+      };
+    }
+    return { status: "ok", ...(await this.startSession(st, userId, email, deviceLabel, now)) };
+  }
+
+  /** Second step of a 4th-device login. Removes the chosen device, then signs in. The token works once. */
+  async completePendingLogin(
+    token: string,
+    revokeDeviceId: string,
+    deviceLabel = "Perangkat baru",
+  ): Promise<VerifyOtpResponse> {
+    const st = await this.s();
+    const now = this.nowMs();
+    const pending = st.pendingLogins?.[token];
+    const check = checkPendingLogin(pending, now);
+    if (!check.ok || !pending) {
+      throw new ApiError("PENDING_LOGIN_INVALID", "Waktu untuk melanjutkan sudah habis. Masuk lagi dengan kode baru.");
+    }
+    const dev = st.devices[pending.userId]?.find((d) => d.id === revokeDeviceId && d.revokedAt === null);
+    if (!dev) throw new ApiError("NOT_FOUND", "Perangkat tidak ditemukan.");
+    dev.revokedAt = now;
+    pending.used = true;
+    return this.startSession(st, pending.userId, pending.email, deviceLabel, now);
+  }
+
+  private newToken(): string {
+    return `pl_${this.random(10 ** 9).toString(36)}${this.random(10 ** 9).toString(36)}${this.random(10 ** 9).toString(36)}`;
+  }
+
+  private async startSession(
+    st: AuthState,
+    userId: string,
+    email: string,
+    deviceLabel: string,
+    now: number,
+  ): Promise<VerifyOtpResponse> {
     const list = st.devices[userId] ?? [];
-    const active = list.filter((d) => d.revokedAt === null).map((d) => ({ id: d.id, lastSeenAt: d.lastSeenAt }));
-    for (const id of devicesToRevoke(active)) list.find((d) => d.id === id)!.revokedAt = now;
     const deviceId = `dev_${userId}_${list.length + 1}`;
     list.push({ id: deviceId, label: deviceLabel, lastSeenAt: now, revokedAt: null });
     st.devices[userId] = list;
@@ -179,6 +242,8 @@ export class MockAuth implements AuthRepository {
     const expiresAt = now + PROVISIONAL_AUTH.sessionDays * 86_400_000;
     st.session = { userId, email, deviceId, issuedAt: now, expiresAt };
     st.signedOutReason = "none";
+    const seeds = (st.seeds ??= {});
+    seeds[userId] ??= seedScenarioFor(st.entitlements[email] ?? "none");
     await this.save();
     return {
       user: { id: userId, email },
@@ -280,6 +345,10 @@ export class MockAuth implements AuthRepository {
   async dev_peekOtp(email: string): Promise<string | null> {
     const st = await this.s();
     return st.otps[normalizeEmail(email)]?.code ?? null;
+  }
+  /** Data scenario to start this user's mock database from. Only meaningful in mock mode. */
+  async dev_seedFor(userId: string): Promise<ScenarioName> {
+    return (await this.s()).seeds?.[userId] ?? "new_account";
   }
   async dev_outbox(): Promise<AuthState["outbox"]> {
     return structuredClone((await this.s()).outbox);

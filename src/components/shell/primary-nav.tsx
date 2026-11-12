@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { Wordmark } from "@/components/brand/wordmark";
+import { LogoutButton } from "./logout-button";
 import { isActive, NAV_ITEMS } from "./nav-items";
 
 export function BottomNav() {
@@ -62,7 +63,9 @@ export function SidebarNav() {
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "flex min-h-12 items-center gap-3 rounded-[var(--radius-control)] px-3 transition-colors duration-[var(--dur-fast)]",
-                    active ? "bg-primary-soft font-semibold text-text" : "text-text-muted hover:bg-surface-2 hover:text-text",
+                    active
+                      ? "bg-primary-soft font-semibold text-text"
+                      : "text-text-muted hover:bg-surface-2 hover:text-text",
                   )}
                 >
                   <Icon aria-hidden className="size-5" strokeWidth={active ? 2.25 : 1.75} />
@@ -73,6 +76,7 @@ export function SidebarNav() {
           })}
         </ul>
       </nav>
+      <LogoutButton className="mt-auto w-full" />
     </aside>
   );
 }

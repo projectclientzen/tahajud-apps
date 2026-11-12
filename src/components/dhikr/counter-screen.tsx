@@ -2,11 +2,12 @@
 
 import { Check, CloudOff, Minus } from "lucide-react";
 import * as React from "react";
-import { errorCode, useData } from "@/components/providers/data-provider";
+import { useData, useQueueSnapshot } from "@/components/providers/data-provider";
 import { Button } from "@/components/ui/button";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Sheet, SheetClose } from "@/components/ui/sheet";
 import type { SessionActivity } from "@/data";
+import type { QueueItem } from "@/offline";
 import {
   applyAcks,
   displayCount,
@@ -22,12 +23,25 @@ import {
 } from "@/domain/dhikr/counter";
 
 const TICK_MS = 500;
-const RETRY_MS = 4_000;
 
-const toContractOp = (o: CounterOperation) =>
-  o.kind === "delta"
-    ? { kind: "delta" as const, operation_id: o.operationId, delta: o.delta, client_recorded_at: o.clientRecordedAt }
-    : { kind: "set_zero" as const, operation_id: o.operationId, client_recorded_at: o.clientRecordedAt };
+/** A note saved in the offline queue, as the counter reducer understands it. */
+function fromQueueItem(it: QueueItem, activityId: string): CounterOperation | null {
+  if (it.operation_type === "counter_delta") {
+    const p = it.payload as { delta: number; client_recorded_at: string };
+    return {
+      kind: "delta",
+      operationId: it.operation_id,
+      activityId,
+      delta: p.delta,
+      clientRecordedAt: p.client_recorded_at,
+    };
+  }
+  if (it.operation_type === "counter_set_zero") {
+    const p = it.payload as { client_recorded_at: string };
+    return { kind: "set_zero", operationId: it.operation_id, activityId, clientRecordedAt: p.client_recorded_at };
+  }
+  return null;
+}
 
 /** Keeps the screen on while counting, where the browser allows it (PRD §12.1). */
 function useWakeLock(enabled: boolean) {
@@ -52,16 +66,17 @@ function useWakeLock(enabled: boolean) {
 }
 
 /**
- * Tap counter. Display = last server count + operations in flight + taps not yet sent (PRD §12.3).
- * Taps are coalesced by the domain reducer, so 100 quick taps become a few requests.
- * TODO(S4a): in-flight operations live in memory only. S4a moves them to the IndexedDB queue.
+ * Tap counter. Display = last server count + notes not yet acknowledged + taps not yet saved (PRD §12.3).
+ * Taps are coalesced by the domain reducer, so 100 quick taps become a few notes. Every note goes into the
+ * offline queue (IndexedDB) first and is sent from there, so a reload, a dead connection, or a closed tab
+ * never loses a count (PRD §21.2). The queue retries and the server ignores a note it already has.
  */
 export function CounterScreen({ activity: a }: { activity: SessionActivity }) {
-  const { layer } = useData();
+  const { queue, subscribeAcks, registerFlusher } = useData();
+  const snap = useQueueSnapshot();
   const [state, setState] = React.useState<CounterState>(() => initCounter(a.id, a.target ?? 0, a.count));
   const stateRef = React.useRef(state);
-  const sending = React.useRef(false);
-  const [offline, setOffline] = React.useState(false);
+  const [online, setOnline] = React.useState(true);
   const [keepAwake, setKeepAwake] = React.useState(false);
   const [canWake, setCanWake] = React.useState(false);
   const [confirmReset, setConfirmReset] = React.useState(false);
@@ -74,14 +89,39 @@ export function CounterScreen({ activity: a }: { activity: SessionActivity }) {
 
   React.useEffect(() => setCanWake("wakeLock" in navigator), []);
 
-  const sync = React.useCallback(async () => {
-    if (!layer || sending.current) return;
-    sending.current = true;
-    try {
-      while (stateRef.current.inflight.length > 0) {
-        const before = stateRef.current.inflight.length;
-        const ops = stateRef.current.inflight.slice(0, 50);
-        const res = await layer.session.applyCounterOperations(a.id, { operations: ops.map(toContractOp) });
+  React.useEffect(() => {
+    const sync = () => setOnline(navigator.onLine !== false);
+    sync();
+    window.addEventListener("online", sync);
+    window.addEventListener("offline", sync);
+    return () => {
+      window.removeEventListener("online", sync);
+      window.removeEventListener("offline", sync);
+    };
+  }, []);
+
+  // Notes saved earlier (before a reload, or while offline) still count on screen until the server confirms them.
+  React.useEffect(() => {
+    if (!queue) return;
+    let alive = true;
+    void queue.listPending(a.id).then((items) => {
+      if (!alive) return;
+      const known = new Set(stateRef.current.inflight.map((o) => o.operationId));
+      const ops = items
+        .map((it) => fromQueueItem(it, a.id))
+        .filter((o): o is CounterOperation => o !== null && !known.has(o.operationId));
+      if (ops.length > 0) update({ ...stateRef.current, inflight: [...ops, ...stateRef.current.inflight] });
+    });
+    return () => {
+      alive = false;
+    };
+  }, [queue, a.id, update]);
+
+  // The queue sends in the background. When the server answers, take its count as the truth.
+  React.useEffect(
+    () =>
+      subscribeAcks((activityId, res) => {
+        if (activityId !== a.id) return;
         update(
           applyAcks(
             stateRef.current,
@@ -92,49 +132,48 @@ export function CounterScreen({ activity: a }: { activity: SessionActivity }) {
             })),
           ),
         );
-        setOffline(false);
-        if (stateRef.current.inflight.length >= before) break;
-      }
-    } catch (e) {
-      setOffline(errorCode(e) === "OFFLINE");
-    } finally {
-      sending.current = false;
-    }
-  }, [layer, a.id, update]);
+      }),
+    [subscribeAcks, a.id, update],
+  );
 
   const sendBuffer = React.useCallback(() => {
     const r = flush(stateRef.current, crypto.randomUUID(), Date.now());
-    if (r.operation) update(r.state);
-    void sync();
-  }, [sync, update]);
+    const op = r.operation;
+    if (!op || op.kind !== "delta") return;
+    update(r.state);
+    void queue?.enqueue({
+      operation_id: op.operationId,
+      entity_id: a.id,
+      operation_type: "counter_delta",
+      payload: { delta: op.delta, client_recorded_at: op.clientRecordedAt },
+    });
+  }, [queue, a.id, update]);
 
-  // Flush on the 2 s timer, retry unsent operations, and flush when the page goes away.
+  // Logout asks every counter to save its buffered taps first (DZIKIR-06).
+  React.useEffect(() => registerFlusher(sendBuffer), [registerFlusher, sendBuffer]);
+
+  // Save the buffer on the 2 s timer and when the page goes away.
   React.useEffect(() => {
     const tick = window.setInterval(() => {
       if (shouldFlush(stateRef.current, { now: Date.now() })) sendBuffer();
     }, TICK_MS);
-    const retry = window.setInterval(() => {
-      if (stateRef.current.inflight.length > 0) void sync();
-    }, RETRY_MS);
     const leave = () => sendBuffer();
     const onHidden = () => document.visibilityState === "hidden" && leave();
     document.addEventListener("visibilitychange", onHidden);
     window.addEventListener("pagehide", leave);
-    window.addEventListener("online", sync);
     return () => {
       window.clearInterval(tick);
-      window.clearInterval(retry);
       document.removeEventListener("visibilitychange", onHidden);
       window.removeEventListener("pagehide", leave);
-      window.removeEventListener("online", sync);
       leave();
     };
-  }, [sendBuffer, sync]);
+  }, [sendBuffer]);
 
   const count = displayCount(state);
   const reached = isTargetReached(state);
   const extra = extraCount(state);
-  const unsynced = state.pendingDelta !== 0 || state.inflight.length > 0;
+  const waiting = !online || snap.lastError === "OFFLINE";
+  const unsynced = state.pendingDelta !== 0 || state.inflight.length > 0 || snap.pending > 0;
 
   const wasReached = React.useRef(reached);
   React.useEffect(() => {
@@ -145,14 +184,21 @@ export function CounterScreen({ activity: a }: { activity: SessionActivity }) {
   function onTap(step: 1 | -1) {
     const next = tap(stateRef.current, Date.now(), step);
     update(next);
-    // The reducer asks for an immediate flush when the target is crossed.
+    // The reducer asks for an immediate save when the target is crossed.
     if (shouldFlush(next, { now: Date.now() })) sendBuffer();
   }
 
   function onReset() {
     const r = reset(stateRef.current, crypto.randomUUID(), Date.now());
     update(r.state);
-    void sync();
+    if (r.operation) {
+      void queue?.enqueue({
+        operation_id: r.operation.operationId,
+        entity_id: a.id,
+        operation_type: "counter_set_zero",
+        payload: { client_recorded_at: r.operation.clientRecordedAt },
+      });
+    }
     setConfirmReset(false);
   }
 
@@ -233,7 +279,7 @@ export function CounterScreen({ activity: a }: { activity: SessionActivity }) {
 
       <p className="flex items-center gap-2 text-helper text-text-muted" role="status" data-testid="sync-status">
         {unsynced ? <CloudOff aria-hidden className="size-4" /> : <Check aria-hidden className="size-4" />}
-        {unsynced ? (offline ? "Tersimpan di perangkat, menunggu sinyal" : "Tersimpan di perangkat") : "Tersinkron"}
+        {unsynced ? (waiting ? "Tersimpan di perangkat, menunggu sinyal" : "Tersimpan di perangkat") : "Tersinkron"}
       </p>
 
       {state.rejected.length > 0 ? (

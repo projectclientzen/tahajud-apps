@@ -31,7 +31,7 @@ export type MockDataLayer = DataLayer & { mode: "mock"; dev: MockDevTools; engin
 export interface CreateMockOptions {
   userId: string;
   scenario?: ScenarioName;
-  /** Defaults to IndexedDB `tahajud-<userId>` in the browser and memory elsewhere. */
+  /** Defaults to IndexedDB `tahajud-mock-<userId>` in the browser and memory elsewhere. */
   storage?: EngineOptions["storage"];
   clock?: Clock;
 }
@@ -94,6 +94,8 @@ export { SCENARIOS, type ScenarioName } from "./state";
 export interface MockAuthDevTools {
   /** Code in the "email" for this address. Dev panel only. */
   peekOtp(email: string): Promise<string | null>;
+  /** Data scenario this user's mock database starts from. */
+  seedFor(userId: string): Promise<ScenarioName>;
   outbox(): Promise<AuthState["outbox"]>;
   setNow(iso: string | null): Promise<void>;
   advance(ms: number): Promise<void>;
@@ -108,20 +110,29 @@ export type CreateMockAuthOptions = Partial<
   Pick<AuthOptions, "clock" | "storage" | "scenario" | "randomInt" | "onboardingCompleted">
 >;
 
+/** Reads the user's mock database to learn whether onboarding is done. Browser only. */
+async function onboardingFromMockDb(userId: string): Promise<boolean> {
+  return (await idbStorage(userId).load())?.access.onboarding_completed ?? false;
+}
+
 export function createMockAuth(opts: CreateMockAuthOptions = {}): MockAuthLayer {
   const storage = opts.storage ?? (typeof indexedDB === "undefined" ? memoryAuthStorage() : idbAuthStorage());
-  const a = new MockAuth({ ...opts, storage, clock: opts.clock ?? realClock });
+  const onboardingCompleted =
+    opts.onboardingCompleted ?? (typeof indexedDB === "undefined" ? undefined : onboardingFromMockDb);
+  const a = new MockAuth({ ...opts, onboardingCompleted, storage, clock: opts.clock ?? realClock });
   return {
     mode: "mock",
     engine: a,
     requestOtp: (e) => a.requestOtp(e),
     verifyOtp: (e, c, l) => a.verifyOtp(e, c, l),
+    completePendingLogin: (t, d, l) => a.completePendingLogin(t, d, l),
     getSession: () => a.getSession(),
     logout: () => a.logout(),
     listDevices: () => a.listDevices(),
     revokeDevice: (id) => a.revokeDevice(id),
     dev: {
       peekOtp: (e) => a.dev_peekOtp(e),
+      seedFor: (u) => a.dev_seedFor(u),
       outbox: () => a.dev_outbox(),
       setNow: (i) => a.dev_setNow(i),
       advance: (m) => a.dev_advance(m),

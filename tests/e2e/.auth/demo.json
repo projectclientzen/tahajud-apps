@@ -1,0 +1,173 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:3100",
+      "localStorage": [],
+      "indexedDB": [
+        {
+          "name": "tahajud-auth-mock",
+          "version": 1,
+          "stores": [
+            {
+              "name": "state",
+              "autoIncrement": false,
+              "records": [
+                {
+                  "key": "auth",
+                  "value": {
+                    "schemaVersion": 1,
+                    "scenario": "logged_out",
+                    "otps": {
+                      "demo@ngajigaes.test": {
+                        "code": "422250",
+                        "issuedAt": 1794471013654,
+                        "attempts": 0,
+                        "consumed": true
+                      }
+                    },
+                    "sentAt": {
+                      "demo@ngajigaes.test": [
+                        1794471013654
+                      ]
+                    },
+                    "outbox": [
+                      {
+                        "to": "demo@ngajigaes.test",
+                        "code": "422250",
+                        "sentAt": 1794471013654
+                      }
+                    ],
+                    "entitlements": {
+                      "demo@ngajigaes.test": "active",
+                      "pending@ngajigaes.test": "pending_verification",
+                      "suspended@ngajigaes.test": "suspended"
+                    },
+                    "session": {
+                      "userId": "u_e9953985",
+                      "email": "demo@ngajigaes.test",
+                      "deviceId": "dev_u_e9953985_1",
+                      "issuedAt": 1794471013983,
+                      "expiresAt": 1797063013983
+                    },
+                    "signedOutReason": "none",
+                    "devices": {
+                      "u_e9953985": [
+                        {
+                          "id": "dev_u_e9953985_1",
+                          "label": "Perangkat ini",
+                          "lastSeenAt": 1794471014016,
+                          "revokedAt": null
+                        }
+                      ]
+                    },
+                    "clockOverride": null
+                  }
+                }
+              ],
+              "indexes": []
+            }
+          ]
+        },
+        {
+          "name": "tahajud-u_e9953985",
+          "version": 2,
+          "stores": [
+            {
+              "name": "queue",
+              "autoIncrement": true,
+              "keyPath": "seq",
+              "records": [],
+              "indexes": [
+                {
+                  "name": "operation_id",
+                  "keyPath": "operation_id",
+                  "multiEntry": false,
+                  "unique": true
+                }
+              ]
+            },
+            {
+              "name": "state",
+              "autoIncrement": false,
+              "records": [
+                {
+                  "key": "mock",
+                  "value": {
+                    "schemaVersion": 1,
+                    "scenario": "onboarding_pending",
+                    "access": {
+                      "authenticated": true,
+                      "access_status": "active",
+                      "entitlement_type": "lifetime",
+                      "expires_at": null,
+                      "onboarding_completed": true
+                    },
+                    "programStartDate": "2026-11-13",
+                    "timezone": "Asia/Jakarta",
+                    "regionId": "demo-jakarta",
+                    "scheduleMode": "region",
+                    "manualSchedule": null,
+                    "providerDown": false,
+                    "cacheValidUntil": null,
+                    "offline": false,
+                    "levelState": {
+                      "currentLevel": 1,
+                      "unlockedAt": {
+                        "1": "2026-11-12T08:10:14.379Z"
+                      },
+                      "effectiveFromSessionKey": {
+                        "1": "2026-11-13"
+                      }
+                    },
+                    "sessions": {},
+                    "excusedDates": [],
+                    "counterStore": {
+                      "counts": {},
+                      "applied": {}
+                    },
+                    "notificationPrefs": {
+                      "bedtime": {
+                        "enabled": true,
+                        "target_sleep_time": "22:00",
+                        "offset_minutes": 30
+                      },
+                      "tahajud": {
+                        "enabled": true
+                      },
+                      "fajr": {
+                        "enabled": true
+                      },
+                      "alkahfi": {
+                        "enabled": true
+                      },
+                      "achievement": {
+                        "enabled": true
+                      },
+                      "quiet_hours": {
+                        "enabled": false,
+                        "start": "22:00",
+                        "end": "04:00",
+                        "allow_worship": true
+                      }
+                    },
+                    "quranProgress": {},
+                    "clockOverride": null,
+                    "installPromptDone": false,
+                    "profile": {
+                      "displayName": "Pengguna Demo",
+                      "themePref": "system",
+                      "quranFontSize": 30,
+                      "dhikrFontSize": 28
+                    }
+                  }
+                }
+              ],
+              "indexes": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
