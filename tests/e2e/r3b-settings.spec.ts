@@ -30,6 +30,8 @@ test("jam tenang dan durasi ibadah bertahan setelah reload", async ({ page }) =>
   await page.getByLabel("Target tidur", { exact: true }).fill("23:00");
   await expect(page.getByTestId("wake-preview")).toBeVisible();
   await page.getByRole("button", { name: "Simpan jam bangun" }).click();
+  // Wait for the save to finish before reloading, or the reload can cancel it.
+  await expect(page.getByRole("status").filter({ hasText: "Tersimpan." })).toHaveCount(2);
 
   await page.reload();
   await expect(page.getByLabel("Mulai")).toHaveValue("21:15");

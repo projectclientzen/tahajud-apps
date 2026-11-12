@@ -7,6 +7,7 @@ import { errorMessage, useData, useLoad } from "@/components/providers/data-prov
 import { Button } from "@/components/ui/button";
 import type { PrayerTime } from "@/data";
 import { formatClock, formatDateLong, tzLabel } from "@/lib/format-id";
+import { cn } from "@/lib/cn";
 import { requestPersistentStorage } from "@/offline";
 
 type Step = "welcome" | "region" | "confirm";
@@ -70,9 +71,22 @@ export function OnboardingFlow() {
   const canContinue = mode === "region" ? regionId !== "" : /^\d{2}:\d{2}$/.test(fajr) && timezone !== "";
   return (
     <div className="flex flex-col gap-6">
-      <p className="text-helper text-text-muted" aria-live="polite" data-testid="onboarding-step">
-        Langkah {STEPS.indexOf(step) + 1} dari {STEPS.length}
-      </p>
+      <div className="flex flex-col gap-2">
+        <div aria-hidden className="flex gap-1.5">
+          {STEPS.map((x, i) => (
+            <span
+              key={x}
+              className={cn(
+                "h-1.5 flex-1 rounded-full",
+                i <= STEPS.indexOf(step) ? "bg-primary" : "bg-border-strong/35",
+              )}
+            />
+          ))}
+        </div>
+        <p className="text-helper text-text-muted" aria-live="polite" data-testid="onboarding-step">
+          Langkah {STEPS.indexOf(step) + 1} dari {STEPS.length}
+        </p>
+      </div>
 
       {step === "welcome" ? (
         <>
@@ -95,9 +109,9 @@ export function OnboardingFlow() {
             <h1 className="text-page-title font-bold">Wilayahmu</h1>
             <p className="text-text-muted">Jadwal Subuh mengikuti wilayah. Tidak ketemu? Atur jam Subuh sendiri.</p>
           </div>
-          <fieldset className="flex flex-col gap-1">
+          <fieldset className="flex flex-col gap-2">
             <legend className="sr-only">Cara menentukan jadwal</legend>
-            <label className="flex min-h-12 items-center gap-3">
+            <label className="flex min-h-14 items-center gap-3 rounded-[var(--radius-control)] border border-border px-4 has-[:checked]:border-primary has-[:checked]:bg-primary-soft">
               <input
                 type="radio"
                 name="mode"
@@ -107,7 +121,7 @@ export function OnboardingFlow() {
               />
               Pilih wilayah
             </label>
-            <label className="flex min-h-12 items-center gap-3">
+            <label className="flex min-h-14 items-center gap-3 rounded-[var(--radius-control)] border border-border px-4 has-[:checked]:border-primary has-[:checked]:bg-primary-soft">
               <input
                 type="radio"
                 name="mode"
@@ -120,12 +134,12 @@ export function OnboardingFlow() {
           </fieldset>
 
           {mode === "region" ? (
-            <fieldset className="flex flex-col gap-1">
+            <fieldset className="flex flex-col gap-2">
               <legend className="pb-1 font-semibold">Kota (daftar contoh)</legend>
               {(regions.data ?? []).map((r) => (
                 <label
                   key={r.id}
-                  className="flex min-h-12 items-center gap-3 rounded-[var(--radius-control)] px-1 hover:bg-surface-2"
+                  className="flex min-h-14 items-center gap-3 rounded-[var(--radius-control)] border border-border px-4 has-[:checked]:border-primary has-[:checked]:bg-primary-soft"
                 >
                   <input
                     type="radio"

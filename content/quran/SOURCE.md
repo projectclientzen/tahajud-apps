@@ -50,3 +50,10 @@ Tampilkan sumber dan tautan ke tanzil.net di Reader (akhir surah).
 #
 #====================================================================
 ```
+
+## Basmalah (basmalah.json)
+
+`basmalah.json` berisi teks ayat 1:1 (Al-Fatihah ayat 1) dari file sumber utuh, disalin apa adanya dan dicek byte per byte
+oleh `tests/unit/data/quran-text.test.ts`. Reader memakainya untuk memisahkan basmalah sebagai baris pembuka, hanya jika
+awalan ayat 1 sama persis dengan teks ini ditambah satu spasi. Jika sumber diperbarui lewat `pnpm import:quran --refresh`,
+file ini harus dibuat ulang dari baris `1|1|` (checksum di dalamnya harus sama dengan checksum sumber).

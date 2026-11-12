@@ -1,15 +1,17 @@
 "use client";
 
-import { Sunrise } from "lucide-react";
+import { ArrowDown, Sunrise } from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 import { LoadGate } from "@/components/providers/load-gate";
 import { errorMessage, useData, useLoad, useNow } from "@/components/providers/data-provider";
 import { PageHeader } from "@/components/shell/page-header";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/feedback-state";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatusChip } from "@/components/ui/status-chip";
-import type { NightSession, PrayerTime, SessionSummary } from "@/data";
+import type { NightSession, PrayerTime, SessionActivity, SessionSummary } from "@/data";
 import { formatDateLong, formatDuration } from "@/lib/format-id";
 import { levelTitle } from "@/components/dashboard/content-lookup";
 import { ActivityRow } from "./activity-row";
@@ -24,6 +26,21 @@ interface Loaded {
   session: NightSession | null;
   prayer: PrayerTime | null;
   summary: SessionSummary | null;
+}
+
+const isDone = (a: SessionActivity) => (a.kind === "checklist" ? a.checked : a.completed);
+
+/** First required item still open, once the user has started. Counter items open the counter, ticks scroll to the row. */
+function nextStep(activities: SessionActivity[]) {
+  const required = activities.filter((a) => a.required);
+  if (required.length === 0 || !required.some(isDone)) return null;
+  const open = required.find((a) => !isDone(a));
+  if (!open) return null;
+  return {
+    title: open.title,
+    counter: open.kind === "counter",
+    href: open.kind === "counter" ? `/worship/dhikr/${encodeURIComponent(open.id)}` : `#act-${open.id}`,
+  };
 }
 
 function FajrBanner({ prayer }: { prayer: PrayerTime | null }) {
@@ -43,6 +60,9 @@ function FajrBanner({ prayer }: { prayer: PrayerTime | null }) {
           <p className="text-text-muted">
             Amalan malam yang belum lengkap tetap bisa dicatat sampai sesi ditutup. Tidak ada yang dicentang otomatis.
           </p>
+          <a href="#phase-fajr" className="mt-1 inline-flex min-h-11 items-center font-semibold underline">
+            Ke amalan Subuh
+          </a>
         </div>
       </div>
     );
@@ -123,10 +143,15 @@ export function SessionView() {
             />
           ) : (
             <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-3">
                 <p className="font-medium">
                   {formatDateLong(session.session_key)}, Level {session.level} {levelTitle(session.level)}
                 </p>
+                <ProgressBar
+                  label="Syarat sesi tuntas"
+                  value={session.activities.filter((a) => a.required && isDone(a)).length}
+                  max={session.activities.filter((a) => a.required).length}
+                />
                 <p className="text-helper text-text-muted">
                   Amalan tanpa label Opsional adalah syarat sesi tuntas di aplikasi. Ini aturan penghitungan, bukan
                   hukum fikih.
@@ -138,14 +163,29 @@ export function SessionView() {
                   {message}
                 </p>
               ) : null}
+              {(() => {
+                const next = nextStep(session.activities);
+                if (!next) return null;
+                return (
+                  <Link href={next.href} className={buttonVariants({ variant: "secondary", block: true })}>
+                    {next.counter ? null : <ArrowDown aria-hidden className="size-5" />}
+                    Lanjut: {next.title}
+                  </Link>
+                );
+              })()}
               {PHASES.map((p) => {
                 const items = session.activities.filter((a) => a.phase === p.key);
                 if (items.length === 0) return null;
                 return (
                   <section key={p.key} aria-labelledby={`phase-${p.key}`} className="flex flex-col gap-1">
-                    <h2 id={`phase-${p.key}`} className="text-card-title font-semibold">
-                      {p.title}
-                    </h2>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <h2 id={`phase-${p.key}`} className="scroll-mt-4 text-card-title font-semibold">
+                        {p.title}
+                      </h2>
+                      <span className="text-helper tabular-nums text-text-muted">
+                        {items.filter(isDone).length} dari {items.length}
+                      </span>
+                    </div>
                     <p className="pb-1 text-helper text-text-muted">{p.hint}</p>
                     <ul className="flex flex-col">
                       {items.map((a) => (

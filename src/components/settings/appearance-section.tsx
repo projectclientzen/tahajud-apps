@@ -88,7 +88,7 @@ export function AppearanceSection({ profile, onChange }: { profile: Profile; onC
   }
 
   return (
-    <Section title="Tampilan" description="Tema dan ukuran huruf Arab. Perubahan langsung tersimpan.">
+    <Section id="tampilan" title="Tampilan" description="Tema dan ukuran huruf Arab. Perubahan langsung tersimpan.">
       <fieldset className="flex flex-col gap-2">
         <legend className="pb-2 font-medium">Tema</legend>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">

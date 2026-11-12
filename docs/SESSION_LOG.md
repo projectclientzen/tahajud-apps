@@ -90,3 +90,32 @@ Pertanyaan owner baru:
 - T1 versi sesi baru (e7ebbc2) tidak dipakai. T1b menambahkan batas 3 perangkat (perangkat ke-4 ditolak, token tertunda 10 menit), pesan sesi revoked, checklist lewat antrean offline, link header dashboard.
 - Limit token habis ~15.25 WIB: U1a, U1b, T3b, T4c terhenti tanpa commit; dijalankan ulang di sesi baru setelah reset 19.40.
 - Pertanyaan owner baru (T1b): cukupkah 4 ikon di header dashboard mobile.
+
+## Merge T4c (koordinat Wikidata) oleh orchestrator (2026-11-12 20.10 WIB)
+- Merge `claude/t4c-wikidata-coordinates` (`c5d7084`). 517 kab/kota: 502 cocok (1 override Kota Jakarta = Q3630), 0 ambigu, 15 unmatched tidak ditebak; 26 kab/kota Papua province_mismatch (pemekaran 2022).
+- Cek silang live Nov 2026: 448 verified, 50 needs_review (selisih 7-10 menit, kebanyakan dataran tinggi), 4 error.
+- Perbaikan orchestrator: batas kasar validasi EQuran diperlebar (Subuh 03:15-05:45, Maghrib 16:45-19:15) karena Maghrib Kalteng 17:12 WIB ditolak; cek silang adhan tetap pengaman utama. Test ditambah.
+- Gerbang: typecheck 0, lint 0, unit 570 + 3 live skip, e2e 210 passed / 0 failed, audit bersih.
+- Pertanyaan owner (tidak mendesak): ambang 6 menit untuk dataran tinggi (50 wilayah needs_review) dipertahankan atau disesuaikan setelah uji akurasi.
+## Sesi U1b (Sonnet): Al-Qur'an, laporan, pengaturan, UI/UX (2026-11-12)
+Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan audit per layar: `docs/sessions/U1b.md`.
+- Dikerjakan: teks ayat asli ke Reader lewat `src/data/quran` (basmalah baris pembuka, 65:2-3 tanpa basmalah, tanpa terjemahan, atribusi Tanzil, tes byte-per-byte unit dan e2e untuk 6 bacaan); label verifikasi jadwal (`ScheduleNote`) dengan atribusi Kemenag via EQuran.id; audit dan perbaikan UI/UX `/quran`, `/quran/[surah]`, `/reports`, `/reports/calendar`, `/settings`, `/notifications`, `/help`, `/profile`; screenshot 390 dan 1280, light dan dark, sebelum dan sesudah (`docs/screenshots/u1/u1b-*`).
+- Tes: typecheck, lint, unit 572 lolos (+3 dilewati), e2e 246 passed / 30 skipped / 0 failed, audit bersih, axe 0 serious/critical.
+- Skill dipanggil lewat tool Skill: ui-ux-pro-max, antislop, antislop-ui, antislop-human, antislop-layoutmobile, antislop-copywriting. `hallmark` tidak dipanggil (tidak diminta di task ini).
+- Sisa pekerjaan: `schedule-card` dashboard (U1a) belum memakai `ScheduleNote`; mock belum punya skenario `verification: "verified"` (jalur itu hanya teruji unit); `PageHeader` padat di 390 px (milik U1a); `s3-a11y` dark mobile gagal sekali di `/worship/dhikr/[id]` (document-title), lolos di run ulang.
+- Pertanyaan untuk owner: (1) mohon baca satu atau dua surah di perangkat nyata untuk memeriksa tampilan huruf dan tanda baca (agen hanya memeriksa cakupan glyph dan screenshot); (2) setuju basmalah terpisah sebagai baris pembuka (PROV, sesuai keputusan T4).
+- Permintaan perubahan di luar scope: `content/quran/basmalah.json` dan catatan di `SOURCE.md` ditambahkan (tambahan konten, tidak mengubah `uthmani.json`); `scripts/import-quran.ts` perlu ikut membuat ulang file ini saat `--refresh`; `PrayerTime.verification` dan `attribution` opsional ditambahkan di `src/data/contracts.ts` (T3b: isi dari `PrayerDay.verification` dan `attribution`).
+
+
+## Merge U1b oleh orchestrator (2026-11-12 20.25 WIB)
+- Merge `claude/u1b-quran-reports-settings` (`c3ffdfd`). Reader menampilkan teks ayat asli Tanzil (test byte-per-byte vs sumber), basmalah baris terpisah (PROV), At-Talaq 65:2-3 tanpa basmalah, tanpa terjemahan, atribusi Tanzil. `content/quran/basmalah.json` diverifikasi orchestrator identik dengan sumber 1:1. Tidak ada aksara Arab di `src/`.
+- Label jadwal "Terverifikasi" hanya jika `verification === "verified"`; atribusi EQuran untuk jadwal provider non-demo.
+- Audit + perbaikan UI/UX 8 layar (laporan `docs/sessions/U1b.md`).
+- Gerbang: typecheck 0, lint 0, unit 593 + 3 skip, audit bersih, e2e 245 passed / 1 failed pada run penuh: `r3b-quran.spec.ts:76` (badge Bacaan Jumat, `setDemoTime`). Diulang terpisah 10/10 lolos, jadi dicatat FLAKY untuk diperkuat di T8.
+- Untuk T3b: isi `PrayerTime.verification/attribution` dari `PrayerDay`. Untuk U1a: dashboard dapat memakai `ScheduleNote`.
+- Pertanyaan owner: baca 1-2 surah di HP nyata untuk cek tampilan; konfirmasi basmalah terpisah.
+
+## Merge U1a oleh orchestrator (2026-11-12 20.35 WIB)
+- Merge `claude/u1a-ui-core-worship` (`c66e3f2`) di atas main b3a43ea, tanpa konflik. Counter: seluruh lingkaran jadi tombol tap, tombol tidak bergeser saat target tercapai (bug lama diperbaiki); sesi malam: progres syarat tuntas, tombol "Lanjut: amalan berikutnya", tautan ke amalan Subuh; header dashboard satu baris di 390 px; onboarding dan levels dirapikan. Laporan `docs/sessions/U1a.md`.
+- Gerbang: typecheck 0, lint 0, unit 593 + 3 skip, audit bersih, e2e 259 passed / 1 failed (`r3b-quran.spec.ts:29`, lolos 10/10 saat diulang). Flake beban paralel berganti-ganti tiap run → tugas Q1 (stabilkan e2e) dibuka.
+- Pertanyaan owner: Wake Lock (layar tetap menyala) di counter aktif secara default? (rekomendasi agen: ya).

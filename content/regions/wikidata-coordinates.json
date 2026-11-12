@@ -1,0 +1,6160 @@
+{
+  "source": "https://www.wikidata.org (SPARQL endpoint https://query.wikidata.org/sparql)",
+  "license": "CC0 1.0 (Wikidata structured data)",
+  "fetched_at": "2026-11-12T12:54:28.429Z",
+  "query": "SELECT ?item ?itemLabel ?type ?coord ?kode ?bps ?provLabel WHERE {\n  VALUES ?type { wd:Q3191695 wd:Q3199141 }\n  ?item wdt:P31 ?type ; wdt:P17 wd:Q252 .\n  OPTIONAL { ?item wdt:P625 ?coord }\n  OPTIONAL { ?item wdt:P2588 ?kode }\n  OPTIONAL { ?item wdt:P1588 ?bps }\n  OPTIONAL { ?item wdt:P131+ ?prov . ?prov wdt:P31 wd:Q5098 }\n  SERVICE wikibase:label { bd:serviceParam wikibase:language \"id,en\" . }\n}",
+  "manual_override_query": "SELECT ?item ?itemLabel ?type ?coord ?kode ?bps ?provLabel WHERE {\n  VALUES ?item { wd:Q3630 }\n  BIND(wd:Q3199141 AS ?type)\n  OPTIONAL { ?item wdt:P625 ?coord }\n  OPTIONAL { ?item wdt:P2588 ?kode }\n  OPTIONAL { ?item wdt:P1588 ?bps }\n  SERVICE wikibase:label { bd:serviceParam wikibase:language \"id,en\" . }\n}",
+  "properties": {
+    "P625": "coordinate location",
+    "P2588": "administrative code of Indonesia (Kemendagri)",
+    "P1588": "Statistics Indonesia area code (BPS)"
+  },
+  "counts": {
+    "items": 508,
+    "skipped": 8
+  },
+  "skipped": [
+    {
+      "qid": "Q6169793",
+      "reason": "no coordinate (P625)"
+    },
+    {
+      "qid": "Q12488337",
+      "reason": "no coordinate (P625)"
+    },
+    {
+      "qid": "Q12488345",
+      "reason": "no coordinate (P625)"
+    },
+    {
+      "qid": "Q12488348",
+      "reason": "no coordinate (P625)"
+    },
+    {
+      "qid": "Q14168",
+      "reason": "several different coordinates, not chosen by guess"
+    },
+    {
+      "qid": "Q109431487",
+      "reason": "no coordinate (P625)"
+    },
+    {
+      "qid": "Q136851681",
+      "reason": "no coordinate (P625)"
+    },
+    {
+      "qid": "Q136889341",
+      "reason": "no coordinate (P625)"
+    }
+  ],
+  "items": [
+    {
+      "qid": "Q1795",
+      "label": "Asahan",
+      "kind": "kabupaten",
+      "lat": 3,
+      "lon": 99.1667,
+      "kemendagriCode": "12.09",
+      "bpsCode": "1208",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q4803",
+      "label": "Surakarta",
+      "kind": "kota",
+      "lat": -7.566667,
+      "lon": 110.816667,
+      "kemendagriCode": "33.72",
+      "bpsCode": "3372",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q5662",
+      "label": "Aceh Besar",
+      "kind": "kabupaten",
+      "lat": 5.366667,
+      "lon": 95.533333,
+      "kemendagriCode": "11.06",
+      "bpsCode": "1108",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5666",
+      "label": "Gayo Lues",
+      "kind": "kabupaten",
+      "lat": 4,
+      "lon": 97,
+      "kemendagriCode": "11.13",
+      "bpsCode": "1113",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5667",
+      "label": "Aceh Jaya",
+      "kind": "kabupaten",
+      "lat": 4.816667,
+      "lon": 95.666667,
+      "kemendagriCode": "11.14",
+      "bpsCode": "1116",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5672",
+      "label": "Aceh Singkil",
+      "kind": "kabupaten",
+      "lat": 2.333333,
+      "lon": 97.666667,
+      "kemendagriCode": "11.10",
+      "bpsCode": "1102",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5674",
+      "label": "Aceh Timur",
+      "kind": "kabupaten",
+      "lat": 4.616667,
+      "lon": 97.616667,
+      "kemendagriCode": "11.03",
+      "bpsCode": "1105",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5675",
+      "label": "Aceh Tengah",
+      "kind": "kabupaten",
+      "lat": 4.333333,
+      "lon": 96.333333,
+      "kemendagriCode": "11.04",
+      "bpsCode": "1106",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5678",
+      "label": "Aceh Tamiang",
+      "kind": "kabupaten",
+      "lat": 4.274906,
+      "lon": 97.872161,
+      "kemendagriCode": "11.16",
+      "bpsCode": "1114",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5719",
+      "label": "Bener Meriah",
+      "kind": "kabupaten",
+      "lat": 4.75,
+      "lon": 97,
+      "kemendagriCode": "11.17",
+      "bpsCode": "1117",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5722",
+      "label": "Bireuen",
+      "kind": "kabupaten",
+      "lat": 5.083333,
+      "lon": 96.6,
+      "kemendagriCode": "11.11",
+      "bpsCode": "1110",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5746",
+      "label": "Nagan Raya",
+      "kind": "kabupaten",
+      "lat": 4.16888,
+      "lon": 96.32438,
+      "kemendagriCode": "11.15",
+      "bpsCode": "1115",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5750",
+      "label": "Aceh Utara",
+      "kind": "kabupaten",
+      "lat": 4.916667,
+      "lon": 97,
+      "kemendagriCode": "11.08",
+      "bpsCode": "1111",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5751",
+      "label": "Pidie",
+      "kind": "kabupaten",
+      "lat": 5.08,
+      "lon": 96.11,
+      "kemendagriCode": "11.07",
+      "bpsCode": "1109",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5754",
+      "label": "Pidie Jaya",
+      "kind": "kabupaten",
+      "lat": 5.15,
+      "lon": 96.21667,
+      "kemendagriCode": "11.18",
+      "bpsCode": "1118",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5757",
+      "label": "Simeulue",
+      "kind": "kabupaten",
+      "lat": 2.61667,
+      "lon": 96.08333,
+      "kemendagriCode": "11.09",
+      "bpsCode": "1101",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5759",
+      "label": "Aceh Selatan",
+      "kind": "kabupaten",
+      "lat": 3.133333,
+      "lon": 97.45,
+      "kemendagriCode": "11.01",
+      "bpsCode": "1103",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5763",
+      "label": "Aceh Tenggara",
+      "kind": "kabupaten",
+      "lat": 3.47308,
+      "lon": 97.81921,
+      "kemendagriCode": "11.02",
+      "bpsCode": "1104",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5775",
+      "label": "Aceh Barat Daya",
+      "kind": "kabupaten",
+      "lat": 3.791111,
+      "lon": 95.916667,
+      "kemendagriCode": "11.12",
+      "bpsCode": "1112",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5778",
+      "label": "Aceh Barat",
+      "kind": "kabupaten",
+      "lat": 4.45,
+      "lon": 96.183333,
+      "kemendagriCode": "11.05",
+      "bpsCode": "1107",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5779",
+      "label": "Banda Aceh",
+      "kind": "kota",
+      "lat": 5.55,
+      "lon": 95.3175,
+      "kemendagriCode": "11.71",
+      "bpsCode": "1171",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5781",
+      "label": "Langsa",
+      "kind": "kota",
+      "lat": 4.466667,
+      "lon": 97.95,
+      "kemendagriCode": "11.74",
+      "bpsCode": "1173",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5784",
+      "label": "Lhokseumawe",
+      "kind": "kota",
+      "lat": 5.18,
+      "lon": 97.150556,
+      "kemendagriCode": "11.73",
+      "bpsCode": "1174",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5787",
+      "label": "Sabang",
+      "kind": "kota",
+      "lat": 5.893056,
+      "lon": 95.32,
+      "kemendagriCode": "11.72",
+      "bpsCode": "1172",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5789",
+      "label": "Subulussalam",
+      "kind": "kota",
+      "lat": 2.642222,
+      "lon": 98.004167,
+      "kemendagriCode": "11.75",
+      "bpsCode": "1175",
+      "provinces": [
+        "Aceh"
+      ]
+    },
+    {
+      "qid": "Q5797",
+      "label": "Batu Bara",
+      "kind": "kabupaten",
+      "lat": 3.16166,
+      "lon": 99.52652,
+      "kemendagriCode": "12.19",
+      "bpsCode": "1219",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5800",
+      "label": "Tapanuli Tengah",
+      "kind": "kabupaten",
+      "lat": 1.9,
+      "lon": 98.66667,
+      "kemendagriCode": "12.01",
+      "bpsCode": "1204",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5801",
+      "label": "Dairi",
+      "kind": "kabupaten",
+      "lat": 2.86667,
+      "lon": 98.23333,
+      "kemendagriCode": "12.11",
+      "bpsCode": "1210",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5804",
+      "label": "Deli Serdang",
+      "kind": "kabupaten",
+      "lat": 3.55,
+      "lon": 98.85,
+      "kemendagriCode": "12.07",
+      "bpsCode": "1212",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5808",
+      "label": "Humbang Hasundutan",
+      "kind": "kabupaten",
+      "lat": 2.26551,
+      "lon": 98.50376,
+      "kemendagriCode": "12.16",
+      "bpsCode": "1215",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5810",
+      "label": "Karo",
+      "kind": "kabupaten",
+      "lat": 3.11667,
+      "lon": 98.3,
+      "kemendagriCode": "12.06",
+      "bpsCode": "1211",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5814",
+      "label": "Labuhanbatu",
+      "kind": "kabupaten",
+      "lat": 2.26667,
+      "lon": 100.1,
+      "kemendagriCode": "12.10",
+      "bpsCode": "1207",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5833",
+      "label": "Langkat",
+      "kind": "kabupaten",
+      "lat": 3.766667,
+      "lon": 98.216667,
+      "kemendagriCode": "12.05",
+      "bpsCode": "1213",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5837",
+      "label": "Mandailing Natal",
+      "kind": "kabupaten",
+      "lat": 0.78378,
+      "lon": 99.25495,
+      "kemendagriCode": "12.13",
+      "bpsCode": "1202",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5841",
+      "label": "Nias",
+      "kind": "kabupaten",
+      "lat": 1.03333,
+      "lon": 97.76667,
+      "kemendagriCode": "12.04",
+      "bpsCode": "1201",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5842",
+      "label": "Labuhanbatu Utara",
+      "kind": "kabupaten",
+      "lat": 2.333333,
+      "lon": 99.6375,
+      "kemendagriCode": "12.23",
+      "bpsCode": "1223",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5853",
+      "label": "Nias Utara",
+      "kind": "kabupaten",
+      "lat": 1.3875,
+      "lon": 97.36,
+      "kemendagriCode": "12.24",
+      "bpsCode": "1224",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5857",
+      "label": "Padang Lawas Utara",
+      "kind": "kabupaten",
+      "lat": 1.46011,
+      "lon": 99.67346,
+      "kemendagriCode": "12.20",
+      "bpsCode": "1220",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5863",
+      "label": "Tapanuli Utara",
+      "kind": "kabupaten",
+      "lat": 2.0028,
+      "lon": 99.0707,
+      "kemendagriCode": "12.02",
+      "bpsCode": "1205",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5866",
+      "label": "Padang Lawas",
+      "kind": "kabupaten",
+      "lat": 1.126026,
+      "lon": 99.813309,
+      "kemendagriCode": "12.21",
+      "bpsCode": "1221",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5872",
+      "label": "Pakpak Bharat",
+      "kind": "kabupaten",
+      "lat": 2.56667,
+      "lon": 98.28333,
+      "kemendagriCode": "12.15",
+      "bpsCode": "1216",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5888",
+      "label": "Samosir",
+      "kind": "kabupaten",
+      "lat": 2.64025,
+      "lon": 98.71525,
+      "kemendagriCode": "12.17",
+      "bpsCode": "1217",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5899",
+      "label": "Serdang Bedagai",
+      "kind": "kabupaten",
+      "lat": 3.36667,
+      "lon": 99.03333,
+      "kemendagriCode": "12.18",
+      "bpsCode": "1218",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5903",
+      "label": "Simalungun",
+      "kind": "kabupaten",
+      "lat": 2.9,
+      "lon": 99,
+      "kemendagriCode": "12.08",
+      "bpsCode": "1209",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5905",
+      "label": "Labuhanbatu Selatan",
+      "kind": "kabupaten",
+      "lat": 1.982778,
+      "lon": 100.0975,
+      "kemendagriCode": "12.22",
+      "bpsCode": "1222",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5909",
+      "label": "Nias Barat",
+      "kind": "kabupaten",
+      "lat": 1.05966,
+      "lon": 97.58606,
+      "kemendagriCode": "12.25",
+      "bpsCode": "1225",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5911",
+      "label": "Toba",
+      "kind": "kabupaten",
+      "lat": 2.39793,
+      "lon": 99.21678,
+      "kemendagriCode": "12.12",
+      "bpsCode": "1206",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5914",
+      "label": "Tapanuli Selatan",
+      "kind": "kabupaten",
+      "lat": 1.517652,
+      "lon": 99.30107,
+      "kemendagriCode": "12.03",
+      "bpsCode": "1203",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5918",
+      "label": "Nias Selatan",
+      "kind": "kabupaten",
+      "lat": 0.583353,
+      "lon": 97.777667,
+      "kemendagriCode": "12.14",
+      "bpsCode": "1214",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5954",
+      "label": "Binjai",
+      "kind": "kota",
+      "lat": 3.6,
+      "lon": 98.485278,
+      "kemendagriCode": "12.75",
+      "bpsCode": "1276",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5967",
+      "label": "Gunungsitoli",
+      "kind": "kota",
+      "lat": 1.116667,
+      "lon": 97.566667,
+      "kemendagriCode": "12.78",
+      "bpsCode": "1278",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5972",
+      "label": "Medan",
+      "kind": "kota",
+      "lat": 3.589444,
+      "lon": 98.673889,
+      "kemendagriCode": "12.71",
+      "bpsCode": "1275",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5974",
+      "label": "Padangsidimpuan",
+      "kind": "kota",
+      "lat": 1.366667,
+      "lon": 99.266667,
+      "kemendagriCode": "12.77",
+      "bpsCode": "1277",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5979",
+      "label": "Pematang Siantar",
+      "kind": "kota",
+      "lat": 2.96,
+      "lon": 99.06,
+      "kemendagriCode": "12.72",
+      "bpsCode": "1273",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5984",
+      "label": "Sibolga",
+      "kind": "kota",
+      "lat": 1.7425,
+      "lon": 98.779167,
+      "kemendagriCode": "12.73",
+      "bpsCode": "1271",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5987",
+      "label": "Tanjung Balai",
+      "kind": "kota",
+      "lat": 2.966667,
+      "lon": 99.8,
+      "kemendagriCode": "12.74",
+      "bpsCode": "1272",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q5989",
+      "label": "Tebing Tinggi",
+      "kind": "kota",
+      "lat": 3.328333,
+      "lon": 99.1625,
+      "kemendagriCode": "12.76",
+      "bpsCode": "1274",
+      "provinces": [
+        "Sumatera Utara"
+      ]
+    },
+    {
+      "qid": "Q6019",
+      "label": "Agam",
+      "kind": "kabupaten",
+      "lat": -0.266667,
+      "lon": 100,
+      "kemendagriCode": "13.06",
+      "bpsCode": "1307",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q6024",
+      "label": "Dharmasraya",
+      "kind": "kabupaten",
+      "lat": -1.05,
+      "lon": 101.367,
+      "kemendagriCode": "13.10",
+      "bpsCode": "1311",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q6032",
+      "label": "Lima Puluh Kota",
+      "kind": "kabupaten",
+      "lat": -0.0168,
+      "lon": 100.5872,
+      "kemendagriCode": "13.07",
+      "bpsCode": "1308",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q6038",
+      "label": "Kepulauan Mentawai",
+      "kind": "kabupaten",
+      "lat": -2.183333,
+      "lon": 99.65,
+      "kemendagriCode": "13.09",
+      "bpsCode": "1301",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q6042",
+      "label": "Padang Pariaman",
+      "kind": "kabupaten",
+      "lat": -0.6,
+      "lon": 100.28333,
+      "kemendagriCode": "13.05",
+      "bpsCode": "1306",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q6048",
+      "label": "Pasaman",
+      "kind": "kabupaten",
+      "lat": 0.166667,
+      "lon": 100.117,
+      "kemendagriCode": "13.08",
+      "bpsCode": "1309",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q6055",
+      "label": "Sijunjung",
+      "kind": "kabupaten",
+      "lat": -0.700556,
+      "lon": 100.9775,
+      "kemendagriCode": "13.03",
+      "bpsCode": "1304",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q6058",
+      "label": "Solok",
+      "kind": "kabupaten",
+      "lat": -0.96667,
+      "lon": 100.81667,
+      "kemendagriCode": "13.02",
+      "bpsCode": "1303",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q6065",
+      "label": "Pesisir Selatan",
+      "kind": "kabupaten",
+      "lat": -1.35,
+      "lon": 100.567,
+      "kemendagriCode": "13.01",
+      "bpsCode": "1302",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q6083",
+      "label": "Solok Selatan",
+      "kind": "kabupaten",
+      "lat": -1.233331,
+      "lon": 101.417,
+      "kemendagriCode": "13.11",
+      "bpsCode": "1310",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q6093",
+      "label": "Tanah Datar",
+      "kind": "kabupaten",
+      "lat": -0.45,
+      "lon": 100.583,
+      "kemendagriCode": "13.04",
+      "bpsCode": "1305",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q6103",
+      "label": "Pasaman Barat",
+      "kind": "kabupaten",
+      "lat": 0.28152,
+      "lon": 99.51965,
+      "kemendagriCode": "13.12",
+      "bpsCode": "1312",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q7248",
+      "label": "Bukittinggi",
+      "kind": "kota",
+      "lat": -0.309722,
+      "lon": 100.375278,
+      "kemendagriCode": "13.75",
+      "bpsCode": "1375",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q7253",
+      "label": "Padang",
+      "kind": "kota",
+      "lat": -0.955556,
+      "lon": 100.360556,
+      "kemendagriCode": "13.71",
+      "bpsCode": "1371",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q7256",
+      "label": "Padang Panjang",
+      "kind": "kota",
+      "lat": -0.464444,
+      "lon": 100.400833,
+      "kemendagriCode": "13.74",
+      "bpsCode": "1374",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q7258",
+      "label": "Pariaman",
+      "kind": "kota",
+      "lat": -0.626111,
+      "lon": 100.120556,
+      "kemendagriCode": "13.77",
+      "bpsCode": "1377",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q7261",
+      "label": "Payakumbuh",
+      "kind": "kota",
+      "lat": -0.224444,
+      "lon": 100.6325,
+      "kemendagriCode": "13.76",
+      "bpsCode": "1376",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q7263",
+      "label": "Kota Sawahlunto",
+      "kind": "kota",
+      "lat": -0.682778,
+      "lon": 100.778333,
+      "kemendagriCode": "13.73",
+      "bpsCode": "1373",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q7266",
+      "label": "Solok",
+      "kind": "kota",
+      "lat": -0.788333,
+      "lon": 100.654167,
+      "kemendagriCode": "13.72",
+      "bpsCode": "1372",
+      "provinces": [
+        "Sumatera Barat"
+      ]
+    },
+    {
+      "qid": "Q7370",
+      "label": "Batang Hari",
+      "kind": "kabupaten",
+      "lat": -1.713795,
+      "lon": 103.261667,
+      "kemendagriCode": "15.04",
+      "bpsCode": "1504",
+      "provinces": [
+        "Jambi"
+      ]
+    },
+    {
+      "qid": "Q7373",
+      "label": "Bungo",
+      "kind": "kabupaten",
+      "lat": -1.516059,
+      "lon": 102.118757,
+      "kemendagriCode": "15.08",
+      "bpsCode": "1509",
+      "provinces": [
+        "Jambi"
+      ]
+    },
+    {
+      "qid": "Q7376",
+      "label": "Kerinci",
+      "kind": "kabupaten",
+      "lat": -1.936083,
+      "lon": 101.342528,
+      "kemendagriCode": "15.01",
+      "bpsCode": "1501",
+      "provinces": [
+        "Jambi"
+      ]
+    },
+    {
+      "qid": "Q7379",
+      "label": "Merangin",
+      "kind": "kabupaten",
+      "lat": -2.069167,
+      "lon": 102.132778,
+      "kemendagriCode": "15.02",
+      "bpsCode": "1502",
+      "provinces": [
+        "Jambi"
+      ]
+    },
+    {
+      "qid": "Q7381",
+      "label": "Muaro Jambi",
+      "kind": "kabupaten",
+      "lat": -1.44951,
+      "lon": 103.5161,
+      "kemendagriCode": "15.05",
+      "bpsCode": "1505",
+      "provinces": [
+        "Jambi"
+      ]
+    },
+    {
+      "qid": "Q7383",
+      "label": "Sarolangun",
+      "kind": "kabupaten",
+      "lat": -2.3,
+      "lon": 102.65,
+      "kemendagriCode": "15.03",
+      "bpsCode": "1503",
+      "provinces": [
+        "Jambi"
+      ]
+    },
+    {
+      "qid": "Q7384",
+      "label": "Tanjung Jabung Timur",
+      "kind": "kabupaten",
+      "lat": -1.13198,
+      "lon": 103.61755,
+      "kemendagriCode": "15.07",
+      "bpsCode": "1506",
+      "provinces": [
+        "Jambi"
+      ]
+    },
+    {
+      "qid": "Q7388",
+      "label": "Tanjung Jabung Barat",
+      "kind": "kabupaten",
+      "lat": -0.826341,
+      "lon": 103.461477,
+      "kemendagriCode": "15.06",
+      "bpsCode": "1507",
+      "provinces": [
+        "Jambi"
+      ]
+    },
+    {
+      "qid": "Q7389",
+      "label": "Tebo",
+      "kind": "kabupaten",
+      "lat": -1.38333,
+      "lon": 102.317,
+      "kemendagriCode": "15.09",
+      "bpsCode": "1508",
+      "provinces": [
+        "Jambi"
+      ]
+    },
+    {
+      "qid": "Q7568",
+      "label": "Yogyakarta",
+      "kind": "kota",
+      "lat": -7.800457,
+      "lon": 110.39128,
+      "kemendagriCode": "34.71",
+      "bpsCode": "3471",
+      "provinces": [
+        "Yogyakarta"
+      ]
+    },
+    {
+      "qid": "Q7578",
+      "label": "Jambi",
+      "kind": "kota",
+      "lat": -1.628794,
+      "lon": 103.608227,
+      "kemendagriCode": "15.71",
+      "bpsCode": "1571",
+      "provinces": [
+        "Jambi"
+      ]
+    },
+    {
+      "qid": "Q7592",
+      "label": "Sungai Penuh",
+      "kind": "kota",
+      "lat": -2.063611,
+      "lon": 101.396111,
+      "kemendagriCode": "15.72",
+      "bpsCode": "1572",
+      "provinces": [
+        "Jambi"
+      ]
+    },
+    {
+      "qid": "Q7594",
+      "label": "Bengkalis",
+      "kind": "kabupaten",
+      "lat": 1.489722,
+      "lon": 102.079722,
+      "kemendagriCode": "14.03",
+      "bpsCode": "1408",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7599",
+      "label": "Indragiri Hilir",
+      "kind": "kabupaten",
+      "lat": -0.315556,
+      "lon": 103.158056,
+      "kemendagriCode": "14.04",
+      "bpsCode": "1403",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7605",
+      "label": "Indragiri Hulu",
+      "kind": "kabupaten",
+      "lat": -0.55,
+      "lon": 102.316667,
+      "kemendagriCode": "14.02",
+      "bpsCode": "1402",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7613",
+      "label": "Kampar",
+      "kind": "kabupaten",
+      "lat": 0.313609,
+      "lon": 101.018525,
+      "kemendagriCode": "14.01",
+      "bpsCode": "1406",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7626",
+      "label": "Kuantan Singingi",
+      "kind": "kabupaten",
+      "lat": -0.47532,
+      "lon": 101.45857,
+      "kemendagriCode": "14.09",
+      "bpsCode": "1401",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7630",
+      "label": "Kepulauan Meranti",
+      "kind": "kabupaten",
+      "lat": 0.97488,
+      "lon": 102.69539,
+      "kemendagriCode": "14.10",
+      "bpsCode": "1410",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7641",
+      "label": "Pelalawan",
+      "kind": "kabupaten",
+      "lat": 0.20822,
+      "lon": 102.18607,
+      "kemendagriCode": "14.05",
+      "bpsCode": "1404",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7744",
+      "label": "Rokan Hulu",
+      "kind": "kabupaten",
+      "lat": 0.933333,
+      "lon": 100.5,
+      "kemendagriCode": "14.06",
+      "bpsCode": "1407",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7759",
+      "label": "Rokan Hilir",
+      "kind": "kabupaten",
+      "lat": 2.16599,
+      "lon": 100.82514,
+      "kemendagriCode": "14.07",
+      "bpsCode": "1409",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7777",
+      "label": "Siak",
+      "kind": "kabupaten",
+      "lat": 0.974444,
+      "lon": 102.013333,
+      "kemendagriCode": "14.08",
+      "bpsCode": "1405",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7782",
+      "label": "Dumai",
+      "kind": "kota",
+      "lat": 1.666667,
+      "lon": 101.45,
+      "kemendagriCode": "14.72",
+      "bpsCode": "1473",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7786",
+      "label": "Pekanbaru",
+      "kind": "kota",
+      "lat": 0.533333,
+      "lon": 101.45,
+      "kemendagriCode": "14.71",
+      "bpsCode": "1471",
+      "provinces": [
+        "Riau"
+      ]
+    },
+    {
+      "qid": "Q7796",
+      "label": "Bengkulu Tengah",
+      "kind": "kabupaten",
+      "lat": -3.20679,
+      "lon": 102.12616,
+      "kemendagriCode": "17.09",
+      "bpsCode": "1709",
+      "provinces": [
+        "Bengkulu"
+      ]
+    },
+    {
+      "qid": "Q7940",
+      "label": "Kepahiang",
+      "kind": "kabupaten",
+      "lat": -3.601944,
+      "lon": 102.564167,
+      "kemendagriCode": "17.08",
+      "bpsCode": "1708",
+      "provinces": [
+        "Bengkulu"
+      ]
+    },
+    {
+      "qid": "Q8031",
+      "label": "Lebong",
+      "kind": "kabupaten",
+      "lat": -3.24278,
+      "lon": 102.3349,
+      "kemendagriCode": "17.07",
+      "bpsCode": "1707",
+      "provinces": [
+        "Bengkulu"
+      ]
+    },
+    {
+      "qid": "Q8033",
+      "label": "Mukomuko",
+      "kind": "kabupaten",
+      "lat": -2.552915,
+      "lon": 101.104218,
+      "kemendagriCode": "17.06",
+      "bpsCode": "1706",
+      "provinces": [
+        "Bengkulu"
+      ]
+    },
+    {
+      "qid": "Q8034",
+      "label": "Bengkulu Utara",
+      "kind": "kabupaten",
+      "lat": -3.33333,
+      "lon": 102.05,
+      "kemendagriCode": "17.03",
+      "bpsCode": "1703",
+      "provinces": [
+        "Bengkulu"
+      ]
+    },
+    {
+      "qid": "Q8035",
+      "label": "Rejang Lebong",
+      "kind": "kabupaten",
+      "lat": -3.433333,
+      "lon": 102.716667,
+      "kemendagriCode": "17.02",
+      "bpsCode": "1702",
+      "provinces": [
+        "Bengkulu"
+      ]
+    },
+    {
+      "qid": "Q8037",
+      "label": "Seluma",
+      "kind": "kabupaten",
+      "lat": -3.96644,
+      "lon": 102.47429,
+      "kemendagriCode": "17.05",
+      "bpsCode": "1705",
+      "provinces": [
+        "Bengkulu"
+      ]
+    },
+    {
+      "qid": "Q8040",
+      "label": "Bengkulu Selatan",
+      "kind": "kabupaten",
+      "lat": -4.463482,
+      "lon": 102.917003,
+      "kemendagriCode": "17.01",
+      "bpsCode": "1701",
+      "provinces": [
+        "Bengkulu"
+      ]
+    },
+    {
+      "qid": "Q8042",
+      "label": "Bengkulu",
+      "kind": "kota",
+      "lat": -3.795556,
+      "lon": 102.259167,
+      "kemendagriCode": "17.71",
+      "bpsCode": "1771",
+      "provinces": [
+        "Bengkulu"
+      ]
+    },
+    {
+      "qid": "Q8107",
+      "label": "Banyuasin",
+      "kind": "kabupaten",
+      "lat": -2.883333,
+      "lon": 104.383056,
+      "kemendagriCode": "16.07",
+      "bpsCode": "1607",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8110",
+      "label": "Ogan Komering Ulu Timur",
+      "kind": "kabupaten",
+      "lat": -3.85679,
+      "lon": 104.75209,
+      "kemendagriCode": "16.08",
+      "bpsCode": "1609",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8112",
+      "label": "Empat Lawang",
+      "kind": "kabupaten",
+      "lat": -3.75,
+      "lon": 103,
+      "kemendagriCode": "16.11",
+      "bpsCode": "1611",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8117",
+      "label": "Lahat",
+      "kind": "kabupaten",
+      "lat": -3.786389,
+      "lon": 103.542778,
+      "kemendagriCode": "16.04",
+      "bpsCode": "1604",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8119",
+      "label": "Muara Enim",
+      "kind": "kabupaten",
+      "lat": -4.2327,
+      "lon": 103.6141,
+      "kemendagriCode": "16.03",
+      "bpsCode": "1603",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8120",
+      "label": "Musi Banyuasin",
+      "kind": "kabupaten",
+      "lat": -2.893889,
+      "lon": 103.8125,
+      "kemendagriCode": "16.06",
+      "bpsCode": "1606",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8121",
+      "label": "Musi Rawas",
+      "kind": "kabupaten",
+      "lat": -3.08333,
+      "lon": 103.2,
+      "kemendagriCode": "16.05",
+      "bpsCode": "1605",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8122",
+      "label": "Ogan Ilir",
+      "kind": "kabupaten",
+      "lat": -3.43186,
+      "lon": 104.62727,
+      "kemendagriCode": "16.10",
+      "bpsCode": "1610",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8125",
+      "label": "Ogan Komering Ilir",
+      "kind": "kabupaten",
+      "lat": -3.36667,
+      "lon": 105.36667,
+      "kemendagriCode": "16.02",
+      "bpsCode": "1602",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8126",
+      "label": "Ogan Komering Ulu",
+      "kind": "kabupaten",
+      "lat": -4.13333,
+      "lon": 104.03333,
+      "kemendagriCode": "16.01",
+      "bpsCode": "1601",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8127",
+      "label": "Ogan Komering Ulu Selatan",
+      "kind": "kabupaten",
+      "lat": -4.65728,
+      "lon": 104.00659,
+      "kemendagriCode": "16.09",
+      "bpsCode": "1608",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8129",
+      "label": "Lubuk Linggau",
+      "kind": "kota",
+      "lat": -3.296667,
+      "lon": 102.861667,
+      "kemendagriCode": "16.73",
+      "bpsCode": "1674",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8130",
+      "label": "Pagar Alam",
+      "kind": "kota",
+      "lat": -4.021667,
+      "lon": 103.252222,
+      "kemendagriCode": "16.72",
+      "bpsCode": "1673",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8131",
+      "label": "Palembang",
+      "kind": "kota",
+      "lat": -2.983333,
+      "lon": 104.764444,
+      "kemendagriCode": "16.71",
+      "bpsCode": "1671",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8133",
+      "label": "Prabumulih",
+      "kind": "kota",
+      "lat": -3.432778,
+      "lon": 104.235556,
+      "kemendagriCode": "16.74",
+      "bpsCode": "1672",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q8135",
+      "label": "Lampung Tengah",
+      "kind": "kabupaten",
+      "lat": -4.86667,
+      "lon": 105.26667,
+      "kemendagriCode": "18.02",
+      "bpsCode": "1805",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8136",
+      "label": "Lampung Timur",
+      "kind": "kabupaten",
+      "lat": -5.10273,
+      "lon": 105.68003,
+      "kemendagriCode": "18.07",
+      "bpsCode": "1804",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8139",
+      "label": "Mesuji",
+      "kind": "kabupaten",
+      "lat": -4.0439,
+      "lon": 105.4013,
+      "kemendagriCode": "18.11",
+      "bpsCode": "1811",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8140",
+      "label": "Lampung Utara",
+      "kind": "kabupaten",
+      "lat": -4.81667,
+      "lon": 104.8,
+      "kemendagriCode": "18.03",
+      "bpsCode": "1806",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8144",
+      "label": "Pesawaran",
+      "kind": "kabupaten",
+      "lat": -5.4298,
+      "lon": 105.17899,
+      "kemendagriCode": "18.09",
+      "bpsCode": "1809",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8145",
+      "label": "Pringsewu",
+      "kind": "kabupaten",
+      "lat": -5.42211,
+      "lon": 104.93454,
+      "kemendagriCode": "18.10",
+      "bpsCode": "1810",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8147",
+      "label": "Lampung Selatan",
+      "kind": "kabupaten",
+      "lat": -5.56243,
+      "lon": 105.547531,
+      "kemendagriCode": "18.01",
+      "bpsCode": "1803",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8149",
+      "label": "Tanggamus",
+      "kind": "kabupaten",
+      "lat": -5.481456,
+      "lon": 104.682405,
+      "kemendagriCode": "18.06",
+      "bpsCode": "1802",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8151",
+      "label": "Tulang Bawang",
+      "kind": "kabupaten",
+      "lat": -4.20604,
+      "lon": 105.57999,
+      "kemendagriCode": "18.05",
+      "bpsCode": "1808",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8152",
+      "label": "Way Kanan",
+      "kind": "kabupaten",
+      "lat": -4.44705,
+      "lon": 104.52753,
+      "kemendagriCode": "18.08",
+      "bpsCode": "1807",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8153",
+      "label": "Lampung Barat",
+      "kind": "kabupaten",
+      "lat": -5.14904,
+      "lon": 104.19309,
+      "kemendagriCode": "18.04",
+      "bpsCode": "1801",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8154",
+      "label": "Tulang Bawang Barat",
+      "kind": "kabupaten",
+      "lat": -4.43975,
+      "lon": 105.0444,
+      "kemendagriCode": "18.12",
+      "bpsCode": "1812",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8156",
+      "label": "Bandar Lampung",
+      "kind": "kota",
+      "lat": -5.429444,
+      "lon": 105.2625,
+      "kemendagriCode": "18.71",
+      "bpsCode": "1871",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8158",
+      "label": "Metro",
+      "kind": "kota",
+      "lat": -5.116667,
+      "lon": 105.3,
+      "kemendagriCode": "18.72",
+      "bpsCode": "1872",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q8163",
+      "label": "Bangka",
+      "kind": "kabupaten",
+      "lat": -1.9,
+      "lon": 105.883333,
+      "kemendagriCode": "19.01",
+      "bpsCode": "1901",
+      "provinces": [
+        "Kepulauan Bangka Belitung"
+      ]
+    },
+    {
+      "qid": "Q8164",
+      "label": "Belitung",
+      "kind": "kabupaten",
+      "lat": -2.866667,
+      "lon": 107.7,
+      "kemendagriCode": "19.02",
+      "bpsCode": "1902",
+      "provinces": [
+        "Kepulauan Bangka Belitung"
+      ]
+    },
+    {
+      "qid": "Q8166",
+      "label": "Bangka Tengah",
+      "kind": "kabupaten",
+      "lat": -2.416667,
+      "lon": 106.233333,
+      "kemendagriCode": "19.04",
+      "bpsCode": "1904",
+      "provinces": [
+        "Kepulauan Bangka Belitung"
+      ]
+    },
+    {
+      "qid": "Q8169",
+      "label": "Belitung Timur",
+      "kind": "kabupaten",
+      "lat": -2.9,
+      "lon": 108.05,
+      "kemendagriCode": "19.06",
+      "bpsCode": "1906",
+      "provinces": [
+        "Kepulauan Bangka Belitung"
+      ]
+    },
+    {
+      "qid": "Q8173",
+      "label": "Bangka Selatan",
+      "kind": "kabupaten",
+      "lat": -2.766667,
+      "lon": 106.333333,
+      "kemendagriCode": "19.03",
+      "bpsCode": "1905",
+      "provinces": [
+        "Kepulauan Bangka Belitung"
+      ]
+    },
+    {
+      "qid": "Q8176",
+      "label": "Bangka Barat",
+      "kind": "kabupaten",
+      "lat": -1.95839,
+      "lon": 105.53741,
+      "kemendagriCode": "19.05",
+      "bpsCode": "1903",
+      "provinces": [
+        "Kepulauan Bangka Belitung"
+      ]
+    },
+    {
+      "qid": "Q8179",
+      "label": "Pangkal Pinang",
+      "kind": "kota",
+      "lat": -2.1,
+      "lon": 106.1,
+      "kemendagriCode": "19.71",
+      "bpsCode": "1971",
+      "provinces": [
+        "Kepulauan Bangka Belitung"
+      ]
+    },
+    {
+      "qid": "Q10097",
+      "label": "Bintan",
+      "kind": "kabupaten",
+      "lat": 0.95,
+      "lon": 104.61944,
+      "kemendagriCode": "21.01",
+      "bpsCode": "2102",
+      "provinces": [
+        "Kepulauan Riau"
+      ]
+    },
+    {
+      "qid": "Q10098",
+      "label": "Karimun",
+      "kind": "kabupaten",
+      "lat": 0.80764,
+      "lon": 103.41911,
+      "kemendagriCode": "21.02",
+      "bpsCode": "2101",
+      "provinces": [
+        "Kepulauan Riau"
+      ]
+    },
+    {
+      "qid": "Q10099",
+      "label": "Lingga",
+      "kind": "kabupaten",
+      "lat": -0.266667,
+      "lon": 104.483333,
+      "kemendagriCode": "21.04",
+      "bpsCode": "2104",
+      "provinces": [
+        "Kepulauan Riau"
+      ]
+    },
+    {
+      "qid": "Q10100",
+      "label": "Natuna",
+      "kind": "kabupaten",
+      "lat": 4,
+      "lon": 108.25,
+      "kemendagriCode": "21.03",
+      "bpsCode": "2103",
+      "provinces": [
+        "Kepulauan Riau"
+      ]
+    },
+    {
+      "qid": "Q10103",
+      "label": "Batam",
+      "kind": "kota",
+      "lat": 1.13,
+      "lon": 104.053056,
+      "kemendagriCode": "21.71",
+      "bpsCode": "2171",
+      "provinces": [
+        "Kepulauan Riau"
+      ]
+    },
+    {
+      "qid": "Q10104",
+      "label": "Tanjungpinang",
+      "kind": "kota",
+      "lat": 0.918778,
+      "lon": 104.455417,
+      "kemendagriCode": "21.72",
+      "bpsCode": "2172",
+      "provinces": [
+        "Kepulauan Riau"
+      ]
+    },
+    {
+      "qid": "Q10119",
+      "label": "Lebak",
+      "kind": "kabupaten",
+      "lat": -6.65,
+      "lon": 106.21667,
+      "kemendagriCode": "36.02",
+      "bpsCode": "3602",
+      "provinces": [
+        "Banten"
+      ]
+    },
+    {
+      "qid": "Q10121",
+      "label": "Pandeglang",
+      "kind": "kabupaten",
+      "lat": -6.309167,
+      "lon": 106.104722,
+      "kemendagriCode": "36.01",
+      "bpsCode": "3601",
+      "provinces": [
+        "Banten"
+      ]
+    },
+    {
+      "qid": "Q10122",
+      "label": "Serang",
+      "kind": "kabupaten",
+      "lat": -6.15,
+      "lon": 106,
+      "kemendagriCode": "36.04",
+      "bpsCode": "3604",
+      "provinces": [
+        "Banten"
+      ]
+    },
+    {
+      "qid": "Q10123",
+      "label": "Tangerang",
+      "kind": "kabupaten",
+      "lat": -6.2,
+      "lon": 106.49,
+      "kemendagriCode": "36.03",
+      "bpsCode": "3603",
+      "provinces": [
+        "Banten"
+      ]
+    },
+    {
+      "qid": "Q10124",
+      "label": "Cilegon",
+      "kind": "kota",
+      "lat": -6.016667,
+      "lon": 106.016667,
+      "kemendagriCode": "36.72",
+      "bpsCode": "3672",
+      "provinces": [
+        "Banten"
+      ]
+    },
+    {
+      "qid": "Q10126",
+      "label": "Serang",
+      "kind": "kota",
+      "lat": -6.12,
+      "lon": 106.150278,
+      "kemendagriCode": "36.73",
+      "bpsCode": "3673",
+      "provinces": [
+        "Banten"
+      ]
+    },
+    {
+      "qid": "Q10127",
+      "label": "Tangerang",
+      "kind": "kota",
+      "lat": -6.170278,
+      "lon": 106.640278,
+      "kemendagriCode": "36.71",
+      "bpsCode": "3671",
+      "provinces": [
+        "Banten"
+      ]
+    },
+    {
+      "qid": "Q10128",
+      "label": "Tangerang Selatan",
+      "kind": "kota",
+      "lat": -6.288889,
+      "lon": 106.718056,
+      "kemendagriCode": "36.74",
+      "bpsCode": "3674",
+      "provinces": [
+        "Banten"
+      ]
+    },
+    {
+      "qid": "Q10332",
+      "label": "Bandung",
+      "kind": "kabupaten",
+      "lat": -7.021935,
+      "lon": 107.528075,
+      "kemendagriCode": "32.04",
+      "bpsCode": "3204",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10340",
+      "label": "Bekasi",
+      "kind": "kabupaten",
+      "lat": -6.365909,
+      "lon": 107.173086,
+      "kemendagriCode": "32.16",
+      "bpsCode": "3216",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10363",
+      "label": "Bogor",
+      "kind": "kabupaten",
+      "lat": -6.4803,
+      "lon": 106.8247,
+      "kemendagriCode": "32.01",
+      "bpsCode": "3201",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10365",
+      "label": "Q10365",
+      "kind": "kabupaten",
+      "lat": -7.326664,
+      "lon": 108.353107,
+      "kemendagriCode": "32.07",
+      "bpsCode": "3207",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10367",
+      "label": "Cianjur",
+      "kind": "kabupaten",
+      "lat": -6.821222,
+      "lon": 107.140101,
+      "kemendagriCode": "32.03",
+      "bpsCode": "3203",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10368",
+      "label": "Cirebon",
+      "kind": "kabupaten",
+      "lat": -6.757837,
+      "lon": 108.480462,
+      "kemendagriCode": "32.09",
+      "bpsCode": "3209",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10371",
+      "label": "Garut",
+      "kind": "kabupaten",
+      "lat": -7.204694,
+      "lon": 107.88759,
+      "kemendagriCode": "32.05",
+      "bpsCode": "3205",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10374",
+      "label": "Indramayu",
+      "kind": "kabupaten",
+      "lat": -6.326944,
+      "lon": 108.322222,
+      "kemendagriCode": "32.12",
+      "bpsCode": "3212",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10375",
+      "label": "Karawang",
+      "kind": "kabupaten",
+      "lat": -6.305085,
+      "lon": 107.300258,
+      "kemendagriCode": "32.15",
+      "bpsCode": "3215",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10376",
+      "label": "Kuningan",
+      "kind": "kabupaten",
+      "lat": -6.976605,
+      "lon": 108.484902,
+      "kemendagriCode": "32.08",
+      "bpsCode": "3208",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10377",
+      "label": "Majalengka",
+      "kind": "kabupaten",
+      "lat": -6.835273,
+      "lon": 108.227655,
+      "kemendagriCode": "32.10",
+      "bpsCode": "3210",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10378",
+      "label": "Purwakarta",
+      "kind": "kabupaten",
+      "lat": -6.538564,
+      "lon": 107.443557,
+      "kemendagriCode": "32.14",
+      "bpsCode": "3214",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10380",
+      "label": "Subang",
+      "kind": "kabupaten",
+      "lat": -6.56985,
+      "lon": 107.762831,
+      "kemendagriCode": "32.13",
+      "bpsCode": "3213",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10381",
+      "label": "Sukabumi",
+      "kind": "kabupaten",
+      "lat": -6.987276,
+      "lon": 106.551093,
+      "kemendagriCode": "32.02",
+      "bpsCode": "3202",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10382",
+      "label": "Sumedang",
+      "kind": "kabupaten",
+      "lat": -6.85,
+      "lon": 107.916667,
+      "kemendagriCode": "32.11",
+      "bpsCode": "3211",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10385",
+      "label": "Tasikmalaya",
+      "kind": "kabupaten",
+      "lat": -7.365833,
+      "lon": 108.101944,
+      "kemendagriCode": "32.06",
+      "bpsCode": "3206",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10388",
+      "label": "Bandung Barat",
+      "kind": "kabupaten",
+      "lat": -6.841117,
+      "lon": 107.512583,
+      "kemendagriCode": "32.17",
+      "bpsCode": "3217",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10389",
+      "label": "Bandung",
+      "kind": "kota",
+      "lat": -6.921944,
+      "lon": 107.606944,
+      "kemendagriCode": "32.73",
+      "bpsCode": "3273",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10391",
+      "label": "Banjar",
+      "kind": "kota",
+      "lat": -7.366667,
+      "lon": 108.533333,
+      "kemendagriCode": "32.79",
+      "bpsCode": "3279",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10392",
+      "label": "Bekasi",
+      "kind": "kota",
+      "lat": -6.233333,
+      "lon": 107,
+      "kemendagriCode": "32.75",
+      "bpsCode": "3275",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10393",
+      "label": "Bogor",
+      "kind": "kota",
+      "lat": -6.597803,
+      "lon": 106.799263,
+      "kemendagriCode": "32.71",
+      "bpsCode": "3271",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10394",
+      "label": "Cimahi",
+      "kind": "kota",
+      "lat": -6.880038,
+      "lon": 107.53852,
+      "kemendagriCode": "32.77",
+      "bpsCode": "3277",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10395",
+      "label": "Cirebon",
+      "kind": "kota",
+      "lat": -6.73969,
+      "lon": 108.552968,
+      "kemendagriCode": "32.74",
+      "bpsCode": "3274",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10396",
+      "label": "Depok",
+      "kind": "kota",
+      "lat": -6.405031,
+      "lon": 106.817308,
+      "kemendagriCode": "32.76",
+      "bpsCode": "3276",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10397",
+      "label": "Sukabumi",
+      "kind": "kota",
+      "lat": -6.932,
+      "lon": 106.918564,
+      "kemendagriCode": "32.72",
+      "bpsCode": "3272",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10399",
+      "label": "Tasikmalaya",
+      "kind": "kota",
+      "lat": -7.325802,
+      "lon": 108.220181,
+      "kemendagriCode": "32.78",
+      "bpsCode": "3278",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q10604",
+      "label": "Banjarnegara",
+      "kind": "kabupaten",
+      "lat": -7.39611,
+      "lon": 109.757,
+      "kemendagriCode": "33.04",
+      "bpsCode": "3304",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10605",
+      "label": "Banyumas",
+      "kind": "kabupaten",
+      "lat": -7.425,
+      "lon": 109.23,
+      "kemendagriCode": "33.02",
+      "bpsCode": "3302",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10607",
+      "label": "Batang",
+      "kind": "kabupaten",
+      "lat": -6.908112,
+      "lon": 109.730419,
+      "kemendagriCode": "33.25",
+      "bpsCode": "3325",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10608",
+      "label": "Blora",
+      "kind": "kabupaten",
+      "lat": -7.06667,
+      "lon": 111.38333,
+      "kemendagriCode": "33.16",
+      "bpsCode": "3316",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10609",
+      "label": "Boyolali",
+      "kind": "kabupaten",
+      "lat": -7.532222,
+      "lon": 110.6025,
+      "kemendagriCode": "33.09",
+      "bpsCode": "3309",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10610",
+      "label": "Brebes",
+      "kind": "kabupaten",
+      "lat": -7.05,
+      "lon": 108.9,
+      "kemendagriCode": "33.29",
+      "bpsCode": "3329",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10612",
+      "label": "Cilacap",
+      "kind": "kabupaten",
+      "lat": -7.733333,
+      "lon": 109,
+      "kemendagriCode": "33.01",
+      "bpsCode": "3301",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10613",
+      "label": "Demak",
+      "kind": "kabupaten",
+      "lat": -6.883333,
+      "lon": 110.666667,
+      "kemendagriCode": "33.21",
+      "bpsCode": "3321",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10614",
+      "label": "Grobogan",
+      "kind": "kabupaten",
+      "lat": -7.03,
+      "lon": 110.921111,
+      "kemendagriCode": "33.15",
+      "bpsCode": "3315",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10615",
+      "label": "Jepara",
+      "kind": "kabupaten",
+      "lat": -6.533333,
+      "lon": 110.666667,
+      "kemendagriCode": "33.20",
+      "bpsCode": "3320",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10616",
+      "label": "Karanganyar",
+      "kind": "kabupaten",
+      "lat": -7.596111,
+      "lon": 110.950833,
+      "kemendagriCode": "33.13",
+      "bpsCode": "3313",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10617",
+      "label": "Kebumen",
+      "kind": "kabupaten",
+      "lat": -7.629444,
+      "lon": 109.570556,
+      "kemendagriCode": "33.05",
+      "bpsCode": "3305",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10618",
+      "label": "Kendal",
+      "kind": "kabupaten",
+      "lat": -7.0256,
+      "lon": 110.1685,
+      "kemendagriCode": "33.24",
+      "bpsCode": "3324",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10619",
+      "label": "Klaten",
+      "kind": "kabupaten",
+      "lat": -7.683333,
+      "lon": 110.616667,
+      "kemendagriCode": "33.10",
+      "bpsCode": "3310",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10620",
+      "label": "Kudus",
+      "kind": "kabupaten",
+      "lat": -6.8,
+      "lon": 110.866667,
+      "kemendagriCode": "33.19",
+      "bpsCode": "3319",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10621",
+      "label": "Magelang",
+      "kind": "kabupaten",
+      "lat": -7.6575,
+      "lon": 110.273056,
+      "kemendagriCode": "33.08",
+      "bpsCode": "3308",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10622",
+      "label": "Pati",
+      "kind": "kabupaten",
+      "lat": -6.76667,
+      "lon": 111.1,
+      "kemendagriCode": "33.18",
+      "bpsCode": "3318",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10623",
+      "label": "Pekalongan",
+      "kind": "kabupaten",
+      "lat": -6.8825,
+      "lon": 109.67,
+      "kemendagriCode": "33.26",
+      "bpsCode": "3326",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10624",
+      "label": "Pemalang",
+      "kind": "kabupaten",
+      "lat": -7.033333,
+      "lon": 109.4,
+      "kemendagriCode": "33.27",
+      "bpsCode": "3327",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10625",
+      "label": "Purbalingga",
+      "kind": "kabupaten",
+      "lat": -7.283333,
+      "lon": 109.35,
+      "kemendagriCode": "33.03",
+      "bpsCode": "3303",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10674",
+      "label": "Purworejo",
+      "kind": "kabupaten",
+      "lat": -7.716667,
+      "lon": 110.016667,
+      "kemendagriCode": "33.06",
+      "bpsCode": "3306",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10684",
+      "label": "Rembang",
+      "kind": "kabupaten",
+      "lat": -6.716667,
+      "lon": 111.35,
+      "kemendagriCode": "33.17",
+      "bpsCode": "3317",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10687",
+      "label": "Semarang",
+      "kind": "kabupaten",
+      "lat": -7.265556,
+      "lon": 110.335833,
+      "kemendagriCode": "33.22",
+      "bpsCode": "3322",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10688",
+      "label": "Sragen",
+      "kind": "kabupaten",
+      "lat": -7.41278,
+      "lon": 110.935,
+      "kemendagriCode": "33.14",
+      "bpsCode": "3314",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10692",
+      "label": "Sukoharjo",
+      "kind": "kabupaten",
+      "lat": -7.68333,
+      "lon": 110.83333,
+      "kemendagriCode": "33.11",
+      "bpsCode": "3311",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10705",
+      "label": "Tegal",
+      "kind": "kabupaten",
+      "lat": -6.866667,
+      "lon": 109.15,
+      "kemendagriCode": "33.28",
+      "bpsCode": "3328",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10979",
+      "label": "Temanggung",
+      "kind": "kabupaten",
+      "lat": -7.3,
+      "lon": 110.166667,
+      "kemendagriCode": "33.23",
+      "bpsCode": "3323",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q10981",
+      "label": "Wonogiri",
+      "kind": "kabupaten",
+      "lat": -7.91667,
+      "lon": 111,
+      "kemendagriCode": "33.12",
+      "bpsCode": "3312",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q11013",
+      "label": "Wonosobo",
+      "kind": "kabupaten",
+      "lat": -7.361389,
+      "lon": 109.926669,
+      "kemendagriCode": "33.07",
+      "bpsCode": "3307",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q11017",
+      "label": "Magelang",
+      "kind": "kota",
+      "lat": -7.470556,
+      "lon": 110.217778,
+      "kemendagriCode": "33.71",
+      "bpsCode": "3371",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q11021",
+      "label": "Salatiga",
+      "kind": "kota",
+      "lat": -7.338889,
+      "lon": 110.502222,
+      "kemendagriCode": "33.73",
+      "bpsCode": "3373",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q11025",
+      "label": "Semarang",
+      "kind": "kota",
+      "lat": -6.99,
+      "lon": 110.4225,
+      "kemendagriCode": "33.74",
+      "bpsCode": "3374",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q11026",
+      "label": "Pekalongan",
+      "kind": "kota",
+      "lat": -6.888333,
+      "lon": 109.675278,
+      "kemendagriCode": "33.75",
+      "bpsCode": "3375",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q11027",
+      "label": "Tegal",
+      "kind": "kota",
+      "lat": -6.8675,
+      "lon": 109.1375,
+      "kemendagriCode": "33.76",
+      "bpsCode": "3376",
+      "provinces": [
+        "Jawa Tengah"
+      ]
+    },
+    {
+      "qid": "Q11066",
+      "label": "Bangkalan",
+      "kind": "kabupaten",
+      "lat": -7.029194,
+      "lon": 112.746132,
+      "kemendagriCode": "35.26",
+      "bpsCode": "3526",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11067",
+      "label": "Banyuwangi",
+      "kind": "kabupaten",
+      "lat": -8.226667,
+      "lon": 114.366389,
+      "kemendagriCode": "35.10",
+      "bpsCode": "3510",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11069",
+      "label": "Blitar",
+      "kind": "kabupaten",
+      "lat": -8.13333,
+      "lon": 112.25,
+      "kemendagriCode": "35.05",
+      "bpsCode": "3505",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11071",
+      "label": "Bojonegoro",
+      "kind": "kabupaten",
+      "lat": -7.275,
+      "lon": 111.795,
+      "kemendagriCode": "35.22",
+      "bpsCode": "3522",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11076",
+      "label": "Bondowoso",
+      "kind": "kabupaten",
+      "lat": -7.9404,
+      "lon": 113.9834,
+      "kemendagriCode": "35.11",
+      "bpsCode": "3511",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11077",
+      "label": "Gresik",
+      "kind": "kabupaten",
+      "lat": -7.1933,
+      "lon": 112.553,
+      "kemendagriCode": "35.25",
+      "bpsCode": "3525",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11080",
+      "label": "Jember",
+      "kind": "kabupaten",
+      "lat": -8.168889,
+      "lon": 113.702222,
+      "kemendagriCode": "35.09",
+      "bpsCode": "3509",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11082",
+      "label": "Jombang",
+      "kind": "kabupaten",
+      "lat": -7.466667,
+      "lon": 112.233333,
+      "kemendagriCode": "35.17",
+      "bpsCode": "3517",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11084",
+      "label": "Kediri",
+      "kind": "kabupaten",
+      "lat": -7.83333,
+      "lon": 112.16667,
+      "kemendagriCode": "35.06",
+      "bpsCode": "3506",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11086",
+      "label": "Lamongan",
+      "kind": "kabupaten",
+      "lat": -7.116667,
+      "lon": 112.416667,
+      "kemendagriCode": "35.24",
+      "bpsCode": "3524",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11087",
+      "label": "Lumajang",
+      "kind": "kabupaten",
+      "lat": -8.133333,
+      "lon": 113.216667,
+      "kemendagriCode": "35.08",
+      "bpsCode": "3508",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11091",
+      "label": "Madiun",
+      "kind": "kabupaten",
+      "lat": -7.61667,
+      "lon": 111.65,
+      "kemendagriCode": "35.19",
+      "bpsCode": "3519",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11092",
+      "label": "Magetan",
+      "kind": "kabupaten",
+      "lat": -7.65,
+      "lon": 111.366667,
+      "kemendagriCode": "35.20",
+      "bpsCode": "3520",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11095",
+      "label": "Malang",
+      "kind": "kabupaten",
+      "lat": -7.9797,
+      "lon": 112.6304,
+      "kemendagriCode": "35.07",
+      "bpsCode": "3507",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11096",
+      "label": "Mojokerto",
+      "kind": "kabupaten",
+      "lat": -7.55,
+      "lon": 112.5,
+      "kemendagriCode": "35.16",
+      "bpsCode": "3516",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11098",
+      "label": "Nganjuk",
+      "kind": "kabupaten",
+      "lat": -7.6,
+      "lon": 111.933333,
+      "kemendagriCode": "35.18",
+      "bpsCode": "3518",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11108",
+      "label": "Ngawi",
+      "kind": "kabupaten",
+      "lat": -7.463611,
+      "lon": 111.298333,
+      "kemendagriCode": "35.21",
+      "bpsCode": "3521",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11111",
+      "label": "Pacitan",
+      "kind": "kabupaten",
+      "lat": -8.13333,
+      "lon": 111.16667,
+      "kemendagriCode": "35.01",
+      "bpsCode": "3501",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11112",
+      "label": "Pamekasan",
+      "kind": "kabupaten",
+      "lat": -7.066667,
+      "lon": 113.5,
+      "kemendagriCode": "35.28",
+      "bpsCode": "3528",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11115",
+      "label": "Pasuruan",
+      "kind": "kabupaten",
+      "lat": -7.73333,
+      "lon": 112.83333,
+      "kemendagriCode": "35.14",
+      "bpsCode": "3514",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11118",
+      "label": "Ponorogo",
+      "kind": "kabupaten",
+      "lat": -7.868611,
+      "lon": 111.461944,
+      "kemendagriCode": "35.02",
+      "bpsCode": "3502",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11121",
+      "label": "Probolinggo",
+      "kind": "kabupaten",
+      "lat": -7.735278,
+      "lon": 113.471667,
+      "kemendagriCode": "35.13",
+      "bpsCode": "3513",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11127",
+      "label": "Sampang",
+      "kind": "kabupaten",
+      "lat": -7.05,
+      "lon": 113.25,
+      "kemendagriCode": "35.27",
+      "bpsCode": "3527",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11129",
+      "label": "Sidoarjo",
+      "kind": "kabupaten",
+      "lat": -7.453028,
+      "lon": 112.717333,
+      "kemendagriCode": "35.15",
+      "bpsCode": "3515",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11134",
+      "label": "Situbondo",
+      "kind": "kabupaten",
+      "lat": -7.71667,
+      "lon": 114.05,
+      "kemendagriCode": "35.12",
+      "bpsCode": "3512",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11137",
+      "label": "Sumenep",
+      "kind": "kabupaten",
+      "lat": -7.016667,
+      "lon": 113.866667,
+      "kemendagriCode": "35.29",
+      "bpsCode": "3529",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11139",
+      "label": "Trenggalek",
+      "kind": "kabupaten",
+      "lat": -8.05,
+      "lon": 111.716667,
+      "kemendagriCode": "35.03",
+      "bpsCode": "3503",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11141",
+      "label": "Tuban",
+      "kind": "kabupaten",
+      "lat": -6.88333,
+      "lon": 112.05,
+      "kemendagriCode": "35.23",
+      "bpsCode": "3523",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11143",
+      "label": "Tulungagung",
+      "kind": "kabupaten",
+      "lat": -8.066667,
+      "lon": 111.9,
+      "kemendagriCode": "35.04",
+      "bpsCode": "3504",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11434",
+      "label": "Batu",
+      "kind": "kota",
+      "lat": -7.8672,
+      "lon": 112.5239,
+      "kemendagriCode": "35.79",
+      "bpsCode": "3579",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11441",
+      "label": "Blitar",
+      "kind": "kota",
+      "lat": -8.1,
+      "lon": 112.166667,
+      "kemendagriCode": "35.72",
+      "bpsCode": "3572",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11443",
+      "label": "Kediri",
+      "kind": "kota",
+      "lat": -7.811111,
+      "lon": 112.004722,
+      "kemendagriCode": "35.71",
+      "bpsCode": "3571",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11444",
+      "label": "Madiun",
+      "kind": "kota",
+      "lat": -7.63,
+      "lon": 111.523056,
+      "kemendagriCode": "35.77",
+      "bpsCode": "3577",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11445",
+      "label": "Malang",
+      "kind": "kota",
+      "lat": -7.96893,
+      "lon": 112.632728,
+      "kemendagriCode": "35.73",
+      "bpsCode": "3573",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11447",
+      "label": "Mojokerto",
+      "kind": "kota",
+      "lat": -7.472222,
+      "lon": 112.433611,
+      "kemendagriCode": "35.76",
+      "bpsCode": "3576",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11449",
+      "label": "Pasuruan",
+      "kind": "kota",
+      "lat": -7.640622,
+      "lon": 112.906478,
+      "kemendagriCode": "35.75",
+      "bpsCode": "3575",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11450",
+      "label": "Probolinggo",
+      "kind": "kota",
+      "lat": -7.75,
+      "lon": 113.216667,
+      "kemendagriCode": "35.74",
+      "bpsCode": "3574",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11462",
+      "label": "Surabaya",
+      "kind": "kota",
+      "lat": -7.246284,
+      "lon": 112.737767,
+      "kemendagriCode": "35.78",
+      "bpsCode": "3578",
+      "provinces": [
+        "Jawa Timur"
+      ]
+    },
+    {
+      "qid": "Q11477",
+      "label": "Bantul",
+      "kind": "kabupaten",
+      "lat": -7.884611,
+      "lon": 110.334111,
+      "kemendagriCode": "34.02",
+      "bpsCode": "3402",
+      "provinces": [
+        "Yogyakarta"
+      ]
+    },
+    {
+      "qid": "Q11478",
+      "label": "Gunungkidul",
+      "kind": "kabupaten",
+      "lat": -7.965,
+      "lon": 110.6,
+      "kemendagriCode": "34.03",
+      "bpsCode": "3403",
+      "provinces": [
+        "Yogyakarta"
+      ]
+    },
+    {
+      "qid": "Q11479",
+      "label": "Kulon Progo",
+      "kind": "kabupaten",
+      "lat": -7.8596,
+      "lon": 110.1579,
+      "kemendagriCode": "34.01",
+      "bpsCode": "3401",
+      "provinces": [
+        "Yogyakarta"
+      ]
+    },
+    {
+      "qid": "Q11480",
+      "label": "Sleman",
+      "kind": "kabupaten",
+      "lat": -7.68167,
+      "lon": 110.32333,
+      "kemendagriCode": "34.04",
+      "bpsCode": "3404",
+      "provinces": [
+        "Yogyakarta"
+      ]
+    },
+    {
+      "qid": "Q11482",
+      "label": "Badung",
+      "kind": "kabupaten",
+      "lat": -8.583333,
+      "lon": 115.183333,
+      "kemendagriCode": "51.03",
+      "bpsCode": "5103",
+      "provinces": [
+        "Bali"
+      ]
+    },
+    {
+      "qid": "Q11491",
+      "label": "Bangli",
+      "kind": "kabupaten",
+      "lat": -8.28325,
+      "lon": 115.33278,
+      "kemendagriCode": "51.06",
+      "bpsCode": "5106",
+      "provinces": [
+        "Bali"
+      ]
+    },
+    {
+      "qid": "Q11495",
+      "label": "Buleleng",
+      "kind": "kabupaten",
+      "lat": -8.2,
+      "lon": 114.95,
+      "kemendagriCode": "51.08",
+      "bpsCode": "5108",
+      "provinces": [
+        "Bali"
+      ]
+    },
+    {
+      "qid": "Q11496",
+      "label": "Gianyar",
+      "kind": "kabupaten",
+      "lat": -8.466667,
+      "lon": 115.283333,
+      "kemendagriCode": "51.04",
+      "bpsCode": "5104",
+      "provinces": [
+        "Bali"
+      ]
+    },
+    {
+      "qid": "Q11499",
+      "label": "Jembrana",
+      "kind": "kabupaten",
+      "lat": -8.3,
+      "lon": 114.666667,
+      "kemendagriCode": "51.01",
+      "bpsCode": "5101",
+      "provinces": [
+        "Bali"
+      ]
+    },
+    {
+      "qid": "Q11501",
+      "label": "Karangasem",
+      "kind": "kabupaten",
+      "lat": -8.366667,
+      "lon": 115.516667,
+      "kemendagriCode": "51.07",
+      "bpsCode": "5107",
+      "provinces": [
+        "Bali"
+      ]
+    },
+    {
+      "qid": "Q11503",
+      "label": "Klungkung",
+      "kind": "kabupaten",
+      "lat": -8.538922,
+      "lon": 115.404511,
+      "kemendagriCode": "51.05",
+      "bpsCode": "5105",
+      "provinces": [
+        "Bali"
+      ]
+    },
+    {
+      "qid": "Q11505",
+      "label": "Tabanan",
+      "kind": "kabupaten",
+      "lat": -8.551147,
+      "lon": 115.121614,
+      "kemendagriCode": "51.02",
+      "bpsCode": "5102",
+      "provinces": [
+        "Bali"
+      ]
+    },
+    {
+      "qid": "Q11506",
+      "label": "Denpasar",
+      "kind": "kota",
+      "lat": -8.671667,
+      "lon": 115.233889,
+      "kemendagriCode": "51.71",
+      "bpsCode": "5171",
+      "provinces": [
+        "Bali"
+      ]
+    },
+    {
+      "qid": "Q14114",
+      "label": "Bima",
+      "kind": "kabupaten",
+      "lat": -8.574444,
+      "lon": 119.0375,
+      "kemendagriCode": "52.06",
+      "bpsCode": "5206",
+      "provinces": [
+        "Nusa Tenggara Barat"
+      ]
+    },
+    {
+      "qid": "Q14115",
+      "label": "Lombok Timur",
+      "kind": "kabupaten",
+      "lat": -8.65,
+      "lon": 116.533333,
+      "kemendagriCode": "52.03",
+      "bpsCode": "5203",
+      "provinces": [
+        "Nusa Tenggara Barat"
+      ]
+    },
+    {
+      "qid": "Q14117",
+      "label": "Dompu",
+      "kind": "kabupaten",
+      "lat": -8.533333,
+      "lon": 118.466667,
+      "kemendagriCode": "52.05",
+      "bpsCode": "5205",
+      "provinces": [
+        "Nusa Tenggara Barat"
+      ]
+    },
+    {
+      "qid": "Q14119",
+      "label": "Lombok Tengah",
+      "kind": "kabupaten",
+      "lat": -8.7,
+      "lon": 116.266667,
+      "kemendagriCode": "52.02",
+      "bpsCode": "5202",
+      "provinces": [
+        "Nusa Tenggara Barat"
+      ]
+    },
+    {
+      "qid": "Q14121",
+      "label": "Lombok Utara",
+      "kind": "kabupaten",
+      "lat": -8.35,
+      "lon": 116.15,
+      "kemendagriCode": "52.08",
+      "bpsCode": "5208",
+      "provinces": [
+        "Nusa Tenggara Barat"
+      ]
+    },
+    {
+      "qid": "Q14122",
+      "label": "Sumbawa",
+      "kind": "kabupaten",
+      "lat": -8.744806,
+      "lon": 117.671528,
+      "kemendagriCode": "52.04",
+      "bpsCode": "5204",
+      "provinces": [
+        "Nusa Tenggara Barat"
+      ]
+    },
+    {
+      "qid": "Q14123",
+      "label": "Lombok Barat",
+      "kind": "kabupaten",
+      "lat": -8.716667,
+      "lon": 116.116667,
+      "kemendagriCode": "52.01",
+      "bpsCode": "5201",
+      "provinces": [
+        "Nusa Tenggara Barat"
+      ]
+    },
+    {
+      "qid": "Q14124",
+      "label": "Sumbawa Barat",
+      "kind": "kabupaten",
+      "lat": -8.78737,
+      "lon": 116.926,
+      "kemendagriCode": "52.07",
+      "bpsCode": "5207",
+      "provinces": [
+        "Nusa Tenggara Barat"
+      ]
+    },
+    {
+      "qid": "Q14126",
+      "label": "Mataram",
+      "kind": "kota",
+      "lat": -8.583333,
+      "lon": 116.116667,
+      "kemendagriCode": "52.71",
+      "bpsCode": "5271",
+      "provinces": [
+        "Nusa Tenggara Barat"
+      ]
+    },
+    {
+      "qid": "Q14128",
+      "label": "Bima",
+      "kind": "kota",
+      "lat": -8.46,
+      "lon": 118.726667,
+      "kemendagriCode": "52.72",
+      "bpsCode": "5272",
+      "provinces": [
+        "Nusa Tenggara Barat"
+      ]
+    },
+    {
+      "qid": "Q14131",
+      "label": "Alor",
+      "kind": "kabupaten",
+      "lat": -8.25,
+      "lon": 124.75,
+      "kemendagriCode": "53.05",
+      "bpsCode": "5307",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14133",
+      "label": "Belu",
+      "kind": "kabupaten",
+      "lat": -9.1,
+      "lon": 124.9,
+      "kemendagriCode": "53.04",
+      "bpsCode": "5306",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14134",
+      "label": "Sumba Tengah",
+      "kind": "kabupaten",
+      "lat": -9.62941,
+      "lon": 119.61914,
+      "kemendagriCode": "53.17",
+      "bpsCode": "5316",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14136",
+      "label": "Flores Timur",
+      "kind": "kabupaten",
+      "lat": -8.341208,
+      "lon": 122.988115,
+      "kemendagriCode": "53.06",
+      "bpsCode": "5309",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14137",
+      "label": "Manggarai Timur",
+      "kind": "kabupaten",
+      "lat": -8.75,
+      "lon": 120.608611,
+      "kemendagriCode": "53.19",
+      "bpsCode": "5319",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14139",
+      "label": "Sumba Timur",
+      "kind": "kabupaten",
+      "lat": -9.88333,
+      "lon": 120.25,
+      "kemendagriCode": "53.11",
+      "bpsCode": "5302",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14140",
+      "label": "Ende",
+      "kind": "kabupaten",
+      "lat": -8.840556,
+      "lon": 121.663889,
+      "kemendagriCode": "53.08",
+      "bpsCode": "5311",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14141",
+      "label": "Kupang",
+      "kind": "kabupaten",
+      "lat": -10.163611,
+      "lon": 123.590278,
+      "kemendagriCode": "53.01",
+      "bpsCode": "5303",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14142",
+      "label": "Lembata",
+      "kind": "kabupaten",
+      "lat": -8.41396,
+      "lon": 123.55225,
+      "kemendagriCode": "53.13",
+      "bpsCode": "5308",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14143",
+      "label": "Manggarai",
+      "kind": "kabupaten",
+      "lat": -8.612651,
+      "lon": 120.462584,
+      "kemendagriCode": "53.10",
+      "bpsCode": "5313",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14144",
+      "label": "Nagekeo",
+      "kind": "kabupaten",
+      "lat": -8.8721,
+      "lon": 121.20963,
+      "kemendagriCode": "53.16",
+      "bpsCode": "5318",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14145",
+      "label": "Ngada",
+      "kind": "kabupaten",
+      "lat": -8.66667,
+      "lon": 121,
+      "kemendagriCode": "53.09",
+      "bpsCode": "5312",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14146",
+      "label": "Timor Tengah Utara",
+      "kind": "kabupaten",
+      "lat": -9.446667,
+      "lon": 124.478056,
+      "kemendagriCode": "53.03",
+      "bpsCode": "5305",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14147",
+      "label": "Rote Ndao",
+      "kind": "kabupaten",
+      "lat": -10.466667,
+      "lon": 123.383333,
+      "kemendagriCode": "53.14",
+      "bpsCode": "5314",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14148",
+      "label": "Sabu Raijua",
+      "kind": "kabupaten",
+      "lat": -10.56286,
+      "lon": 121.78894,
+      "kemendagriCode": "53.20",
+      "bpsCode": "5320",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14150",
+      "label": "Sikka",
+      "kind": "kabupaten",
+      "lat": -8.616389,
+      "lon": 122.208056,
+      "kemendagriCode": "53.07",
+      "bpsCode": "5310",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14151",
+      "label": "Timor Tengah Selatan",
+      "kind": "kabupaten",
+      "lat": -9.471667,
+      "lon": 124.804722,
+      "kemendagriCode": "53.02",
+      "bpsCode": "5304",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14152",
+      "label": "Sumba Barat Daya",
+      "kind": "kabupaten",
+      "lat": -9.56216,
+      "lon": 119.08905,
+      "kemendagriCode": "53.18",
+      "bpsCode": "5317",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14153",
+      "label": "Manggarai Barat",
+      "kind": "kabupaten",
+      "lat": -8.64484,
+      "lon": 119.88281,
+      "kemendagriCode": "53.15",
+      "bpsCode": "5315",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14154",
+      "label": "Sumba Barat",
+      "kind": "kabupaten",
+      "lat": -9.56667,
+      "lon": 119.45,
+      "kemendagriCode": "53.12",
+      "bpsCode": "5301",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14155",
+      "label": "Kupang",
+      "kind": "kota",
+      "lat": -10.163333,
+      "lon": 123.577778,
+      "kemendagriCode": "53.71",
+      "bpsCode": "5371",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q14156",
+      "label": "Bengkayang",
+      "kind": "kabupaten",
+      "lat": 1.06911,
+      "lon": 109.66393,
+      "kemendagriCode": "61.07",
+      "bpsCode": "6102",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14157",
+      "label": "Kapuas Hulu",
+      "kind": "kabupaten",
+      "lat": 0.81667,
+      "lon": 112.76667,
+      "kemendagriCode": "61.06",
+      "bpsCode": "6108",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14158",
+      "label": "Kayong Utara",
+      "kind": "kabupaten",
+      "lat": -1.43711,
+      "lon": 110.79781,
+      "kemendagriCode": "61.11",
+      "bpsCode": "6111",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14159",
+      "label": "Ketapang",
+      "kind": "kabupaten",
+      "lat": -1.58333,
+      "lon": 110.5,
+      "kemendagriCode": "61.04",
+      "bpsCode": "6106",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14160",
+      "label": "Kubu Raya",
+      "kind": "kabupaten",
+      "lat": 0.01637,
+      "lon": 109.33731,
+      "kemendagriCode": "61.12",
+      "bpsCode": "6112",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14161",
+      "label": "Landak",
+      "kind": "kabupaten",
+      "lat": 0.42373,
+      "lon": 109.75917,
+      "kemendagriCode": "61.08",
+      "bpsCode": "6103",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14162",
+      "label": "Melawi",
+      "kind": "kabupaten",
+      "lat": -0.336111,
+      "lon": 111.698056,
+      "kemendagriCode": "61.10",
+      "bpsCode": "6110",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14163",
+      "label": "Mempawah",
+      "kind": "kabupaten",
+      "lat": 0.25,
+      "lon": 109.16667,
+      "kemendagriCode": "61.02",
+      "bpsCode": "6104",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14164",
+      "label": "Sambas",
+      "kind": "kabupaten",
+      "lat": 1.41667,
+      "lon": 109.33333,
+      "kemendagriCode": "61.01",
+      "bpsCode": "6101",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14165",
+      "label": "Sanggau",
+      "kind": "kabupaten",
+      "lat": 0.123424,
+      "lon": 110.597,
+      "kemendagriCode": "61.03",
+      "bpsCode": "6105",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14166",
+      "label": "Sekadau",
+      "kind": "kabupaten",
+      "lat": 0.03485,
+      "lon": 110.95066,
+      "kemendagriCode": "61.09",
+      "bpsCode": "6109",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14167",
+      "label": "Sintang",
+      "kind": "kabupaten",
+      "lat": -0.083333,
+      "lon": 112.083333,
+      "kemendagriCode": "61.05",
+      "bpsCode": "6107",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14169",
+      "label": "Singkawang",
+      "kind": "kota",
+      "lat": 0.9,
+      "lon": 108.983333,
+      "kemendagriCode": "61.72",
+      "bpsCode": "6172",
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q14170",
+      "label": "Balangan",
+      "kind": "kabupaten",
+      "lat": -2.364001,
+      "lon": 115.470514,
+      "kemendagriCode": "63.11",
+      "bpsCode": "6311",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14171",
+      "label": "Banjar",
+      "kind": "kabupaten",
+      "lat": -3.408131,
+      "lon": 114.848542,
+      "kemendagriCode": "63.03",
+      "bpsCode": "6303",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14172",
+      "label": "Barito Kuala",
+      "kind": "kabupaten",
+      "lat": -2.981143,
+      "lon": 114.766779,
+      "kemendagriCode": "63.04",
+      "bpsCode": "6304",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14173",
+      "label": "Hulu Sungai Tengah",
+      "kind": "kabupaten",
+      "lat": -2.584656,
+      "lon": 115.385171,
+      "kemendagriCode": "63.07",
+      "bpsCode": "6307",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14174",
+      "label": "Kotabaru",
+      "kind": "kabupaten",
+      "lat": -3,
+      "lon": 116,
+      "kemendagriCode": "63.02",
+      "bpsCode": "6302",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14175",
+      "label": "Hulu Sungai Utara",
+      "kind": "kabupaten",
+      "lat": -2.419284,
+      "lon": 115.25428,
+      "kemendagriCode": "63.08",
+      "bpsCode": "6308",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14176",
+      "label": "Hulu Sungai Selatan",
+      "kind": "kabupaten",
+      "lat": -2.78667,
+      "lon": 115.26592,
+      "kemendagriCode": "63.06",
+      "bpsCode": "6306",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14177",
+      "label": "Tabalong",
+      "kind": "kabupaten",
+      "lat": -2.164736,
+      "lon": 115.382213,
+      "kemendagriCode": "63.09",
+      "bpsCode": "6309",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14178",
+      "label": "Tanah Laut",
+      "kind": "kabupaten",
+      "lat": -3.799739,
+      "lon": 114.782593,
+      "kemendagriCode": "63.01",
+      "bpsCode": "6301",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14179",
+      "label": "Tanah Bumbu",
+      "kind": "kabupaten",
+      "lat": -3.483634,
+      "lon": 115.947938,
+      "kemendagriCode": "63.10",
+      "bpsCode": "6310",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14180",
+      "label": "Tapin",
+      "kind": "kabupaten",
+      "lat": -2.930897,
+      "lon": 115.156682,
+      "kemendagriCode": "63.05",
+      "bpsCode": "6305",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14181",
+      "label": "Banjarbaru",
+      "kind": "kota",
+      "lat": -3.438903,
+      "lon": 114.830881,
+      "kemendagriCode": "63.72",
+      "bpsCode": "6372",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14182",
+      "label": "Banjarmasin",
+      "kind": "kota",
+      "lat": -3.314429,
+      "lon": 114.592254,
+      "kemendagriCode": "63.71",
+      "bpsCode": "6371",
+      "provinces": [
+        "Kalimantan Selatan"
+      ]
+    },
+    {
+      "qid": "Q14190",
+      "label": "Barito Timur",
+      "kind": "kabupaten",
+      "lat": -1.93333,
+      "lon": 115.1,
+      "kemendagriCode": "62.13",
+      "bpsCode": "6212",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14191",
+      "label": "Kotawaringin Timur",
+      "kind": "kabupaten",
+      "lat": -2.08333,
+      "lon": 112.75,
+      "kemendagriCode": "62.02",
+      "bpsCode": "6202",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14192",
+      "label": "Gunung Mas",
+      "kind": "kabupaten",
+      "lat": -0.95,
+      "lon": 113.5,
+      "kemendagriCode": "62.10",
+      "bpsCode": "6211",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14193",
+      "label": "Kapuas",
+      "kind": "kabupaten",
+      "lat": -3,
+      "lon": 114.38,
+      "kemendagriCode": "62.03",
+      "bpsCode": "6203",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14194",
+      "label": "Lamandau",
+      "kind": "kabupaten",
+      "lat": -1.83828,
+      "lon": 111.2869,
+      "kemendagriCode": "62.09",
+      "bpsCode": "6207",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14195",
+      "label": "Murung Raya",
+      "kind": "kabupaten",
+      "lat": -1.408333,
+      "lon": 115.133333,
+      "kemendagriCode": "62.12",
+      "bpsCode": "6213",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14209",
+      "label": "Barito Utara",
+      "kind": "kabupaten",
+      "lat": -0.98333,
+      "lon": 115.1,
+      "kemendagriCode": "62.05",
+      "bpsCode": "6205",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14385",
+      "label": "Pulang Pisau",
+      "kind": "kabupaten",
+      "lat": -3.11858,
+      "lon": 113.8623,
+      "kemendagriCode": "62.11",
+      "bpsCode": "6210",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14386",
+      "label": "Sukamara",
+      "kind": "kabupaten",
+      "lat": -2.62675,
+      "lon": 111.23681,
+      "kemendagriCode": "62.08",
+      "bpsCode": "6206",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14389",
+      "label": "Seruyan",
+      "kind": "kabupaten",
+      "lat": -2.33333,
+      "lon": 112.25,
+      "kemendagriCode": "62.07",
+      "bpsCode": "6208",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14391",
+      "label": "Barito Selatan",
+      "kind": "kabupaten",
+      "lat": -1.86667,
+      "lon": 114.73333,
+      "kemendagriCode": "62.04",
+      "bpsCode": "6204",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14393",
+      "label": "Kotawaringin Barat",
+      "kind": "kabupaten",
+      "lat": -2.4,
+      "lon": 111.73333,
+      "kemendagriCode": "62.01",
+      "bpsCode": "6201",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14395",
+      "label": "Berau",
+      "kind": "kabupaten",
+      "lat": 2,
+      "lon": 117.3,
+      "kemendagriCode": "64.03",
+      "bpsCode": "6405",
+      "provinces": [
+        "Kalimantan Timur"
+      ]
+    },
+    {
+      "qid": "Q14404",
+      "label": "Bulungan",
+      "kind": "kabupaten",
+      "lat": 3,
+      "lon": 117.16667,
+      "kemendagriCode": "65.01",
+      "bpsCode": "6502",
+      "provinces": [
+        "Kalimantan Utara"
+      ]
+    },
+    {
+      "qid": "Q14409",
+      "label": "Palangka Raya",
+      "kind": "kota",
+      "lat": -2.21,
+      "lon": 113.92,
+      "kemendagriCode": "62.71",
+      "bpsCode": "6271",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q14468",
+      "label": "Kutai Timur",
+      "kind": "kabupaten",
+      "lat": 1.03769,
+      "lon": 117.83112,
+      "kemendagriCode": "64.08",
+      "bpsCode": "6404",
+      "provinces": [
+        "Kalimantan Timur"
+      ]
+    },
+    {
+      "qid": "Q14473",
+      "label": "Kutai Kartanegara",
+      "kind": "kabupaten",
+      "lat": -0.44019,
+      "lon": 116.98139,
+      "kemendagriCode": "64.02",
+      "bpsCode": "6403",
+      "provinces": [
+        "Kalimantan Timur"
+      ]
+    },
+    {
+      "qid": "Q14476",
+      "label": "Malinau",
+      "kind": "kabupaten",
+      "lat": 2.45,
+      "lon": 115.683333,
+      "kemendagriCode": "65.02",
+      "bpsCode": "6501",
+      "provinces": [
+        "Kalimantan Utara"
+      ]
+    },
+    {
+      "qid": "Q14479",
+      "label": "Penajam Paser Utara",
+      "kind": "kabupaten",
+      "lat": -1.291709,
+      "lon": 116.513796,
+      "kemendagriCode": "64.09",
+      "bpsCode": "6409",
+      "provinces": [
+        "Kalimantan Timur"
+      ]
+    },
+    {
+      "qid": "Q14481",
+      "label": "Nunukan",
+      "kind": "kabupaten",
+      "lat": 4.133333,
+      "lon": 116.7,
+      "kemendagriCode": "65.03",
+      "bpsCode": "6504",
+      "provinces": [
+        "Kalimantan Utara"
+      ]
+    },
+    {
+      "qid": "Q14485",
+      "label": "Paser",
+      "kind": "kabupaten",
+      "lat": -1.43517,
+      "lon": 116.23535,
+      "kemendagriCode": "64.01",
+      "bpsCode": "6401",
+      "provinces": [
+        "Kalimantan Timur"
+      ]
+    },
+    {
+      "qid": "Q14487",
+      "label": "Tana Tidung",
+      "kind": "kabupaten",
+      "lat": 3.55,
+      "lon": 117.25,
+      "kemendagriCode": "65.04",
+      "bpsCode": "6503",
+      "provinces": [
+        "Kalimantan Utara"
+      ]
+    },
+    {
+      "qid": "Q14489",
+      "label": "Kutai Barat",
+      "kind": "kabupaten",
+      "lat": -0.511667,
+      "lon": 115.777222,
+      "kemendagriCode": "64.07",
+      "bpsCode": "6402",
+      "provinces": [
+        "Kalimantan Timur"
+      ]
+    },
+    {
+      "qid": "Q14492",
+      "label": "Balikpapan",
+      "kind": "kota",
+      "lat": -1.237926,
+      "lon": 116.856251,
+      "kemendagriCode": "64.71",
+      "bpsCode": "6471",
+      "provinces": [
+        "Kalimantan Timur"
+      ]
+    },
+    {
+      "qid": "Q14495",
+      "label": "Bontang",
+      "kind": "kota",
+      "lat": 0.133333,
+      "lon": 117.5,
+      "kemendagriCode": "64.74",
+      "bpsCode": "6474",
+      "provinces": [
+        "Kalimantan Timur"
+      ]
+    },
+    {
+      "qid": "Q14499",
+      "label": "Samarinda",
+      "kind": "kota",
+      "lat": -0.502222,
+      "lon": 117.153611,
+      "kemendagriCode": "64.72",
+      "bpsCode": "6472",
+      "provinces": [
+        "Kalimantan Timur"
+      ]
+    },
+    {
+      "qid": "Q14501",
+      "label": "Tarakan",
+      "kind": "kota",
+      "lat": 3.3,
+      "lon": 117.633333,
+      "kemendagriCode": "65.71",
+      "bpsCode": "6571",
+      "provinces": [
+        "Kalimantan Utara"
+      ]
+    },
+    {
+      "qid": "Q14508",
+      "label": "Boalemo",
+      "kind": "kabupaten",
+      "lat": 0.65,
+      "lon": 122.316667,
+      "kemendagriCode": "75.02",
+      "bpsCode": "7501",
+      "provinces": [
+        "Gorontalo"
+      ]
+    },
+    {
+      "qid": "Q14519",
+      "label": "Bone Bolango",
+      "kind": "kabupaten",
+      "lat": 0.55,
+      "lon": 123.2,
+      "kemendagriCode": "75.03",
+      "bpsCode": "7504",
+      "provinces": [
+        "Gorontalo"
+      ]
+    },
+    {
+      "qid": "Q14521",
+      "label": "Gorontalo",
+      "kind": "kabupaten",
+      "lat": 0.5728,
+      "lon": 122.2337,
+      "kemendagriCode": "75.01",
+      "bpsCode": "7502",
+      "provinces": [
+        "Gorontalo"
+      ]
+    },
+    {
+      "qid": "Q14522",
+      "label": "Gorontalo Utara",
+      "kind": "kabupaten",
+      "lat": 0.790958,
+      "lon": 122.86866,
+      "kemendagriCode": "75.05",
+      "bpsCode": "7505",
+      "provinces": [
+        "Gorontalo"
+      ]
+    },
+    {
+      "qid": "Q14523",
+      "label": "Pohuwato",
+      "kind": "kabupaten",
+      "lat": 0.7098,
+      "lon": 121.59582,
+      "kemendagriCode": "75.04",
+      "bpsCode": "7503",
+      "provinces": [
+        "Gorontalo"
+      ]
+    },
+    {
+      "qid": "Q14525",
+      "label": "Gorontalo",
+      "kind": "kota",
+      "lat": 0.542222,
+      "lon": 123.061389,
+      "kemendagriCode": "75.71",
+      "bpsCode": "7571",
+      "provinces": [
+        "Gorontalo"
+      ]
+    },
+    {
+      "qid": "Q14590",
+      "label": "Bantaeng",
+      "kind": "kabupaten",
+      "lat": -5.53333,
+      "lon": 119.933,
+      "kemendagriCode": "73.03",
+      "bpsCode": "7303",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14593",
+      "label": "Barru",
+      "kind": "kabupaten",
+      "lat": -3.24333,
+      "lon": 119.681,
+      "kemendagriCode": "73.11",
+      "bpsCode": "7310",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14595",
+      "label": "Bone",
+      "kind": "kabupaten",
+      "lat": -4.538611,
+      "lon": 120.329722,
+      "kemendagriCode": "73.08",
+      "bpsCode": "7311",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14596",
+      "label": "Bulukumba",
+      "kind": "kabupaten",
+      "lat": -5.416667,
+      "lon": 120.233333,
+      "kemendagriCode": "73.02",
+      "bpsCode": "7302",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14597",
+      "label": "Luwu Timur",
+      "kind": "kabupaten",
+      "lat": -2.531944,
+      "lon": 121.123056,
+      "kemendagriCode": "73.24",
+      "bpsCode": "7325",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14599",
+      "label": "Enrekang",
+      "kind": "kabupaten",
+      "lat": -3.5,
+      "lon": 119.866667,
+      "kemendagriCode": "73.16",
+      "bpsCode": "7316",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14601",
+      "label": "Gowa",
+      "kind": "kabupaten",
+      "lat": -5.333333,
+      "lon": 119.666667,
+      "kemendagriCode": "73.06",
+      "bpsCode": "7306",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14602",
+      "label": "Jeneponto",
+      "kind": "kabupaten",
+      "lat": -5.63333,
+      "lon": 119.73333,
+      "kemendagriCode": "73.04",
+      "bpsCode": "7304",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14604",
+      "label": "Luwu",
+      "kind": "kabupaten",
+      "lat": -3.348333,
+      "lon": 120.221111,
+      "kemendagriCode": "73.17",
+      "bpsCode": "7317",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14606",
+      "label": "Luwu Utara",
+      "kind": "kabupaten",
+      "lat": -2.6,
+      "lon": 120.25,
+      "kemendagriCode": "73.22",
+      "bpsCode": "7322",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14609",
+      "label": "Toraja Utara",
+      "kind": "kabupaten",
+      "lat": -2.927222,
+      "lon": 119.791944,
+      "kemendagriCode": "73.26",
+      "bpsCode": "7326",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14611",
+      "label": "Maros",
+      "kind": "kabupaten",
+      "lat": -5.016494,
+      "lon": 119.574467,
+      "kemendagriCode": "73.09",
+      "bpsCode": "7308",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14613",
+      "label": "Pangkajene dan Kepulauan",
+      "kind": "kabupaten",
+      "lat": -4.75,
+      "lon": 119.5,
+      "kemendagriCode": "73.10",
+      "bpsCode": "7309",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14615",
+      "label": "Pinrang",
+      "kind": "kabupaten",
+      "lat": -3.78333,
+      "lon": 119.633,
+      "kemendagriCode": "73.15",
+      "bpsCode": "7315",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14619",
+      "label": "Kepulauan Selayar",
+      "kind": "kabupaten",
+      "lat": -6.81667,
+      "lon": 120.8,
+      "kemendagriCode": "73.01",
+      "bpsCode": "7301",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14622",
+      "label": "Sinjai",
+      "kind": "kabupaten",
+      "lat": -5.1993,
+      "lon": 120.1544,
+      "kemendagriCode": "73.07",
+      "bpsCode": "7307",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14629",
+      "label": "Soppeng",
+      "kind": "kabupaten",
+      "lat": -4.348611,
+      "lon": 119.8825,
+      "kemendagriCode": "73.12",
+      "bpsCode": "7312",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14630",
+      "label": "Takalar",
+      "kind": "kabupaten",
+      "lat": -5.416667,
+      "lon": 119.583333,
+      "kemendagriCode": "73.05",
+      "bpsCode": "7305",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14632",
+      "label": "Tana Toraja",
+      "kind": "kabupaten",
+      "lat": -3.166667,
+      "lon": 119.75,
+      "kemendagriCode": "73.18",
+      "bpsCode": "7318",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14633",
+      "label": "Wajo",
+      "kind": "kabupaten",
+      "lat": -4.126389,
+      "lon": 120.031944,
+      "kemendagriCode": "73.13",
+      "bpsCode": "7313",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14634",
+      "label": "Makassar",
+      "kind": "kota",
+      "lat": -5.133056,
+      "lon": 119.413611,
+      "kemendagriCode": "73.71",
+      "bpsCode": "7371",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14635",
+      "label": "Palopo",
+      "kind": "kota",
+      "lat": -3,
+      "lon": 120.2,
+      "kemendagriCode": "73.73",
+      "bpsCode": "7373",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q14636",
+      "label": "Parepare",
+      "kind": "kota",
+      "lat": -4.016667,
+      "lon": 119.623611,
+      "kemendagriCode": "73.72",
+      "bpsCode": "7372",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q15344",
+      "label": "Majene",
+      "kind": "kabupaten",
+      "lat": -3.547545,
+      "lon": 118.957853,
+      "kemendagriCode": "76.05",
+      "bpsCode": "7601",
+      "provinces": [
+        "Sulawesi Barat"
+      ]
+    },
+    {
+      "qid": "Q15347",
+      "label": "Mamasa",
+      "kind": "kabupaten",
+      "lat": -3.11306,
+      "lon": 119.383,
+      "kemendagriCode": "76.03",
+      "bpsCode": "7603",
+      "provinces": [
+        "Sulawesi Barat"
+      ]
+    },
+    {
+      "qid": "Q15349",
+      "label": "Mamuju",
+      "kind": "kabupaten",
+      "lat": -2.683333,
+      "lon": 118.9,
+      "kemendagriCode": "76.02",
+      "bpsCode": "7604",
+      "provinces": [
+        "Sulawesi Barat"
+      ]
+    },
+    {
+      "qid": "Q15350",
+      "label": "Pasangkayu",
+      "kind": "kabupaten",
+      "lat": -1.318061,
+      "lon": 119.37507,
+      "kemendagriCode": "76.01",
+      "bpsCode": "7605",
+      "provinces": [
+        "Sulawesi Barat"
+      ]
+    },
+    {
+      "qid": "Q15353",
+      "label": "Polewali Mandar",
+      "kind": "kabupaten",
+      "lat": -3.41333,
+      "lon": 119.325,
+      "kemendagriCode": "76.04",
+      "bpsCode": "7602",
+      "provinces": [
+        "Sulawesi Barat"
+      ]
+    },
+    {
+      "qid": "Q15356",
+      "label": "Bombana",
+      "kind": "kabupaten",
+      "lat": -4.625556,
+      "lon": 121.816389,
+      "kemendagriCode": "74.06",
+      "bpsCode": "7406",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15357",
+      "label": "Buton",
+      "kind": "kabupaten",
+      "lat": -5.31667,
+      "lon": 122.58333,
+      "kemendagriCode": "74.04",
+      "bpsCode": "7401",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15358",
+      "label": "Kolaka",
+      "kind": "kabupaten",
+      "lat": -4.04917,
+      "lon": 121.616,
+      "kemendagriCode": "74.01",
+      "bpsCode": "7404",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15359",
+      "label": "Konawe",
+      "kind": "kabupaten",
+      "lat": -3.91717,
+      "lon": 122.08823,
+      "kemendagriCode": "74.02",
+      "bpsCode": "7403",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15363",
+      "label": "Muna",
+      "kind": "kabupaten",
+      "lat": -4.8425,
+      "lon": 122.648,
+      "kemendagriCode": "74.03",
+      "bpsCode": "7402",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15366",
+      "label": "Buton Utara",
+      "kind": "kabupaten",
+      "lat": -5.01457,
+      "lon": 122.93015,
+      "kemendagriCode": "74.10",
+      "bpsCode": "7409",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15369",
+      "label": "Kolaka Utara",
+      "kind": "kabupaten",
+      "lat": -3.33722,
+      "lon": 121.044,
+      "kemendagriCode": "74.08",
+      "bpsCode": "7408",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15370",
+      "label": "Konawe Utara",
+      "kind": "kabupaten",
+      "lat": -3.411414,
+      "lon": 122.019965,
+      "kemendagriCode": "74.09",
+      "bpsCode": "7410",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15372",
+      "label": "Konawe Selatan",
+      "kind": "kabupaten",
+      "lat": -3.411414,
+      "lon": 122.019965,
+      "kemendagriCode": "74.05",
+      "bpsCode": "7405",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15375",
+      "label": "Wakatobi",
+      "kind": "kabupaten",
+      "lat": -5.31934,
+      "lon": 123.5948,
+      "kemendagriCode": "74.07",
+      "bpsCode": "7407",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15378",
+      "label": "Bau Bau",
+      "kind": "kota",
+      "lat": -5.462222,
+      "lon": 122.605833,
+      "kemendagriCode": "74.72",
+      "bpsCode": "7472",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15379",
+      "label": "Kendari",
+      "kind": "kota",
+      "lat": -3.9675,
+      "lon": 122.594722,
+      "kemendagriCode": "74.71",
+      "bpsCode": "7471",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15810",
+      "label": "Banggai",
+      "kind": "kabupaten",
+      "lat": -0.957091,
+      "lon": 122.558593,
+      "kemendagriCode": "72.01",
+      "bpsCode": "7202",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15812",
+      "label": "Banggai Kepulauan",
+      "kind": "kabupaten",
+      "lat": -1.408619,
+      "lon": 123.206363,
+      "kemendagriCode": "72.07",
+      "bpsCode": "7201",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15813",
+      "label": "Buol",
+      "kind": "kabupaten",
+      "lat": 1.010469,
+      "lon": 121.35425,
+      "kemendagriCode": "72.05",
+      "bpsCode": "7207",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15814",
+      "label": "Donggala",
+      "kind": "kabupaten",
+      "lat": -0.694444,
+      "lon": 119.730556,
+      "kemendagriCode": "72.03",
+      "bpsCode": "7205",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15815",
+      "label": "Morowali",
+      "kind": "kabupaten",
+      "lat": -2.818536,
+      "lon": 121.860786,
+      "kemendagriCode": "72.06",
+      "bpsCode": "7203",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15816",
+      "label": "Parigi Moutong",
+      "kind": "kabupaten",
+      "lat": 0.3368,
+      "lon": 120.17841,
+      "kemendagriCode": "72.08",
+      "bpsCode": "7208",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15817",
+      "label": "Poso",
+      "kind": "kabupaten",
+      "lat": -1.4,
+      "lon": 120.75,
+      "kemendagriCode": "72.02",
+      "bpsCode": "7204",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15822",
+      "label": "Sigi",
+      "kind": "kabupaten",
+      "lat": -1.385,
+      "lon": 119.967,
+      "kemendagriCode": "72.10",
+      "bpsCode": "7210",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15823",
+      "label": "Tojo Una-Una",
+      "kind": "kabupaten",
+      "lat": -0.875556,
+      "lon": 121.63,
+      "kemendagriCode": "72.09",
+      "bpsCode": "7209",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15824",
+      "label": "Toli-Toli",
+      "kind": "kabupaten",
+      "lat": 1.03861,
+      "lon": 120.818,
+      "kemendagriCode": "72.04",
+      "bpsCode": "7206",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15826",
+      "label": "Palu",
+      "kind": "kota",
+      "lat": -0.895,
+      "lon": 119.859444,
+      "kemendagriCode": "72.71",
+      "bpsCode": "7271",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15833",
+      "label": "Bolaang Mongondow",
+      "kind": "kabupaten",
+      "lat": 0.75,
+      "lon": 124.08333,
+      "kemendagriCode": "71.01",
+      "bpsCode": "7101",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15834",
+      "label": "Bolaang Mongondow Timur",
+      "kind": "kabupaten",
+      "lat": 0.77,
+      "lon": 124.613889,
+      "kemendagriCode": "71.10",
+      "bpsCode": "7111",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15836",
+      "label": "Minahasa",
+      "kind": "kabupaten",
+      "lat": 1.2537,
+      "lon": 124.83,
+      "kemendagriCode": "71.02",
+      "bpsCode": "7102",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15837",
+      "label": "Bolaang Mongondow Utara",
+      "kind": "kabupaten",
+      "lat": 0.78527,
+      "lon": 123.41766,
+      "kemendagriCode": "71.08",
+      "bpsCode": "7107",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15838",
+      "label": "Minahasa Utara",
+      "kind": "kabupaten",
+      "lat": 1.4025,
+      "lon": 124.96,
+      "kemendagriCode": "71.06",
+      "bpsCode": "7106",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15839",
+      "label": "Kepulauan Sangihe",
+      "kind": "kabupaten",
+      "lat": 3,
+      "lon": 125.5,
+      "kemendagriCode": "71.03",
+      "bpsCode": "7103",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15840",
+      "label": "Kepulauan Siau Tagulandang Biaro",
+      "kind": "kabupaten",
+      "lat": 2.35,
+      "lon": 125.416667,
+      "kemendagriCode": "71.09",
+      "bpsCode": "7108",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15841",
+      "label": "Bolaang Mongondow Selatan",
+      "kind": "kabupaten",
+      "lat": 0.352778,
+      "lon": 123.799167,
+      "kemendagriCode": "71.11",
+      "bpsCode": "7110",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15842",
+      "label": "Minahasa Selatan",
+      "kind": "kabupaten",
+      "lat": 0.583333,
+      "lon": 124.3,
+      "kemendagriCode": "71.05",
+      "bpsCode": "7105",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15843",
+      "label": "Minahasa Tenggara",
+      "kind": "kabupaten",
+      "lat": 1.05633,
+      "lon": 124.7925,
+      "kemendagriCode": "71.07",
+      "bpsCode": "7109",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15845",
+      "label": "Bitung",
+      "kind": "kota",
+      "lat": 1.447222,
+      "lon": 125.197778,
+      "kemendagriCode": "71.72",
+      "bpsCode": "7172",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15846",
+      "label": "Kotamobagu",
+      "kind": "kota",
+      "lat": 0.733333,
+      "lon": 124.316667,
+      "kemendagriCode": "71.74",
+      "bpsCode": "7174",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15847",
+      "label": "Manado",
+      "kind": "kota",
+      "lat": 1.493056,
+      "lon": 124.841261,
+      "kemendagriCode": "71.71",
+      "bpsCode": "7171",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q15848",
+      "label": "Tomohon",
+      "kind": "kota",
+      "lat": 1.324421,
+      "lon": 124.82254,
+      "kemendagriCode": "71.73",
+      "bpsCode": "7173",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q16561",
+      "label": "Kepulauan Aru",
+      "kind": "kabupaten",
+      "lat": -6.2,
+      "lon": 134.5,
+      "kemendagriCode": "81.07",
+      "bpsCode": "8105",
+      "provinces": [
+        "Maluku"
+      ]
+    },
+    {
+      "qid": "Q16564",
+      "label": "Buru",
+      "kind": "kabupaten",
+      "lat": -3.25983,
+      "lon": 127.10289,
+      "kemendagriCode": "81.04",
+      "bpsCode": "8104",
+      "provinces": [
+        "Maluku"
+      ]
+    },
+    {
+      "qid": "Q16569",
+      "label": "Seram Bagian Timur",
+      "kind": "kabupaten",
+      "lat": -3.103133,
+      "lon": 130.490832,
+      "kemendagriCode": "81.05",
+      "bpsCode": "8107",
+      "provinces": [
+        "Maluku"
+      ]
+    },
+    {
+      "qid": "Q16583",
+      "label": "Buru Selatan",
+      "kind": "kabupaten",
+      "lat": -3.838097,
+      "lon": 126.734592,
+      "kemendagriCode": "81.09",
+      "bpsCode": "8109",
+      "provinces": [
+        "Maluku"
+      ]
+    },
+    {
+      "qid": "Q18849",
+      "label": "Maluku Tenggara",
+      "kind": "kabupaten",
+      "lat": -5.655972,
+      "lon": 132.743987,
+      "kemendagriCode": "81.02",
+      "bpsCode": "8102",
+      "provinces": [
+        "Maluku"
+      ]
+    },
+    {
+      "qid": "Q18935",
+      "label": "Maluku Barat Daya",
+      "kind": "kabupaten",
+      "lat": -8.17024,
+      "lon": 127.788938,
+      "kemendagriCode": "81.08",
+      "bpsCode": "8108",
+      "provinces": [
+        "Maluku"
+      ]
+    },
+    {
+      "qid": "Q18942",
+      "label": "Seram Bagian Barat",
+      "kind": "kabupaten",
+      "lat": -3.069101,
+      "lon": 128.202908,
+      "kemendagriCode": "81.06",
+      "bpsCode": "8106",
+      "provinces": [
+        "Maluku"
+      ]
+    },
+    {
+      "qid": "Q18961",
+      "label": "Kepulauan Tanimbar",
+      "kind": "kabupaten",
+      "lat": -7.984904,
+      "lon": 131.304396,
+      "kemendagriCode": "81.03",
+      "bpsCode": "8101",
+      "provinces": [
+        "Maluku"
+      ]
+    },
+    {
+      "qid": "Q18970",
+      "label": "Ambon",
+      "kind": "kota",
+      "lat": -3.696667,
+      "lon": 128.178333,
+      "kemendagriCode": "81.71",
+      "bpsCode": "8171",
+      "provinces": [
+        "Maluku"
+      ]
+    },
+    {
+      "qid": "Q18975",
+      "label": "Tual",
+      "kind": "kota",
+      "lat": -5.642577,
+      "lon": 132.742993,
+      "kemendagriCode": "81.72",
+      "bpsCode": "8172",
+      "provinces": [
+        "Maluku"
+      ]
+    },
+    {
+      "qid": "Q19144",
+      "label": "Halmahera Tengah",
+      "kind": "kabupaten",
+      "lat": 0.48056,
+      "lon": 128.25,
+      "kemendagriCode": "82.02",
+      "bpsCode": "8202",
+      "provinces": [
+        "Maluku Utara"
+      ]
+    },
+    {
+      "qid": "Q19145",
+      "label": "Halmahera Timur",
+      "kind": "kabupaten",
+      "lat": 1.33517,
+      "lon": 128.48627,
+      "kemendagriCode": "82.06",
+      "bpsCode": "8206",
+      "provinces": [
+        "Maluku Utara"
+      ]
+    },
+    {
+      "qid": "Q19147",
+      "label": "Halmahera Utara",
+      "kind": "kabupaten",
+      "lat": 1.731944,
+      "lon": 128.007778,
+      "kemendagriCode": "82.03",
+      "bpsCode": "8205",
+      "provinces": [
+        "Maluku Utara"
+      ]
+    },
+    {
+      "qid": "Q19148",
+      "label": "Halmahera Selatan",
+      "kind": "kabupaten",
+      "lat": -0.3955,
+      "lon": 127.90833,
+      "kemendagriCode": "82.04",
+      "bpsCode": "8204",
+      "provinces": [
+        "Maluku Utara"
+      ]
+    },
+    {
+      "qid": "Q19149",
+      "label": "Kepulauan Sula",
+      "kind": "kabupaten",
+      "lat": -1.849167,
+      "lon": 125.314444,
+      "kemendagriCode": "82.05",
+      "bpsCode": "8203",
+      "provinces": [
+        "Maluku Utara"
+      ]
+    },
+    {
+      "qid": "Q19150",
+      "label": "Halmahera Barat",
+      "kind": "kabupaten",
+      "lat": 1.41709,
+      "lon": 127.55264,
+      "kemendagriCode": "82.01",
+      "bpsCode": "8201",
+      "provinces": [
+        "Maluku Utara"
+      ]
+    },
+    {
+      "qid": "Q19151",
+      "label": "Ternate",
+      "kind": "kota",
+      "lat": 0.783333,
+      "lon": 127.366667,
+      "kemendagriCode": "82.71",
+      "bpsCode": "8271",
+      "provinces": [
+        "Maluku Utara"
+      ]
+    },
+    {
+      "qid": "Q19153",
+      "label": "Tidore Kepulauan",
+      "kind": "kota",
+      "lat": 0.609444,
+      "lon": 127.569722,
+      "kemendagriCode": "82.72",
+      "bpsCode": "8272",
+      "provinces": [
+        "Maluku Utara"
+      ]
+    },
+    {
+      "qid": "Q26727",
+      "label": "Fakfak",
+      "kind": "kabupaten",
+      "lat": -2.9167,
+      "lon": 132.3,
+      "kemendagriCode": "92.03",
+      "bpsCode": "9101",
+      "provinces": [
+        "Papua Barat"
+      ]
+    },
+    {
+      "qid": "Q26739",
+      "label": "Kaimana",
+      "kind": "kabupaten",
+      "lat": -3.66093,
+      "lon": 133.77451,
+      "kemendagriCode": "92.08",
+      "bpsCode": "9102",
+      "provinces": [
+        "Papua Barat"
+      ]
+    },
+    {
+      "qid": "Q26748",
+      "label": "Manokwari",
+      "kind": "kabupaten",
+      "lat": -0.86291,
+      "lon": 134.06402,
+      "kemendagriCode": "92.02",
+      "bpsCode": "9105",
+      "provinces": [
+        "Papua Barat"
+      ]
+    },
+    {
+      "qid": "Q26759",
+      "label": "Maybrat",
+      "kind": "kabupaten",
+      "lat": -1.2155,
+      "lon": 132.35092,
+      "kemendagriCode": "96.05",
+      "bpsCode": "9110",
+      "provinces": [
+        "Papua Barat Daya"
+      ]
+    },
+    {
+      "qid": "Q26785",
+      "label": "Raja Ampat",
+      "kind": "kabupaten",
+      "lat": -0.5,
+      "lon": 130,
+      "kemendagriCode": "96.03",
+      "bpsCode": "9108",
+      "provinces": [
+        "Papua Barat Daya"
+      ]
+    },
+    {
+      "qid": "Q26792",
+      "label": "Sorong",
+      "kind": "kabupaten",
+      "lat": -1.1,
+      "lon": 131.51667,
+      "kemendagriCode": "96.01",
+      "bpsCode": "9107",
+      "provinces": [
+        "Papua Barat Daya"
+      ]
+    },
+    {
+      "qid": "Q26802",
+      "label": "Sorong Selatan",
+      "kind": "kabupaten",
+      "lat": -1.50495,
+      "lon": 132.28638,
+      "kemendagriCode": "96.02",
+      "bpsCode": "9106",
+      "provinces": [
+        "Papua Barat Daya"
+      ]
+    },
+    {
+      "qid": "Q26810",
+      "label": "Tambrauw",
+      "kind": "kabupaten",
+      "lat": -0.60515,
+      "lon": 132.48962,
+      "kemendagriCode": "96.04",
+      "bpsCode": "9109",
+      "provinces": [
+        "Papua Barat Daya"
+      ]
+    },
+    {
+      "qid": "Q26819",
+      "label": "Teluk Bintuni",
+      "kind": "kabupaten",
+      "lat": -1.88037,
+      "lon": 133.33105,
+      "kemendagriCode": "92.06",
+      "bpsCode": "9104",
+      "provinces": [
+        "Papua Barat"
+      ]
+    },
+    {
+      "qid": "Q26827",
+      "label": "Teluk Wondama",
+      "kind": "kabupaten",
+      "lat": -2.7,
+      "lon": 134.5,
+      "kemendagriCode": "92.07",
+      "bpsCode": "9103",
+      "provinces": [
+        "Papua Barat"
+      ]
+    },
+    {
+      "qid": "Q26837",
+      "label": "Sorong",
+      "kind": "kota",
+      "lat": -0.87956,
+      "lon": 131.26104,
+      "kemendagriCode": "96.71",
+      "bpsCode": "9171",
+      "provinces": [
+        "Papua Barat Daya"
+      ]
+    },
+    {
+      "qid": "Q27228",
+      "label": "Asmat",
+      "kind": "kabupaten",
+      "lat": -5.3795,
+      "lon": 138.46344,
+      "kemendagriCode": "93.04",
+      "bpsCode": "9415",
+      "provinces": [
+        "Papua Selatan"
+      ]
+    },
+    {
+      "qid": "Q27246",
+      "label": "Biak Numfor",
+      "kind": "kabupaten",
+      "lat": -1.03333,
+      "lon": 136,
+      "kemendagriCode": "91.06",
+      "bpsCode": "9409",
+      "provinces": [
+        "Papua"
+      ]
+    },
+    {
+      "qid": "Q27262",
+      "label": "Boven Digoel",
+      "kind": "kabupaten",
+      "lat": -6,
+      "lon": 140,
+      "kemendagriCode": "93.02",
+      "bpsCode": "9413",
+      "provinces": [
+        "Papua Selatan"
+      ]
+    },
+    {
+      "qid": "Q27316",
+      "label": "Mamberamo Tengah",
+      "kind": "kabupaten",
+      "lat": -3.88333,
+      "lon": 139.16667,
+      "kemendagriCode": "95.05",
+      "bpsCode": "9431",
+      "provinces": [
+        "Papua Pegunungan"
+      ]
+    },
+    {
+      "qid": "Q27386",
+      "label": "Deiyai",
+      "kind": "kabupaten",
+      "lat": -4.100318,
+      "lon": 136.435068,
+      "kemendagriCode": "94.08",
+      "bpsCode": "9436",
+      "provinces": [
+        "Papua Tengah"
+      ]
+    },
+    {
+      "qid": "Q27413",
+      "label": "Dogiyai",
+      "kind": "kabupaten",
+      "lat": -4.057,
+      "lon": 135.709,
+      "kemendagriCode": "94.06",
+      "bpsCode": "9434",
+      "provinces": [
+        "Papua Tengah"
+      ]
+    },
+    {
+      "qid": "Q27458",
+      "label": "Intan Jaya",
+      "kind": "kabupaten",
+      "lat": -3.41016,
+      "lon": 136.70837,
+      "kemendagriCode": "94.07",
+      "bpsCode": "9435",
+      "provinces": [
+        "Papua Tengah"
+      ]
+    },
+    {
+      "qid": "Q27477",
+      "label": "Jayapura",
+      "kind": "kabupaten",
+      "lat": -3,
+      "lon": 139.95,
+      "kemendagriCode": "91.03",
+      "bpsCode": "9403",
+      "provinces": [
+        "Papua"
+      ]
+    },
+    {
+      "qid": "Q27529",
+      "label": "Jayawijaya",
+      "kind": "kabupaten",
+      "lat": -4.08333,
+      "lon": 139.08333,
+      "kemendagriCode": "95.01",
+      "bpsCode": "9402",
+      "provinces": [
+        "Papua Pegunungan"
+      ]
+    },
+    {
+      "qid": "Q27573",
+      "label": "Keerom",
+      "kind": "kabupaten",
+      "lat": -2.883694,
+      "lon": 140.74357,
+      "kemendagriCode": "91.11",
+      "bpsCode": "9420",
+      "provinces": [
+        "Papua"
+      ]
+    },
+    {
+      "qid": "Q27594",
+      "label": "Lanny Jaya",
+      "kind": "kabupaten",
+      "lat": -3.9125,
+      "lon": 138.287778,
+      "kemendagriCode": "95.07",
+      "bpsCode": "9430",
+      "provinces": [
+        "Papua Pegunungan"
+      ]
+    },
+    {
+      "qid": "Q27668",
+      "label": "Mamberamo Raya",
+      "kind": "kabupaten",
+      "lat": -2.23561,
+      "lon": 137.78229,
+      "kemendagriCode": "91.20",
+      "bpsCode": "9428",
+      "provinces": [
+        "Papua"
+      ]
+    },
+    {
+      "qid": "Q27679",
+      "label": "Mappi",
+      "kind": "kabupaten",
+      "lat": -6.49971,
+      "lon": 139.34441,
+      "kemendagriCode": "93.03",
+      "bpsCode": "9414",
+      "provinces": [
+        "Papua Selatan"
+      ]
+    },
+    {
+      "qid": "Q27693",
+      "label": "Merauke",
+      "kind": "kabupaten",
+      "lat": -7.66667,
+      "lon": 139.66667,
+      "kemendagriCode": "93.01",
+      "bpsCode": "9401",
+      "provinces": [
+        "Papua Selatan"
+      ]
+    },
+    {
+      "qid": "Q27700",
+      "label": "Mimika",
+      "kind": "kabupaten",
+      "lat": -4.54357,
+      "lon": 136.56555,
+      "kemendagriCode": "94.04",
+      "bpsCode": "9412",
+      "provinces": [
+        "Papua Tengah"
+      ]
+    },
+    {
+      "qid": "Q27708",
+      "label": "Nabire",
+      "kind": "kabupaten",
+      "lat": -3.54016,
+      "lon": 135.55511,
+      "kemendagriCode": "94.01",
+      "bpsCode": "9404",
+      "provinces": [
+        "Papua Tengah"
+      ]
+    },
+    {
+      "qid": "Q27724",
+      "label": "Nduga",
+      "kind": "kabupaten",
+      "lat": -4.45093,
+      "lon": 138.10089,
+      "kemendagriCode": "95.08",
+      "bpsCode": "9429",
+      "provinces": [
+        "Papua Pegunungan"
+      ]
+    },
+    {
+      "qid": "Q27738",
+      "label": "Paniai",
+      "kind": "kabupaten",
+      "lat": -3.9,
+      "lon": 136.6,
+      "kemendagriCode": "94.03",
+      "bpsCode": "9410",
+      "provinces": [
+        "Papua Tengah"
+      ]
+    },
+    {
+      "qid": "Q27750",
+      "label": "Pegunungan Bintang",
+      "kind": "kabupaten",
+      "lat": -4.52167,
+      "lon": 140.29541,
+      "kemendagriCode": "95.02",
+      "bpsCode": "9417",
+      "provinces": [
+        "Papua Pegunungan"
+      ]
+    },
+    {
+      "qid": "Q27761",
+      "label": "Puncak",
+      "kind": "kabupaten",
+      "lat": -4.14204,
+      "lon": 137.09702,
+      "kemendagriCode": "94.05",
+      "bpsCode": "9433",
+      "provinces": [
+        "Papua Tengah"
+      ]
+    },
+    {
+      "qid": "Q27771",
+      "label": "Puncak Jaya",
+      "kind": "kabupaten",
+      "lat": -3.5107,
+      "lon": 137.8661,
+      "kemendagriCode": "94.02",
+      "bpsCode": "9411",
+      "provinces": [
+        "Papua Tengah"
+      ]
+    },
+    {
+      "qid": "Q27784",
+      "label": "Sarmi",
+      "kind": "kabupaten",
+      "lat": -2.41667,
+      "lon": 139.08333,
+      "kemendagriCode": "91.10",
+      "bpsCode": "9419",
+      "provinces": [
+        "Papua"
+      ]
+    },
+    {
+      "qid": "Q27793",
+      "label": "Supiori",
+      "kind": "kabupaten",
+      "lat": -0.733333,
+      "lon": 135.583,
+      "kemendagriCode": "91.19",
+      "bpsCode": "9427",
+      "provinces": [
+        "Papua"
+      ]
+    },
+    {
+      "qid": "Q27802",
+      "label": "Tolikara",
+      "kind": "kabupaten",
+      "lat": -3.46667,
+      "lon": 138.61667,
+      "kemendagriCode": "95.04",
+      "bpsCode": "9418",
+      "provinces": [
+        "Papua Pegunungan"
+      ]
+    },
+    {
+      "qid": "Q27815",
+      "label": "Waropen",
+      "kind": "kabupaten",
+      "lat": -2.286,
+      "lon": 137.01837,
+      "kemendagriCode": "91.15",
+      "bpsCode": "9426",
+      "provinces": [
+        "Papua"
+      ]
+    },
+    {
+      "qid": "Q27825",
+      "label": "Yahukimo",
+      "kind": "kabupaten",
+      "lat": -4.886999,
+      "lon": 139.520008,
+      "kemendagriCode": "95.03",
+      "bpsCode": "9416",
+      "provinces": [
+        "Papua Pegunungan"
+      ]
+    },
+    {
+      "qid": "Q27838",
+      "label": "Yalimo",
+      "kind": "kabupaten",
+      "lat": -3.785,
+      "lon": 139.447,
+      "kemendagriCode": "95.06",
+      "bpsCode": "9432",
+      "provinces": [
+        "Papua Pegunungan"
+      ]
+    },
+    {
+      "qid": "Q27848",
+      "label": "Kepulauan Yapen",
+      "kind": "kabupaten",
+      "lat": -1.78773,
+      "lon": 136.27716,
+      "kemendagriCode": "91.05",
+      "bpsCode": "9408",
+      "provinces": [
+        "Papua"
+      ]
+    },
+    {
+      "qid": "Q27860",
+      "label": "Jayapura",
+      "kind": "kota",
+      "lat": -2.5425,
+      "lon": 140.704479,
+      "kemendagriCode": "91.71",
+      "bpsCode": "9471",
+      "provinces": [
+        "Papua"
+      ]
+    },
+    {
+      "qid": "Q46481",
+      "label": "Pesisir Barat",
+      "kind": "kabupaten",
+      "lat": -5.188835,
+      "lon": 103.935852,
+      "kemendagriCode": "18.13",
+      "bpsCode": "1813",
+      "provinces": [
+        "Lampung"
+      ]
+    },
+    {
+      "qid": "Q46483",
+      "label": "Pangandaran",
+      "kind": "kabupaten",
+      "lat": -7.701655,
+      "lon": 108.49422,
+      "kemendagriCode": "32.18",
+      "bpsCode": "3218",
+      "provinces": [
+        "Jawa Barat"
+      ]
+    },
+    {
+      "qid": "Q676084",
+      "label": "Pulau Taliabu",
+      "kind": "kabupaten",
+      "lat": -1.8,
+      "lon": 124.8,
+      "kemendagriCode": "82.08",
+      "bpsCode": "8208",
+      "provinces": [
+        "Maluku Utara"
+      ]
+    },
+    {
+      "qid": "Q3182322",
+      "label": "Kaur",
+      "kind": "kabupaten",
+      "lat": -4.589298,
+      "lon": 103.416759,
+      "kemendagriCode": "17.04",
+      "bpsCode": "1704",
+      "provinces": [
+        "Bengkulu"
+      ]
+    },
+    {
+      "qid": "Q4069046",
+      "label": "Malaka",
+      "kind": "kabupaten",
+      "lat": -9.567222,
+      "lon": 124.9075,
+      "kemendagriCode": "53.21",
+      "bpsCode": "5321",
+      "provinces": [
+        "Nusa Tenggara Timur"
+      ]
+    },
+    {
+      "qid": "Q4201768",
+      "label": "Maluku Tengah",
+      "kind": "kabupaten",
+      "lat": -3.29967,
+      "lon": 128.956524,
+      "kemendagriCode": "81.01",
+      "bpsCode": "8103",
+      "provinces": [
+        "Maluku"
+      ]
+    },
+    {
+      "qid": "Q4201892",
+      "label": "Katingan",
+      "kind": "kabupaten",
+      "lat": -2.06667,
+      "lon": 113.4,
+      "kemendagriCode": "62.06",
+      "bpsCode": "6209",
+      "provinces": [
+        "Kalimantan Tengah"
+      ]
+    },
+    {
+      "qid": "Q11214749",
+      "label": "Sidenreng Rappang",
+      "kind": "kabupaten",
+      "lat": -3.92694,
+      "lon": 119.796,
+      "kemendagriCode": "73.14",
+      "bpsCode": "7314",
+      "provinces": [
+        "Sulawesi Selatan"
+      ]
+    },
+    {
+      "qid": "Q12488339",
+      "label": "Banggai Laut",
+      "kind": "kabupaten",
+      "lat": -1.5888,
+      "lon": 123.5008,
+      "kemendagriCode": "72.11",
+      "bpsCode": "7211",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q12488347",
+      "label": "Mahakam Ulu",
+      "kind": "kabupaten",
+      "lat": 0.5,
+      "lon": 115.28,
+      "kemendagriCode": "64.11",
+      "bpsCode": "6411",
+      "provinces": [
+        "Kalimantan Timur"
+      ]
+    },
+    {
+      "qid": "Q12488349",
+      "label": "Mamuju Tengah",
+      "kind": "kabupaten",
+      "lat": -2.090105,
+      "lon": 119.488072,
+      "kemendagriCode": "76.06",
+      "bpsCode": "7606",
+      "provinces": [
+        "Sulawesi Barat"
+      ]
+    },
+    {
+      "qid": "Q12488351",
+      "label": "Manokwari Selatan",
+      "kind": "kabupaten",
+      "lat": -1.0798,
+      "lon": 133.96729,
+      "kemendagriCode": "92.11",
+      "bpsCode": "9111",
+      "provinces": [
+        "Papua Barat"
+      ]
+    },
+    {
+      "qid": "Q12488353",
+      "label": "Morowali Utara",
+      "kind": "kabupaten",
+      "lat": -1.7207,
+      "lon": 121.24649,
+      "kemendagriCode": "72.12",
+      "bpsCode": "7212",
+      "provinces": [
+        "Sulawesi Tengah"
+      ]
+    },
+    {
+      "qid": "Q15729116",
+      "label": "Penukal Abab Lematang Ilir",
+      "kind": "kabupaten",
+      "lat": -3.21342,
+      "lon": 104.08722,
+      "kemendagriCode": "16.12",
+      "bpsCode": "1612",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q15730145",
+      "label": "Konawe Kepulauan",
+      "kind": "kabupaten",
+      "lat": -4.11656,
+      "lon": 123.10181,
+      "kemendagriCode": "74.12",
+      "bpsCode": "7412",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q15960838",
+      "label": "Kolaka Timur",
+      "kind": "kabupaten",
+      "lat": -4.01807,
+      "lon": 121.86172,
+      "kemendagriCode": "74.11",
+      "bpsCode": "7411",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q16251650",
+      "label": "Pegunungan Arfak",
+      "kind": "kabupaten",
+      "lat": -0.93523,
+      "lon": 133.89587,
+      "kemendagriCode": "92.12",
+      "bpsCode": "9112",
+      "provinces": [
+        "Papua Barat"
+      ]
+    },
+    {
+      "qid": "Q17053892",
+      "label": "Pulau Morotai",
+      "kind": "kabupaten",
+      "lat": 2.3,
+      "lon": 128.4,
+      "kemendagriCode": "82.07",
+      "bpsCode": "8207",
+      "provinces": [
+        "Maluku Utara"
+      ]
+    },
+    {
+      "qid": "Q17056608",
+      "label": "Kepulauan Talaud",
+      "kind": "kabupaten",
+      "lat": 4.31178,
+      "lon": 126.78085,
+      "kemendagriCode": "71.04",
+      "bpsCode": "7104",
+      "provinces": [
+        "Sulawesi Utara"
+      ]
+    },
+    {
+      "qid": "Q18511812",
+      "label": "Musi Rawas Utara",
+      "kind": "kabupaten",
+      "lat": -2.73515,
+      "lon": 102.901465,
+      "kemendagriCode": "16.13",
+      "bpsCode": "1613",
+      "provinces": [
+        "Sumatera Selatan"
+      ]
+    },
+    {
+      "qid": "Q19745487",
+      "label": "Buton Tengah",
+      "kind": "kabupaten",
+      "lat": -5.31667,
+      "lon": 122.33333,
+      "kemendagriCode": "74.14",
+      "bpsCode": "7414",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q19745612",
+      "label": "Buton Selatan",
+      "kind": "kabupaten",
+      "lat": -5.56667,
+      "lon": 122.7,
+      "kemendagriCode": "74.15",
+      "bpsCode": "7415",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q19746428",
+      "label": "Muna Barat",
+      "kind": "kabupaten",
+      "lat": -4.83333,
+      "lon": 122.48333,
+      "kemendagriCode": "74.13",
+      "bpsCode": "7413",
+      "provinces": [
+        "Sulawesi Tenggara"
+      ]
+    },
+    {
+      "qid": "Q24847536",
+      "label": "Pontianak",
+      "kind": "kabupaten",
+      "lat": 0.25,
+      "lon": 109.16667,
+      "kemendagriCode": null,
+      "bpsCode": null,
+      "provinces": [
+        "Kalimantan Barat"
+      ]
+    },
+    {
+      "qid": "Q26759674",
+      "label": "Kepulauan Anambas",
+      "kind": "kabupaten",
+      "lat": 3,
+      "lon": 106,
+      "kemendagriCode": "21.05",
+      "bpsCode": "2105",
+      "provinces": [
+        "Kepulauan Riau"
+      ]
+    }
+  ],
+  "manual_items": [
+    {
+      "qid": "Q3630",
+      "label": "Jakarta",
+      "kind": "kota",
+      "lat": -6.175278,
+      "lon": 106.826944,
+      "kemendagriCode": "31",
+      "bpsCode": "31",
+      "provinces": []
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import { getLevelConfig, nightDhikrTotal, nightRakaatTotal } from "@/domain/cont
 import { PROVISIONAL_SETTINGS } from "@/domain/config/provisional";
 import type { LevelProgressResponse } from "@/data";
 import { formatDateLong } from "@/lib/format-id";
+import { cn } from "@/lib/cn";
 import { levelTitle } from "@/components/dashboard/content-lookup";
 
 type Level = LevelProgressResponse["levels"][number];
@@ -25,7 +26,15 @@ function LevelCard({ l, prev }: { l: Level; prev: Level | undefined }) {
   const minutes = PROVISIONAL_SETTINGS.levels[l.level].estimatedDurationMinutes;
   return (
     <li>
-      <Card className="flex flex-col gap-3" aria-label={`Level ${l.level}`} data-testid={`level-${l.level}`}>
+      <Card
+        className={cn(
+          "flex flex-col gap-3",
+          l.is_current && "border-2 border-primary bg-primary-soft/40",
+          !l.unlocked && "bg-surface-2",
+        )}
+        aria-label={`Level ${l.level}`}
+        data-testid={`level-${l.level}`}
+      >
         <div className="flex items-start justify-between gap-3">
           <CardTitle>
             Level {l.level}: {levelTitle(l.level)}

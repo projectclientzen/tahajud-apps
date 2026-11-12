@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Minus, Moon, Plus, Sun } from "lucide-react";
+import { ArrowLeft, ArrowDownToLine, Minus, Moon, Plus, Sun } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { errorMessage, useData, useLoad } from "@/components/providers/data-provider";
@@ -9,11 +9,12 @@ import { applyThemePref, currentTheme } from "@/components/settings/theme-contro
 import { PageHeader } from "@/components/shell/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/feedback-state";
+import { ErrorState } from "@/components/ui/feedback-state";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { quranText, type SurahText } from "@/data/quran";
 import { cn } from "@/lib/cn";
 import { AL_KAHFI, ayahCount, readCount, surahByNumber, type SurahMeta } from "./surahs";
-import { loadSurahText, type SurahText } from "./text-source";
 import { useKahfiWindow } from "./use-kahfi";
 
 const FONT_MIN = 24;
@@ -22,14 +23,16 @@ const FONT_STEP = 2;
 
 function useSurahText(surah: number) {
   const [state, setState] = React.useState<{ loading: boolean; text: SurahText | null }>({ loading: true, text: null });
+  const [attempt, setAttempt] = React.useState(0);
   React.useEffect(() => {
     let alive = true;
-    loadSurahText(surah).then((text) => alive && setState({ loading: false, text }));
+    setState((s) => (s.loading ? s : { loading: true, text: null }));
+    void quranText.getSurah(surah).then((text) => alive && setState({ loading: false, text }));
     return () => {
       alive = false;
     };
-  }, [surah]);
-  return state;
+  }, [surah, attempt]);
+  return { ...state, retry: () => setAttempt((n) => n + 1) };
 }
 
 interface PanelProps {
@@ -114,18 +117,21 @@ function ProgressPanel({ meta, ayah, onSave, manual }: PanelProps) {
 
 function ReaderBody({ meta, ayah, fontSize }: { meta: SurahMeta; ayah: number | null; fontSize: number }) {
   const { layer, bump } = useData();
-  const { loading, text } = useSurahText(meta.number);
+  const { loading, text, retry } = useSurahText(meta.number);
   const [dark, setDark] = React.useState(false);
   const [size, setSize] = React.useState(fontSize);
   React.useEffect(() => setSize(fontSize), [fontSize]);
   React.useEffect(() => setDark(currentTheme() === "dark"), []);
   const kahfi = useKahfiWindow();
   const lastRef = React.useRef<HTMLLIElement | null>(null);
+  const restored = React.useRef(false);
   React.useEffect(() => {
-    if (text && ayah !== null) lastRef.current?.scrollIntoView({ block: "center" });
-    // Restore the position once the text is on screen, not on every bookmark tap.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [text]);
+    // Restore the position once, when the text first appears. Not on every bookmark tap.
+    if (text && ayah !== null && !restored.current) {
+      restored.current = true;
+      lastRef.current?.scrollIntoView({ block: "center" });
+    }
+  }, [text, ayah]);
 
   async function save(next: number | null) {
     if (!layer) return;
@@ -180,16 +186,37 @@ function ReaderBody({ meta, ayah, fontSize }: { meta: SurahMeta; ayah: number | 
           {dark ? <Sun aria-hidden className="size-5" /> : <Moon aria-hidden className="size-5" />}
           {dark ? "Mode terang" : "Mode malam"}
         </Button>
+        {text && ayah !== null ? (
+          <Button
+            variant="ghost"
+            onClick={() => lastRef.current?.scrollIntoView({ block: "center", behavior: "smooth" })}
+          >
+            <ArrowDownToLine aria-hidden className="size-5" />
+            Ke ayat {ayah}
+          </Button>
+        ) : null}
       </div>
 
-      {loading ? null : text ? (
+      {loading ? (
+        <div role="status" aria-label="Memuat teks ayat" className="flex flex-col gap-3">
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+        </div>
+      ) : text ? (
         <>
-          {text.isFixture ? (
-            <p role="note" className="rounded-[var(--radius-control)] bg-warning-soft p-3">
-              {text.attribution}
-            </p>
-          ) : null}
-          <Card as="div" className="p-0">
+          <Card as="div" className="overflow-hidden p-0">
+            {text.opening ? (
+              <p
+                data-testid="basmalah"
+                className="arabic border-b border-border px-4 py-5 text-center leading-[2.2]"
+                lang="ar"
+                dir="rtl"
+                style={{ fontSize: size }}
+              >
+                {text.opening}
+              </p>
+            ) : null}
             <ol className="flex flex-col divide-y divide-border">
               {text.verses.map((v) => {
                 const isLast = v.number === ayah;
@@ -198,32 +225,68 @@ function ReaderBody({ meta, ayah, fontSize }: { meta: SurahMeta; ayah: number | 
                     key={v.number}
                     ref={isLast ? lastRef : undefined}
                     data-last-read={isLast || undefined}
-                    className={cn("flex flex-col gap-2 p-4", isLast && "bg-primary-soft")}
+                    className={cn("flex items-start gap-3 px-4 py-4", isLast && "bg-primary-soft")}
                   >
-                    <p className="arabic text-start leading-[2.2]" lang="ar" dir="rtl" style={{ fontSize: size }}>
+                    <div className="flex w-12 shrink-0 flex-col items-center gap-1 pt-1">
+                      <button
+                        type="button"
+                        aria-pressed={isLast}
+                        aria-label={`Tandai ayat ${v.number} sebagai ayat terakhir`}
+                        onClick={() => save(v.number)}
+                        className={cn(
+                          "flex size-11 items-center justify-center rounded-full border text-helper font-semibold tabular-nums",
+                          isLast ? "border-primary bg-primary text-on-primary" : "border-border-strong text-text",
+                        )}
+                      >
+                        {v.number}
+                      </button>
+                      {isLast ? <span className="text-center text-helper leading-tight">Terakhir dibaca</span> : null}
+                    </div>
+                    <p
+                      className="arabic min-w-0 flex-1 text-start leading-[2.2]"
+                      lang="ar"
+                      dir="rtl"
+                      style={{ fontSize: size }}
+                      data-ayah={v.number}
+                    >
                       {v.text}
                     </p>
-                    <button
-                      type="button"
-                      aria-pressed={isLast}
-                      aria-label={`Tandai ayat ${v.number} sebagai ayat terakhir`}
-                      onClick={() => save(v.number)}
-                      className="flex min-h-11 w-fit items-center gap-2 rounded-full border border-border-strong px-3 text-helper font-medium"
-                    >
-                      Ayat {v.number}
-                      {isLast ? <span>· Terakhir dibaca</span> : null}
-                    </button>
                   </li>
                 );
               })}
             </ol>
           </Card>
-          <p className="text-helper text-text-muted">{text.attribution}</p>
+          <p className="text-helper text-text-muted" data-testid="quran-attribution">
+            Teks Al-Qur&apos;an: Tanzil Project (
+            <a
+              href={text.attribution.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2"
+            >
+              {text.attribution.sourceName}
+            </a>
+            ), lisensi{" "}
+            <a
+              href={text.attribution.licenseUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2"
+            >
+              {text.attribution.licenseName}
+            </a>
+            .
+          </p>
         </>
       ) : (
-        <EmptyState
-          title="Dataset Al-Qur'an belum diimport"
-          description="Teks ayat hanya dari dataset Tanzil yang sudah diverifikasi, dan belum dipasang. Sampai itu selesai, kamu bisa membaca dari mushaf lalu mencatat posisimu di sini."
+        <ErrorState
+          title="Teks ayat belum bisa dimuat"
+          description="Teks hanya diambil dari dataset Tanzil yang sudah diverifikasi. Coba muat lagi. Sementara itu kamu bisa membaca dari mushaf dan mencatat posisimu di bawah."
+          action={
+            <Button variant="secondary" onClick={retry}>
+              Coba lagi
+            </Button>
+          }
         />
       )}
 

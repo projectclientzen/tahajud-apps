@@ -21,12 +21,7 @@ const REGION = makeEquranRegionId(REQ.provinsi, REQ.kabkota);
 const HARI = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 const fmt = (d: Date) =>
-  new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Jakarta",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).format(d);
+  new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(d);
 
 /** Test fixture: times computed with adhan, rounded to the minute. Not real EQuran data. */
 function fixtureMonth(shiftMin = 0, req = REQ): Record<string, unknown> {
@@ -53,23 +48,15 @@ function fixtureMonth(shiftMin = 0, req = REQ): Record<string, unknown> {
   return {
     code: 200,
     message: "ok",
-    data: {
-      provinsi: req.provinsi,
-      kabkota: req.kabkota,
-      bulan: req.bulan,
-      tahun: req.tahun,
-      bulan_nama: "November",
-      jadwal,
-    },
+    data: { provinsi: req.provinsi, kabkota: req.kabkota, bulan: req.bulan, tahun: req.tahun, bulan_nama: "November", jadwal },
   };
 }
 
 type Mutator = (m: ReturnType<typeof clone>) => void;
-const clone = () =>
-  structuredClone(fixtureMonth()) as {
-    code: number;
-    data: { provinsi: string; kabkota: string; bulan: number; tahun: number; jadwal: Record<string, unknown>[] };
-  };
+const clone = () => structuredClone(fixtureMonth()) as {
+  code: number;
+  data: { provinsi: string; kabkota: string; bulan: number; tahun: number; jadwal: Record<string, unknown>[] };
+};
 const mutated = (fn: Mutator) => {
   const m = clone();
   fn(m);
@@ -91,24 +78,26 @@ describe("validateEquranMonth", () => {
     ["dates are out of sequence", (m) => (m.data.jadwal[4]!.tanggal_lengkap = "2026-11-09"), /date gap/],
     ["time format is wrong", (m) => (m.data.jadwal[0]!.subuh = "4:06"), /schema/],
     ["prayer order is wrong", (m) => (m.data.jadwal[2]!.imsak = "04:30"), /out of order/],
-    [
-      "subuh is out of range",
-      (m) => {
-        m.data.jadwal[1]!.subuh = "03:00";
-        m.data.jadwal[1]!.imsak = "02:50";
-      },
-      /subuh .* out of range/,
-    ],
-    [
-      "maghrib is out of range",
-      (m) => {
-        m.data.jadwal[1]!.maghrib = "19:10";
-        m.data.jadwal[1]!.isya = "19:40";
-      },
-      /maghrib .* out of range/,
-    ],
+    ["subuh is out of range", (m) => {
+      m.data.jadwal[1]!.subuh = "03:00";
+      m.data.jadwal[1]!.imsak = "02:50";
+    }, /subuh .* out of range/],
+    ["maghrib is out of range", (m) => {
+      m.data.jadwal[1]!.maghrib = "19:30";
+      m.data.jadwal[1]!.isya = "20:00";
+    }, /maghrib .* out of range/],
     ["an unknown field appears (strict)", (m) => (m.data.jadwal[0]!.extra = "x"), /schema/],
   ];
+  it("accepts zone-edge times such as Central Kalimantan maghrib 17:12 WIB", () => {
+    expect(() =>
+      validateEquranMonth(
+        mutated((m) => {
+          m.data.jadwal[1]!.maghrib = "17:12";
+        }),
+        REQ,
+      ),
+    ).not.toThrow();
+  });
   it.each(broken)("rejects the whole month when %s", (_name, fn, re) => {
     expect(() => validateEquranMonth(mutated(fn), REQ)).toThrow(re);
   });
@@ -195,13 +184,7 @@ describe("EquranProvider with a fake server", () => {
   });
 
   const make = (extra = {}) =>
-    new EquranProvider({
-      baseUrl,
-      sleep: async () => {},
-      log: (e) => logs.push(e),
-      now: () => new Date("2026-11-12T00:00:00Z"),
-      ...extra,
-    });
+    new EquranProvider({ baseUrl, sleep: async () => {}, log: (e) => logs.push(e), now: () => new Date("2026-11-12T00:00:00Z"), ...extra });
 
   it("returns verified days with source metadata", async () => {
     queue = [json(200, fixtureMonth())];
@@ -263,9 +246,7 @@ describe("EquranProvider with a fake server", () => {
 
   it("times out and retries", async () => {
     queue = [hang, hang, hang];
-    await expect(make({ timeoutMs: 40 }).fetchMonth(REGION, 2026, 11)).rejects.toMatchObject({
-      code: "PROVIDER_FAILED",
-    });
+    await expect(make({ timeoutMs: 40 }).fetchMonth(REGION, 2026, 11)).rejects.toMatchObject({ code: "PROVIDER_FAILED" });
     expect(seen).toHaveLength(3);
   });
 
@@ -277,18 +258,9 @@ describe("EquranProvider with a fake server", () => {
   });
 
   it("rejects and logs a malformed month", async () => {
-    queue = [
-      json(
-        200,
-        mutated((m) => m.data.jadwal.pop()),
-      ),
-    ];
+    queue = [json(200, mutated((m) => m.data.jadwal.pop()))];
     await expect(make().fetchMonth(REGION, 2026, 11)).rejects.toThrow(/expected 30 days/);
-    expect(logs.find((l) => l.event === "month_rejected")).toMatchObject({
-      provinsi: REQ.provinsi,
-      month: 11,
-      year: 2026,
-    });
+    expect(logs.find((l) => l.event === "month_rejected")).toMatchObject({ provinsi: REQ.provinsi, month: 11, year: 2026 });
   });
 
   it("rejects a non-JSON body", async () => {
@@ -320,13 +292,7 @@ describe("EquranProvider with a fake server", () => {
     });
 
     it("PRAYER-02: a rejected month falls back to cache, never to bad data", async () => {
-      queue = [
-        json(200, fixtureMonth()),
-        json(
-          200,
-          mutated((m) => (m.data.jadwal[12]!.subuh = "02:00")),
-        ),
-      ];
+      queue = [json(200, fixtureMonth()), json(200, mutated((m) => (m.data.jadwal[12]!.subuh = "02:00")))];
       const svc = new PrayerService({ provider: make(), now });
       await svc.getDay(REGION, "2026-11-13");
       const res = await svc.getDay(REGION, "2026-11-13", { forceRefresh: true });
@@ -348,38 +314,25 @@ describe.runIf(process.env.EQURAN_LIVE_TEST === "1")("EQuran live (opt-in)", () 
     ["Sulawesi Selatan", "Kota Makassar", -5.15, 119.43],
     ["Papua", "Kota Jayapura", -2.53, 140.72],
   ] as const;
-  it.each(cities)(
-    "%s / %s passes validation and cross-check",
-    async (prov, kab, lat, lon) => {
-      const days = await new EquranProvider().fetchMonth(makeEquranRegionId(prov, kab), 2026, 11);
-      expect(days.length).toBe(30);
-      const params = CalculationMethod.Singapore();
-      let maxFajr = 0;
-      let maxMaghrib = 0;
-      const lines: string[] = [];
-      days.forEach((d, i) => {
-        const pt = new PrayerTimes(new Coordinates(lat, lon), new Date(2026, 10, i + 1), params);
-        const f = (new Date(d.fajrAt).getTime() - pt.fajr.getTime()) / 60000;
-        const m = (new Date(d.maghribAt as string).getTime() - pt.maghrib.getTime()) / 60000;
-        maxFajr = Math.max(maxFajr, Math.abs(f));
-        maxMaghrib = Math.max(maxMaghrib, Math.abs(m));
-        if ([0, 11, 29].includes(i)) {
-          const t = (iso: string) =>
-            new Intl.DateTimeFormat("en-GB", {
-              timeZone: d.timezone,
-              hour: "2-digit",
-              minute: "2-digit",
-              hourCycle: "h23",
-            }).format(new Date(iso));
-          lines.push(
-            `${d.date} subuh EQ ${t(d.fajrAt)} adhan ${t(pt.fajr.toISOString())} (${f.toFixed(1)}m) | maghrib EQ ${t(d.maghribAt as string)} adhan ${t(pt.maghrib.toISOString())} (${m.toFixed(1)}m)`,
-          );
-        }
-      });
-      console.log(
-        `LIVE ${kab} verification=${days[0]?.verification} maxFajr=${maxFajr.toFixed(1)} maxMaghrib=${maxMaghrib.toFixed(1)}\n${lines.join("\n")}`,
-      );
-    },
-    30000,
-  );
+  it.each(cities)("%s / %s passes validation and cross-check", async (prov, kab, lat, lon) => {
+    const days = await new EquranProvider().fetchMonth(makeEquranRegionId(prov, kab), 2026, 11);
+    expect(days.length).toBe(30);
+    const params = CalculationMethod.Singapore();
+    let maxFajr = 0;
+    let maxMaghrib = 0;
+    const lines: string[] = [];
+    days.forEach((d, i) => {
+      const pt = new PrayerTimes(new Coordinates(lat, lon), new Date(2026, 10, i + 1), params);
+      const f = (new Date(d.fajrAt).getTime() - pt.fajr.getTime()) / 60000;
+      const m = (new Date(d.maghribAt as string).getTime() - pt.maghrib.getTime()) / 60000;
+      maxFajr = Math.max(maxFajr, Math.abs(f));
+      maxMaghrib = Math.max(maxMaghrib, Math.abs(m));
+      if ([0, 11, 29].includes(i)) {
+        const t = (iso: string) =>
+          new Intl.DateTimeFormat("en-GB", { timeZone: d.timezone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso));
+        lines.push(`${d.date} subuh EQ ${t(d.fajrAt)} adhan ${t(pt.fajr.toISOString())} (${f.toFixed(1)}m) | maghrib EQ ${t(d.maghribAt as string)} adhan ${t(pt.maghrib.toISOString())} (${m.toFixed(1)}m)`);
+      }
+    });
+    console.log(`LIVE ${kab} verification=${days[0]?.verification} maxFajr=${maxFajr.toFixed(1)} maxMaghrib=${maxMaghrib.toFixed(1)}\n${lines.join("\n")}`);
+  }, 30000);
 });

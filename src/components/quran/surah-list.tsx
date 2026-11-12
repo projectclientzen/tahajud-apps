@@ -18,7 +18,7 @@ export function SurahList() {
       <PageHeader title="Al-Qur'an" description="Enam bacaan malam. Posisi bacaanmu tersimpan di setiap surah." />
       <LoadGate data={data} error={error} loading={loading} onRetry={reload}>
         {(progress) => (
-          <ul className="flex flex-col gap-3">
+          <ul className="grid gap-3 md:grid-cols-2">
             {SURAHS.map((s) => {
               const p = progress.find((x) => x.surah === s.number);
               const done = readCount(s, p?.ayah ?? null);

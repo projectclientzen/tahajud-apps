@@ -15,6 +15,7 @@
     "db:seed": "tsx scripts/db-seed.ts",
     "test:db": "vitest run tests/db",
     "import:regions": "node --experimental-strip-types scripts/import-regions.ts",
+    "import:coordinates": "tsx scripts/import-coordinates.ts",
     "test:e2e:live": "playwright test -c playwright.t3b.config.ts"
   },
   "dependencies": {

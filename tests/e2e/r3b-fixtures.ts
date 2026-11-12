@@ -1,17 +1,5 @@
 import type { Page } from "@playwright/test";
 
-/** Test text that is clearly not Qur'an. Injected only in builds with dev routes on (e2e). */
-const verses = (from: number, to: number) =>
-  Array.from({ length: to - from + 1 }, (_, i) => ({ number: from + i, text: `Ayat uji ${from + i}` }));
-
-export const QURAN_FIXTURE = { 36: verses(1, 8), 65: verses(2, 3) };
-
-export async function withQuranFixture(page: Page) {
-  await page.addInitScript((f) => {
-    (window as unknown as { __TT_QURAN_FIXTURE__: unknown }).__TT_QURAN_FIXTURE__ = f;
-  }, QURAN_FIXTURE);
-}
-
 /** Auth mock state with a signed-in demo user and three devices (same shape as the logged_in scenario). */
 export async function seedSignedIn(page: Page) {
   // A page that runs no app code, so no sign-in layer holds the old state in memory and writes it back over the seed.

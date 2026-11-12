@@ -71,6 +71,13 @@ export const prayerTimeSchema = z.object({
   label: z.string().nullable(),
   /** Mock mode only: "Jadwal contoh, bukan dari Kemenag". */
   demo_note: z.string().nullable(),
+  /**
+   * Cross-check result from the schedule provider. Only "verified" may be shown as verified.
+   * Absent or null means the provider did no cross-check (or the schedule is manual or demo).
+   */
+  verification: z.enum(["verified", "needs_review", "unchecked"]).nullable().optional(),
+  /** Provider attribution line, when the provider sends one. */
+  attribution: z.string().nullable().optional(),
 });
 export type PrayerTime = z.infer<typeof prayerTimeSchema>;
 
