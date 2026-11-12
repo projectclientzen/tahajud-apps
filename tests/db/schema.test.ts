@@ -24,6 +24,7 @@ const EXPECTED_TABLES = [
   "session_activities",
   "counter_operations",
   "session_audit_logs",
+  "session_excuses",
   // 17.4
   "quran_sources",
   "quran_surahs",
@@ -46,6 +47,10 @@ const EXPECTED_TABLES = [
   "rate_limits",
   "data_deletion_requests",
   "admin_audit_logs",
+  // T3b (not in §17): per-date excuses, device cookies, OTP codes, pending 4th-device logins. All backend only.
+  "device_sessions",
+  "login_otps",
+  "pending_logins",
 ];
 
 /** Structure of the public schema as text, so two databases can be compared. */
@@ -251,7 +256,7 @@ describe("security shape (PRD §18, SEC-03)", () => {
     for (const f of r) expect((f.cfg ?? []).join(","), f.fn).toMatch(/search_path=("")?$|search_path=""/);
   });
 
-  it("only the four RPCs are executable by authenticated, none by anon or PUBLIC", async () => {
+  it("only the listed RPCs are executable by authenticated, none by anon or PUBLIC", async () => {
     const r = await rows<{ fn: string; role: string }>(
       pg,
       `select p.oid::regprocedure::text as fn, r.rolname as role
@@ -264,12 +269,37 @@ describe("security shape (PRD §18, SEC-03)", () => {
       .filter((x) => x.role === "authenticated")
       .map((x) => x.fn)
       .sort();
+    // The complete list of what a signed-in browser role may call. A new RPC must be added here on purpose.
     expect(authed).toEqual(
       [
         "apply_counter_operation(uuid,text,text,integer,timestamp with time zone)",
         "ensure_active_session()",
         "has_active_entitlement(uuid)",
         "set_checklist(uuid,boolean,integer)",
+        "add_excuse(date,date)",
+        "cancel_excuse(date)",
+        "complete_onboarding()",
+        "get_access()",
+        "get_active_session()",
+        "get_activity_stats()",
+        "get_calendar(date,date)",
+        "get_current_level()",
+        "get_dashboard()",
+        "get_level_progress()",
+        "get_night_session(uuid)",
+        "get_notification_prefs()",
+        "get_prayer_row(date)",
+        "get_profile()",
+        "get_quran_progress()",
+        "get_report(integer)",
+        "get_session_history()",
+        "get_session_summary(uuid)",
+        "list_regions()",
+        "put_notification_prefs(jsonb)",
+        "put_quran_progress(integer,integer)",
+        "set_location(text,uuid,text,text,text)",
+        "update_preferences(text,integer,integer)",
+        "update_profile(text)",
       ].sort(),
     );
     expect(r.filter((x) => x.role === "anon")).toEqual([]);
