@@ -124,9 +124,10 @@ Buffer persiapan default 10 menit (PROV). `wake = fajr - durasi - buffer`.
 
 ### 4.3 Aktivitas per level
 Sumber tunggal: `content/amalan.v1.json` (urutan, target, satuan, required, teks Arab, panduan). Ringkasan di PRD v1.2 §9.
-- Level 1: Taubat 2, Tahajud 2, Witir 1; Istighfar 100, Shalawat 100, Tahlil 100 (+200 opsional), Ya Fattah Ya Razzaq Ya Kafi Ya Mughni 100 putaran; doa; tilawah.
+- Level 1: Taubat 2, Tahajud 2, Witir 1; Istighfar 100, Shalawat 100, Tahlil 100 (+200 opsional), Ya Fattah Ya Razzaq Ya Kafi Ya Mughni 100 putaran; doa; tilawah (opsional).
 - Level 2: Taubat 2, Tahajud 2, Hajat 2, Witir 2, Witir 1; Istighfar 100, Asma 100 putaran, Shalawat 300, Hasbunallah 450, Hauqalah 100, Tahlil 500; doa; tilawah.
-- Level 3: seperti Level 2, Tahajud 4, tambah Doa Nabi Yunus 313 sebelum Tahlil; plus post-Fajr (PROV).
+- Level 3: seperti Level 2, Tahajud 4, tambah Doa Nabi Yunus 313 sebelum Tahlil.
+- Post-Fajr SEMUA level: istighfar panjang 3, tahlil panjang 10, antas salam 1, tasbih/tahmid/takbir 33, kabira 1, istighfar 3, tahlil 100, Al-Waqi'ah (wajib), Ayat Seribu Dinar, doa hajat.
 - Fajr semua level: Qabliyah 2 (Al-Insyirah, Al-Fil), Tasbih malaikat 100, Salat Subuh, Berjamaah (opsional).
 - Test wajib: total dzikir malam required = 400 / 1.550 / 1.863 dan rakaat = 5 / 9 / 11 dihitung dari JSON.
 - "Required" = syarat target aplikasi, bukan kewajiban fikih. Copy UI harus menyebut ini.

@@ -5,7 +5,7 @@
 
 | Field | Nilai |
 |-------|-------|
-| Versi | 1.2.1 |
+| Versi | 1.2.2 |
 | Tanggal | 12 November 2026 |
 | Menggantikan | PRD v1.1 (`docs/PRD-v1.1.md`, disimpan untuk riwayat) |
 | Status | Implementation baseline. Item bertanda PROV belum final |
@@ -42,6 +42,12 @@
 - Witir Level 2-3 dicatat sebagai dua aktivitas: 2 rakaat dan 1 rakaat.
 - Panduan durasi tilawah dari owner.
 - Daftar usulan koreksi harakat di `docs/CONTENT-REVIEW.md` (belum diterapkan).
+
+### Changelog v1.2.2 (12 Nov 2026, jawaban owner)
+- Dzikir setelah Subuh (post-Fajr) berlaku untuk SEMUA level.
+- Tilawah malam opsional; Al-Waqi'ah setelah Subuh wajib.
+- "Allahu Akbar kabira dan rangkaiannya" 1x.
+- Konten `content/amalan.v1.json` v1.1.0 berstatus `published` atas persetujuan owner.
 
 ---
 
@@ -290,7 +296,7 @@ Hitungan dzikir tidak termasuk aktivitas setelah Subuh.
 | 7 | asma_rangkaian | Rangkaian Ya Fattah, Ya Razzaq, Ya Kafi, Ya Mughni | 100 putaran [v1.2.1] | Ya (PROV) |
 | 8 | tahlil_tambahan | Tahlil tambahan (total 300) | 200 | Tidak |
 | 9 | doa | Doa sesuai kebutuhan | checklist | Ya (PROV) |
-| 10 | tilawah | Membaca Al-Qur'an sampai Subuh (panduan: sekitar 30-40 menit sebelum Subuh) | checklist, konfirmasi user | Ya (PROV) |
+| 10 | tilawah | Membaca Al-Qur'an sampai Subuh | checklist | Tidak (opsional) [v1.2.2] |
 
 Catatan DOC-01 (selesai v1.2.1): 1 hitungan = 1 putaran keempat asma. Lafaz "Ya Kafi" (كافي). Urutan Level 1 sesuai teks owner: salat → istighfar → shalawat → tahlil → asma → doa → tilawah.
 
@@ -311,11 +317,11 @@ Sumber teks Arab, target, dan urutan semua level: `content/amalan.v1.json`. Tabe
 | 9 | dzikir_hauqalah | La hawla wa la quwwata illa billah | 100 |
 | 10 | dzikir_tahlil | Tahlil | 500 |
 | 11 | doa | Doa | checklist |
-| 12 | tilawah | Membaca Al-Qur'an sampai Subuh (panduan owner: "setengah jam atau 60 menit", perlu konfirmasi) | checklist |
-Semua required (PROV).
+| 12 | tilawah | Membaca Al-Qur'an sampai Subuh (opsional) | checklist |
+Semua required (PROV), kecuali tilawah (opsional).
 
 ### 9.4 Level 3 (phase: night)
-Sama dengan Level 2, dengan perbedaan: salat_tahajud 4 rakaat; tambahan `dzikir_doa_nabi_yunus` 313 sebelum tahlil. Semua required (PROV).
+Sama dengan Level 2, dengan perbedaan: salat_tahajud 4 rakaat; tambahan `doa_nabi_yunus` 313 sebelum tahlil. Semua required (PROV), kecuali tilawah (opsional).
 
 ### 9.5 Rangkaian Subuh (semua level, phase: fajr)
 | Urut | Key | Aktivitas | Target | Required |
@@ -327,8 +333,8 @@ Sama dengan Level 2, dengan perbedaan: salat_tahajud 4 rakaat; tambahan `dzikir_
 
 App tidak boleh membuat user menunda salat fardu demi counter/checklist. User bebas mencatat sesuai urutan aktual, termasuk setelah salat.
 
-### 9.6 Level 3 post-Fajr (phase: post_fajr, seluruh bagian PROV)
-Teks Arab dari owner ada di `content/amalan.v1.json`. Owner menulis bagian ini di bawah Level 3; apakah juga berlaku untuk Level 1-2 belum dikonfirmasi.
+### 9.6 Post-Fajr, SEMUA level (phase: post_fajr) [v1.2.2]
+Teks Arab di `content/amalan.v1.json`. Al-Waqi'ah wajib. Item lain required (PROV).
 | Key | Amalan | Target |
 |-----|--------|--------|
 | pf_istighfar_panjang | Istighfar panjang | 3 |
@@ -337,11 +343,11 @@ Teks Arab dari owner ada di `content/amalan.v1.json`. Owner menulis bagian ini d
 | pf_subhanallah | Subhanallah | 33 |
 | pf_alhamdulillah | Alhamdulillah | 33 |
 | pf_allahu_akbar | Allahu Akbar | 33 |
-| pf_allahu_akbar_kabira | Allahu Akbar kabira dan rangkaiannya | 1 |
+| pf_allahu_akbar_kabira | Allahu Akbar kabira dan rangkaiannya | 1 (dikonfirmasi) |
 | pf_astaghfirullahal_azhim | Astaghfirullahal 'azhim | 3 |
-| pf_tahlil | Tahlil | 100 |
+| tahlil | Tahlil | 100 |
 | pf_al_waqiah | Al-Waqi'ah (link ke Reader) | 1 surah |
-| pf_at_talaq_2_3 | QS. At-Talaq 65:2-3, dikenal sebagai "Ayat Seribu Dinar" | 1 bacaan |
+| pf_ayat_seribu_dinar | QS. At-Talaq 65:2-3, dikenal sebagai "Ayat Seribu Dinar" | 1 bacaan |
 | pf_doa_hajat | Doa hajat | 1 |
 
 ### 9.7 Metadata konten agama
@@ -1035,7 +1041,6 @@ PWA only; akses berbayar Scalev; passwordless; tiga level; progress kumulatif ta
 ### 30.2 Provisional defaults
 - Target level 7 / 12 / 20; periode 14 / 21 / 30.
 - Tahlil Level 1: 100 inti + 200 opsional.
-- Post-Fajr khusus Level 3.
 - Lifetime entitlement tanpa expiry.
 - Cutoff 12.00 lokal; koreksi 48 jam.
 - Durasi 60 / 120 / 150 menit; buffer 10 menit; ambang tidur 5 jam.
@@ -1049,12 +1054,12 @@ PWA only; akses berbayar Scalev; passwordless; tiga level; progress kumulatif ta
 
 ### 30.3 Wajib review sebelum launch
 1. ~~Verifikasi lafaz "Ya Khafi"~~ Selesai: "Ya Kafi" (v1.2.1).
-2. Tanda tangan pembimbing atas teks dzikir di `content/amalan.v1.json` + keputusan usulan koreksi di `docs/CONTENT-REVIEW.md`.
+2. Teks dzikir dipublish owner (v1.2.2). Masih terbuka: keputusan 8 usulan koreksi di `docs/CONTENT-REVIEW.md`.
 3. Persetujuan pembimbing untuk susunan salat dan bacaan.
 4. Klasifikasi amalan sunnah umum vs wirid program.
 5. Konfirmasi aktivitas required.
 6. Konfirmasi target level.
-7. Konfirmasi post-Fajr Level 3.
+7. ~~Konfirmasi post-Fajr~~ Selesai: semua level (v1.2.2).
 8. Persetujuan kebijakan lifetime access + estimasi biaya infrastruktur per user [v1.2: OPS-13].
 9. Izin API resmi jadwal salat.
 10. Lisensi Qur'an dan terjemahan.
@@ -1062,9 +1067,7 @@ PWA only; akses berbayar Scalev; passwordless; tiga level; progress kumulatif ta
 12. Uji akurasi jadwal dan notifikasi.
 13. ~~Satuan counter rangkaian asma~~ Selesai: putaran (v1.2.1).
 14. ~~Teks dzikir setelah Qabliyah~~ Selesai: tasbih malaikat 100 (v1.2.1).
-17. Cakupan dzikir setelah Subuh: Level 3 saja atau semua level.
-18. Panduan durasi tilawah Level 2 ("setengah jam atau 60 menit") dan Level 3.
-19. Jumlah bacaan "Allahu Akbar kabira dan rangkaiannya" (default 1).
+17-19. Selesai v1.2.2 (post-Fajr semua level, tilawah opsional, kabira 1x).
 15. Aturan mode berhalangan [v1.2: OPS-12].
 16. Format webhook & API Scalev dicocokkan dengan dokumentasi resmi dan payload asli.
 

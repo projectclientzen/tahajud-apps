@@ -31,11 +31,11 @@ Spesifikasi berlaku: `docs/PRD-v1.2.md`
 ## Konten agama
 | Item | Status |
 |------|--------|
-| Teks Arab dzikir | SUBMITTED: ada di `content/amalan.v1.json`, menunggu tanda tangan pembimbing + keputusan koreksi (`docs/CONTENT-REVIEW.md`) |
+| Teks Arab dzikir | PUBLISHED (owner): `content/amalan.v1.json` v1.1.0. 8 usulan koreksi belum diputuskan |
 | Lafaz asma | SELESAI: Ya Kafi (كافي) |
 | source_classification | BLOCKED: tidak boleh diisi tebakan |
 | Nilai provisional (PRD v1.2 §30.2) | PROVISIONAL |
 | Satuan counter rangkaian asma | SELESAI: putaran |
 | Teks dzikir setelah Qabliyah | SELESAI: tasbih malaikat 100 |
-| Cakupan post-Fajr (L3 saja / semua) | PROVISIONAL: default L3 saja |
+| Cakupan post-Fajr | SELESAI: semua level; tilawah malam opsional; Al-Waqi'ah wajib |
 | Aturan mode berhalangan | PROVISIONAL: perlu pembimbing |

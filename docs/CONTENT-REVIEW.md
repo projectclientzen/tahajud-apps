@@ -1,6 +1,6 @@
 # Content Review: Teks Dzikir
 
-Sumber: `content/amalan.v1.json` (dikirim owner 12 Nov 2026). Status: `submitted`.
+Sumber: `content/amalan.v1.json` (dikirim owner 12 Nov 2026). Status: `published` (disetujui owner 12 Nov 2026, v1.1.0).
 Teks owner TIDAK diubah. Daftar di bawah hanya usulan untuk diputuskan pembimbing. Agen tidak boleh menerapkannya tanpa persetujuan owner.
 
 ## Sudah diputuskan
@@ -25,9 +25,12 @@ Teks owner TIDAK diubah. Daftar di bawah hanya usulan untuk diputuskan pembimbin
 
 Confidence berdasarkan kaidah nahwu/imla umum, bukan rujukan kitab tertentu. Keputusan akhir di tangan pembimbing.
 
-## Pertanyaan terbuka
-1. Dzikir setelah Subuh (istighfar panjang s.d. doa hajat): khusus Level 3, atau semua level?
-2. Panduan tilawah Level 2 tertulis "setengah jam atau 60 menit". Mana yang dipakai? Level 3 berapa menit?
-3. "Allahu Akbar kabira dan rangkaiannya": dibaca berapa kali? (default 1)
-4. Apakah semua teks sudah ditandatangani pembimbing? Jika ya, status bisa dinaikkan ke `published`.
-5. Transliterasi Latin dan terjemahan Indonesia: mau disediakan? (opsional, jika tidak ada app hanya menampilkan teks Arab + nama dzikir)
+## Pertanyaan terjawab (12 Nov 2026)
+1. Post-Fajr: semua level.
+2. Tilawah malam: opsional. Al-Waqi'ah: wajib.
+3. Allahu Akbar kabira: 1x.
+4. Konten: dipublish atas persetujuan owner.
+
+## Masih terbuka
+- Keputusan 8 usulan koreksi di atas. Sampai diputuskan, teks owner tampil apa adanya di produksi.
+- Transliterasi Latin dan terjemahan Indonesia (opsional).
