@@ -7,6 +7,8 @@ import {
   calendarResponseSchema,
   counterOperationsResponseSchema,
   dashboardSchema,
+  dataExportSchema,
+  deleteAccountResponseSchema,
   deviceLimitResponseSchema,
   deviceSchema,
   excuseResponseSchema,
@@ -14,8 +16,13 @@ import {
   levelProgressResponseSchema,
   levelSchema,
   nightSessionSchema,
+  notificationListSchema,
   notificationPreferencesSchema,
   prayerTimeSchema,
+  prayerTimesResponseSchema,
+  pushSubscriptionSchema,
+  quranSurahDetailSchema,
+  quranSurahListSchema,
   profileSchema,
   quranProgressListSchema,
   quranProgressSchema,
@@ -28,7 +35,7 @@ import {
   wakePlanSchema,
   type ApiErrorCode,
 } from "../contracts";
-import type { AuthRepository, DataLayer } from "../repositories";
+import type { AuthRepository, DataLayer, LiveExtras } from "../repositories";
 
 export interface HttpOptions {
   /** Defaults to "/api/v1" in the browser. Tests pass a full origin. */
@@ -98,7 +105,9 @@ const currentLevelSchema = z.object({ level: levelSchema, effective_from_session
 const okSchema = verifyOtpResponseSchema.extend({ status: z.literal("ok") });
 const verifySchema = z.union([okSchema, deviceLimitResponseSchema]);
 
-export function createHttpDataLayer(opts: HttpOptions = {}): DataLayer {
+export type HttpDataLayer = DataLayer & LiveExtras;
+
+export function createHttpDataLayer(opts: HttpOptions = {}): HttpDataLayer {
   const http = new Http(opts);
   const locate = (req: unknown) => http.call("PUT", "/me/location", { body: req, schema: prayerTimeSchema });
   return {
@@ -161,6 +170,40 @@ export function createHttpDataLayer(opts: HttpOptions = {}): DataLayer {
       setLocation: locate,
       completeOnboarding: () => http.call("POST", "/me/onboarding/complete", { body: {}, schema: profileSchema }),
       updatePreferences: (patch) => http.call("PUT", "/me/preferences", { body: patch, schema: profileSchema }),
+    },
+    prayerTimes: {
+      getPrayerTimes: (q = {}) =>
+        http.call("GET", "/prayer-times", {
+          query: {
+            region_id: q.region_id,
+            from: q.from,
+            to: q.to,
+            include_maghrib: q.include_maghrib ? "true" : undefined,
+          },
+          schema: prayerTimesResponseSchema,
+        }),
+    },
+    quranCatalog: {
+      listSurahs: () => http.call("GET", "/quran/surahs", { schema: quranSurahListSchema }),
+      getSurah: (surah) =>
+        http.call("GET", `/quran/surahs/${encodeURIComponent(String(surah))}`, { schema: quranSurahDetailSchema }),
+    },
+    push: {
+      addSubscription: (req) =>
+        http.call("POST", "/me/push-subscriptions", { body: req, schema: pushSubscriptionSchema }),
+      removeSubscription: async (id) => {
+        await http.call("DELETE", `/me/push-subscriptions/${encodeURIComponent(id)}`);
+      },
+      listNotifications: (limit) =>
+        http.call("GET", "/me/notifications", {
+          query: { limit: limit === undefined ? undefined : String(limit) },
+          schema: notificationListSchema,
+        }),
+    },
+    account: {
+      exportData: () => http.call("POST", "/me/data-export", { body: {}, schema: dataExportSchema }),
+      deleteAccount: () =>
+        http.call("POST", "/me/delete-account", { body: { confirm: true }, schema: deleteAccountResponseSchema }),
     },
   };
 }
