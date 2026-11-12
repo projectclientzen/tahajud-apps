@@ -282,9 +282,10 @@ describe("mock auth: sessions and devices", () => {
 });
 
 describe("auth layer selection", () => {
-  it("live mode is a stub until S5", async () => {
+  it("live mode talks to /api/v1: with no server in reach it reports OFFLINE, never a fake answer (T3b)", async () => {
     const live = createAuthLayer({ mode: "live" });
-    expect((await err(live.requestOtp("a@b.id"))).code).toBe("NOT_AVAILABLE");
+    expect(live).not.toHaveProperty("dev");
+    expect((await err(live.requestOtp("a@b.id"))).code).toBe("OFFLINE");
   });
   it("mock mode returns the mock", () =>
     expect(createAuthLayer({ mode: "mock", storage: memoryAuthStorage() })).toHaveProperty("dev"));

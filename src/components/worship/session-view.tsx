@@ -193,7 +193,9 @@ export function SessionView() {
                           key={a.id}
                           activity={a}
                           onChanged={() => {
-                            bump();
+                            // Refetch this screen only. bump() would trigger a queue flush, whose event makes
+                            // ActivityRow call onChanged again before the reload lands: an endless loop in live mode.
+                            reload();
                           }}
                           onError={setMessage}
                         />
