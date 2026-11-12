@@ -34,7 +34,7 @@ test("demo badge is visible while mock data is active", async ({ page }) => {
 });
 
 test("theme choice applies data-theme and survives reload", async ({ page }) => {
-  await page.goto("/profile");
+  await page.goto("/settings");
   await page.getByText("Gelap", { exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await page.reload();
