@@ -59,10 +59,17 @@ Gerbang dijalankan di akhir sesi di branch ini:
 ```
 pnpm typecheck               -> lolos
 pnpm lint                    -> lolos
-pnpm test                    -> lihat blok bawah (angka diisi setelah putaran akhir)
+pnpm test                    -> Test Files 39 passed (39), Tests 815 passed | 3 skipped (818)
+                                (termasuk tests/db: 210 test, dan 4 file api-* lewat HTTP: 134 test)
+pnpm test:e2e --trace off    -> 260 passed, 46 skipped (screenshot), 0 gagal (3.4m), setelah merge main b3a43ea..35f8255
+pnpm test:e2e:live --trace off -> 10 passed, 2 skipped (fixme checklist, lihat Temuan), 0 gagal (50s)
+pnpm audit --prod            -> No known vulnerabilities found
+secret scan (grep di diff)   -> kosong
 ```
 
-RESULT_PLACEHOLDER
+- Putaran e2e mock pertama (sebelum merge main) gagal 1 test: `r3a-auth.spec.ts:122` "access turned on later" (mobile), 209 passed. Putaran kedua pada pohon hasil merge lulus semua. Tidak dianalisis lebih jauh: alur mock murni, tidak lewat kode T3b, dan pola ini sama dengan catatan flaky orchestrator (brief Q1). Dilaporkan, bukan diabaikan.
+- Merge main ke branch ini sempat mengubah format file milik sesi lain karena saya menjalankan prettier pada `src/server/**` dan `tests/unit/server/*.ts`. Sudah dikembalikan ke versi main (`src/server/prayer`, `src/server/push`, dua test). Diff akhir ke main hanya menyentuh file milikku, `package.json`, `pnpm-lock.yaml`, `.env.example`, STATUS, `scripts/db-seed.ts`, dan dua test "live = stub" yang diperbarui.
+- Dari U1b: `PrayerTime.verification` dan `attribution` kini diisi dari kolom baru `prayer_times.verification/attribution` (migration `0400`). Baris tanpa nilai atau jadwal manual = null (tidak ada klaim "Terverifikasi" tanpa cek). Pengisinya job jadwal (T4c/T6) belum ada, jadi di API live saat ini selalu null sampai tabel diisi lewat provider.
 
 ID yang dicakup lewat HTTP: SECURITY-01 (sesi/aktivitas/perangkat/daftar milik orang lain = 404 atau ditolak, tidak bocor), SECURITY-02 (lima keadaan entitlement x semua endpoint privat, berlaku di request berikutnya tanpa login ulang, data utuh), SECURITY-03 (tidak ada endpoint yang menulis status/level, field tambahan dibuang, status hanya dihitung server), AUTH-05 (kode sekali pakai, 5 percobaan, 10 menit, kadaluarsa), AUTH-06 (jawaban sama untuk email terdaftar dan tidak, limit email/IP/jeda, hanya hash disimpan), DZIKIR-03/05 (duplikat, batch ulang, perangkat lain, tidak negatif, `set_zero`, batas 50), cek Origin (semua metode mutasi), Cache-Control (semua jawaban termasuk error dan 404), batas 3 perangkat penuh (tolak ke-4, pilih satu, sekali pakai, 10 menit, bukan perangkat milik orang lain).
 
