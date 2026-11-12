@@ -1,16 +1,13 @@
 "use client";
 
-import { Download, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { Download, MessageCircle } from "lucide-react";
 import * as React from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { errorMessage, useData } from "@/components/providers/data-provider";
 import { PageHeader } from "@/components/shell/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { Sheet } from "@/components/ui/sheet";
-import { ApiError, type DataLayer } from "@/data";
-import { Field, TextInput } from "./controls";
+import type { DataLayer } from "@/data";
 
 /** Everything the user's own screens can read. Real export (PRD §24.4) moves to the server in T3. */
 export async function collectExport(layer: DataLayer) {
@@ -32,22 +29,12 @@ export async function collectExport(layer: DataLayer) {
   };
 }
 
-/** Mock mode resets the demo data. Live mode has no endpoint yet, so it says so instead of pretending. */
-async function deleteAccount(layer: DataLayer): Promise<void> {
-  const dev = "dev" in layer ? (layer as { dev: { reset(): Promise<void> } }).dev : null;
-  if (!dev) throw new ApiError("NOT_AVAILABLE", "Hapus akun belum tersedia. Hubungi CS untuk menghapus akunmu.");
-  await dev.reset();
-}
-
-export function AccountScreen() {
-  const { layer, bump } = useData();
+/** `csHref` is a wa.me link, or null when no CS number is configured. Self-service deletion is off for now. */
+export function AccountScreen({ csHref = null }: { csHref?: string | null }) {
+  const { layer } = useData();
   const { auth } = useAuth();
   const [email, setEmail] = React.useState<string | null>(null);
-  const [open, setOpen] = React.useState(false);
-  const [typed, setTyped] = React.useState("");
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
-  const [done, setDone] = React.useState(false);
-  const [busy, setBusy] = React.useState(false);
 
   React.useEffect(() => {
     void auth?.getSession().then((s) => setEmail(s.user?.email ?? null));
@@ -69,42 +56,6 @@ export function AccountScreen() {
     }
   }
 
-  const matches = email !== null && typed.trim().toLowerCase() === email.toLowerCase();
-
-  async function remove() {
-    if (!layer || !auth) return;
-    setBusy(true);
-    try {
-      await deleteAccount(layer);
-      await auth.logout();
-      bump();
-      setOpen(false);
-      setDone(true);
-    } catch (e) {
-      setOpen(false);
-      setMsg({ ok: false, text: errorMessage(e) });
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  if (done)
-    return (
-      <>
-        <PageHeader title="Akun dan data" />
-        <Card role="status" className="flex flex-col gap-3">
-          <CardTitle>Permintaan hapus akun dicatat</CardTitle>
-          <p>
-            Data ibadah, profil, dan progress Al-Qur&apos;an dihapus dalam 30 hari. Catatan pembelian disimpan tanpa
-            emailmu.
-          </p>
-          <Link href="/" className={buttonVariants({ variant: "secondary" })}>
-            Ke halaman awal
-          </Link>
-        </Card>
-      </>
-    );
-
   return (
     <>
       <PageHeader title="Akun dan data" description={email ? `Masuk sebagai ${email}.` : undefined} />
@@ -120,15 +71,22 @@ export function AccountScreen() {
           </Button>
         </Card>
         <Card className="flex flex-col gap-3">
-          <CardTitle>Hapus akun</CardTitle>
+          <CardTitle>Hapus data</CardTitle>
           <p className="text-text-muted">
-            Data ibadah, profil, notifikasi, dan progress Al-Qur&apos;an dihapus dalam 30 hari. Catatan pembelian dan
-            akses disimpan tanpa emailmu sesuai kebutuhan bisnis. Tindakan ini tidak bisa dibatalkan.
+            Akses mengikuti email pembelianmu, jadi akun belum bisa dihapus dari aplikasi. Mau datamu dihapus? Kirim
+            permintaan ke CS.
           </p>
-          <Button variant="danger" className="self-start" onClick={() => setOpen(true)}>
-            <Trash2 aria-hidden className="size-5" />
-            Hapus akun
-          </Button>
+          {csHref ? (
+            <a
+              href={csHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ variant: "secondary" }) + " self-start"}
+            >
+              <MessageCircle aria-hidden className="size-5" />
+              Chat CS di WhatsApp
+            </a>
+          ) : null}
         </Card>
         {msg ? (
           <p role={msg.ok ? "status" : "alert"} className={msg.ok ? "text-text-muted" : "text-error"}>
@@ -136,25 +94,6 @@ export function AccountScreen() {
           </p>
         ) : null}
       </div>
-      <Sheet
-        open={open}
-        onOpenChange={setOpen}
-        title="Hapus akun?"
-        description={email ? "Ketik ulang emailmu untuk melanjutkan." : "Masuk dulu supaya emailmu bisa dikonfirmasi."}
-      >
-        <Field htmlFor="confirm-email" label="Email akun">
-          <TextInput
-            id="confirm-email"
-            type="email"
-            autoComplete="off"
-            value={typed}
-            onChange={(e) => setTyped(e.target.value)}
-          />
-        </Field>
-        <Button variant="danger" disabled={!matches} loading={busy} onClick={remove}>
-          Hapus akun saya
-        </Button>
-      </Sheet>
     </>
   );
 }

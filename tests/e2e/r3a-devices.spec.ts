@@ -90,6 +90,9 @@ test.describe("batas 3 perangkat (PRD §24.1)", () => {
 test("sesi yang dicabut dari perangkat lain kembali ke /login dengan pesan yang jelas", async ({ page }) => {
   await page.goto("/dashboard");
   await expect(page.getByText("Subuh berikutnya")).toBeVisible();
+  // Leave the app first. A live page keeps its own copy of the sign-in state and writes it back (last seen time),
+  // which would overwrite the change below.
+  await page.goto("/manifest.webmanifest");
   // Another device signed this one out: mark this device revoked in the mock sign-in state.
   await page.evaluate(async () => {
     const db = await new Promise<IDBDatabase>((resolve, reject) => {
@@ -106,13 +109,15 @@ test("sesi yang dicabut dari perangkat lain kembali ke /login dengan pesan yang 
       r.onsuccess = () => resolve(r.result);
     });
     state.devices[state.session.userId]!.find((d) => d.id === state.session.deviceId)!.revokedAt = Date.now();
-    await new Promise<void>((resolve) => {
-      const w = store("readwrite").put(state, "auth");
-      w.onsuccess = () => resolve();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction("state", "readwrite");
+      tx.objectStore("state").put(state, "auth");
+      tx.oncomplete = () => resolve(); // committed, not just queued
+      tx.onerror = () => reject(tx.error);
     });
     db.close();
   });
-  await page.reload();
+  await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole("status").filter({ hasText: "dikeluarkan dari akunmu" })).toBeVisible();
   await expect(page.getByLabel("Email")).toBeVisible(); // the way back in is right there

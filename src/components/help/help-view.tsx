@@ -121,7 +121,7 @@ export function HelpView({ csWhatsapp }: { csWhatsapp?: string }) {
             <li>Tidak ada leaderboard dan tidak ada data ibadahmu yang tampil ke pengguna lain.</li>
             <li>Alasan berhalangan tidak disimpan.</li>
             <li>Lokasi hanya berupa wilayah, bukan GPS.</li>
-            <li>Kamu bisa mengunduh dan menghapus datamu di Pengaturan, Akun dan data.</li>
+            <li>Kamu bisa mengunduh datamu di Pengaturan, Akun dan data. Penghapusan data lewat CS.</li>
           </ul>
           <p className="text-helper text-text-muted">
             Teks kebijakan lengkap dan syarat ketentuan menyusul sebelum peluncuran.

@@ -139,10 +139,28 @@ function ReaderBody({ meta, ayah, fontSize }: { meta: SurahMeta; ayah: number | 
     bump();
   }
 
-  async function resize(delta: number) {
-    const next = Math.min(FONT_MAX, Math.max(FONT_MIN, size + delta));
-    setSize(next);
-    await layer?.profile.updatePreferences({ quran_font_size: next });
+  // The size on screen only changes once it is saved, so what the reader shows is what a reload brings back.
+  // Taps queue up, so two quick taps add two steps.
+  const sizeRef = React.useRef(fontSize);
+  const resizing = React.useRef<Promise<void>>(Promise.resolve());
+  React.useEffect(() => {
+    sizeRef.current = fontSize;
+  }, [fontSize]);
+
+  function resize(delta: number): Promise<void> {
+    resizing.current = resizing.current.then(async () => {
+      if (!layer) return;
+      const next = Math.min(FONT_MAX, Math.max(FONT_MIN, sizeRef.current + delta));
+      if (next === sizeRef.current) return;
+      try {
+        await layer.profile.updatePreferences({ quran_font_size: next });
+        sizeRef.current = next;
+        setSize(next);
+      } catch {
+        /* not saved: keep the size on screen as it was */
+      }
+    });
+    return resizing.current;
   }
 
   function toggleNight() {
