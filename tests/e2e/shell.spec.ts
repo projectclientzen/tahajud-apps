@@ -75,7 +75,8 @@ for (const theme of ["light", "dark"] as const) {
   });
 }
 
-test("entry page sends a signed-in visitor to the dashboard", async ({ page }) => {
+test("entry page sends a signed-in visitor straight to the dashboard", async ({ page }) => {
+  // The e2e build starts signed in as the demo user. The visitor view of "/" is covered in r3a-auth.spec.ts.
   await page.goto("/");
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByRole("heading", { name: "Dashboard Istiqomah" })).toBeVisible();

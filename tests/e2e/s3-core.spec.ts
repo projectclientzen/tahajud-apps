@@ -42,7 +42,7 @@ test("DZIKIR-02: offline taps stay on the device and sync once without double co
     await page.getByLabel("Simulasi offline").check();
   });
   for (let i = 0; i < 3; i++) await tapButton(page).click();
-  await expect(page.getByTestId("sync-status")).toHaveText(/Tersimpan di perangkat/, { timeout: 10_000 });
+  await expect(page.getByTestId("sync-status")).toHaveText(/menunggu sinyal/, { timeout: 10_000 });
   await expect(count(page)).toHaveText("3");
   await withDevPanel(page, async () => {
     await page.getByLabel("Simulasi offline").uncheck();

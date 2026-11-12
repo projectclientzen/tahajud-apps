@@ -23,6 +23,7 @@ export const API_ERROR_CODES = [
   "RATE_LIMITED",
   "UNAUTHENTICATED",
   "INVALID_OTP",
+  "PENDING_LOGIN_INVALID",
 ] as const;
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
 export const apiErrorSchema = z.object({
@@ -334,6 +335,37 @@ export const verifyOtpResponseSchema = z.object({
 });
 export type VerifyOtpResponse = z.infer<typeof verifyOtpResponseSchema>;
 
+export const deviceSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  last_seen_at: isoInstant,
+  is_current: z.boolean(),
+});
+export type Device = z.infer<typeof deviceSchema>;
+
+/**
+ * 4th device (PRD §24.1): the code was right, but 3 devices are already active. No session is created.
+ * `pending_token` lets the user remove one device and continue. It lasts 10 minutes and works once.
+ */
+export const deviceLimitResponseSchema = z.object({
+  status: z.literal("device_limit"),
+  max_devices: z.number().int(),
+  pending_token: z.string().min(1),
+  pending_expires_at: isoInstant,
+  devices: z.array(deviceSchema),
+});
+export type DeviceLimitResponse = z.infer<typeof deviceLimitResponseSchema>;
+
+/** POST /auth/verify-otp answer: signed in, or blocked by the device limit. */
+export type VerifyOtpResult = ({ status: "ok" } & VerifyOtpResponse) | DeviceLimitResponse;
+
+/** POST /auth/complete-pending-login */
+export const completePendingLoginRequestSchema = z.object({
+  pending_token: z.string().min(1),
+  revoke_device_id: z.string().min(1),
+});
+export type CompletePendingLoginRequest = z.infer<typeof completePendingLoginRequestSchema>;
+
 export const authSessionSchema = z.object({
   authenticated: z.boolean(),
   /** Why the user is signed out: never signed in or logged out, session ran out, or another device signed this one out. */
@@ -343,14 +375,6 @@ export const authSessionSchema = z.object({
   expires_at: isoInstant.nullable(),
 });
 export type AuthSession = z.infer<typeof authSessionSchema>;
-
-export const deviceSchema = z.object({
-  id: z.string(),
-  label: z.string(),
-  last_seen_at: isoInstant,
-  is_current: z.boolean(),
-});
-export type Device = z.infer<typeof deviceSchema>;
 
 // ---- profile (§19.2) ----
 export const themePrefSchema = z.enum(["system", "light", "dark", "auto-night"]);

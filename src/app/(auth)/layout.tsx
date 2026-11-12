@@ -1,11 +1,10 @@
-import { AuthDevPanel } from "@/components/auth/auth-dev-panel";
-import { AuthShell } from "@/components/auth/auth-shell";
+import { AuthFrame } from "@/components/auth/auth-frame";
+import { GuestOnly } from "@/components/auth/gate";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <AuthShell>{children}</AuthShell>
-      <AuthDevPanel />
-    </>
+    <AuthFrame>
+      <GuestOnly>{children}</GuestOnly>
+    </AuthFrame>
   );
 }

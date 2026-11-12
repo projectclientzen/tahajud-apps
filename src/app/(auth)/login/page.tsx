@@ -3,6 +3,6 @@ import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = { title: "Masuk" };
 
-export default function Page() {
+export default function LoginPage() {
   return <LoginForm />;
 }

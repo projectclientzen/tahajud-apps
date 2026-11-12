@@ -3,6 +3,6 @@ import { VerifyForm } from "@/components/auth/verify-form";
 
 export const metadata: Metadata = { title: "Masukkan kode" };
 
-export default function Page() {
+export default function VerifyPage() {
   return <VerifyForm />;
 }

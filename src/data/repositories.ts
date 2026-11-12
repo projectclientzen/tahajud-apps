@@ -7,6 +7,7 @@ import type {
   ProfileUpdate,
   RequestOtpResponse,
   VerifyOtpResponse,
+  VerifyOtpResult,
   CalendarResponse,
   ChecklistUpdateRequest,
   CounterOperationsRequest,
@@ -118,8 +119,10 @@ export interface ProfileRepository {
 export interface AuthRepository {
   /** POST /auth/request-otp. The answer never depends on whether the email has access. */
   requestOtp(email: string): Promise<RequestOtpResponse>;
-  /** POST /auth/verify-otp */
-  verifyOtp(email: string, code: string, deviceLabel?: string): Promise<VerifyOtpResponse>;
+  /** POST /auth/verify-otp. With 3 active devices the answer is `device_limit` and no session is created. */
+  verifyOtp(email: string, code: string, deviceLabel?: string): Promise<VerifyOtpResult>;
+  /** POST /auth/complete-pending-login. Removes one device, then signs in. The token works once. */
+  completePendingLogin(pendingToken: string, revokeDeviceId: string, deviceLabel?: string): Promise<VerifyOtpResponse>;
   /** GET /me, auth part */
   getSession(): Promise<AuthSession>;
   /** POST /auth/logout. This device only. */

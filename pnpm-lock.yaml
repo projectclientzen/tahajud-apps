@@ -18,6 +18,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.5.0
         version: 1.5.0(@types/react@19.3.0)(react@19.1.10)
+      adhan:
+        specifier: ^4.4.6
+        version: 4.4.6
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1241,6 +1244,9 @@ packages:
     resolution: {integrity: sha512-oJlA3XiRm7Cyk6qFD2Jn8ak9B7jSy0qy00ADO3+8dpT0LSjFihQYv4C02LFCSYJV3Q37xYwwRy5m+IpIiUzqWw==}
     engines: {node: '>=0.4.0'}
     hasBin: true
+
+  adhan@4.4.6:
+    resolution: {integrity: sha512-cpLLcr6qxx+mLc6jgSXJwAAHxDFrhXhVLuzRbZPrpQKIEpJw+0LcfG6u9WEjq66kcTX/2sCkI3VztgRoUXBnFg==}
 
   agent-base@9.0.0:
     resolution: {integrity: sha512-TQf59BsZnytt8GdJKLPfUZ54g/iaUL2OWDSFCCvMOhsHduDQxO8xC4PNeyIkVcA5KwL2phPSv0douC0fgWzmnA==}
@@ -3764,6 +3770,8 @@ snapshots:
       acorn: 8.19.0
 
   acorn@8.19.0: {}
+
+  adhan@4.4.6: {}
 
   agent-base@9.0.0: {}
 

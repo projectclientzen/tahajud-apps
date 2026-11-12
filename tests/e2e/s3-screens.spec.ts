@@ -1,5 +1,4 @@
 import { test } from "@playwright/test";
-import { AUTH_FILE } from "./r3a-helpers";
 import { loadScenario, openCounter, startSession } from "./s3-helpers";
 
 // Review screenshots into docs/screenshots/s3. Run: pnpm test:e2e --trace off --grep @s3screens
@@ -16,7 +15,6 @@ test.describe("@s3screens", () => {
           deviceScaleFactor: 2,
           locale: "id-ID",
           timezoneId: "Asia/Jakarta",
-          storageState: AUTH_FILE,
         });
         const page = await ctx.newPage();
         await page.addInitScript((t) => localStorage.setItem("tt-theme", t), theme);

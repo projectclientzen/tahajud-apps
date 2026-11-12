@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarOff, UserRound } from "lucide-react";
+import { Bell, CalendarOff, UserRound } from "lucide-react";
 import Link from "next/link";
 import { LoadGate } from "@/components/providers/load-gate";
 import { useData, useLoad } from "@/components/providers/data-provider";
@@ -127,9 +127,18 @@ export function DashboardView() {
         title="Dashboard Istiqomah"
         description="Assalamu'alaikum, selamat melanjutkan perjalanan istiqomahmu."
         actions={
-          <Link href="/profile" aria-label="Profil" className={buttonVariants({ variant: "ghost", size: "icon" })}>
-            <UserRound aria-hidden className="size-5" />
-          </Link>
+          <>
+            <Link
+              href="/notifications"
+              aria-label="Notifikasi"
+              className={buttonVariants({ variant: "ghost", size: "icon" })}
+            >
+              <Bell aria-hidden className="size-5" />
+            </Link>
+            <Link href="/profile" aria-label="Profil" className={buttonVariants({ variant: "ghost", size: "icon" })}>
+              <UserRound aria-hidden className="size-5" />
+            </Link>
+          </>
         }
       />
       <LoadGate data={data} error={error} loading={loading} onRetry={reload}>

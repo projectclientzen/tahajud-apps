@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   ApiError,
   authSessionSchema,
+  deviceLimitResponseSchema,
   deviceSchema,
   requestOtpResponseSchema,
   verifyOtpResponseSchema,
@@ -11,10 +12,18 @@ import { createAuthLayer, createMockAuth, AUTH_SCENARIOS, type MockAuthLayer } f
 import { memoryAuthStorage, idbAuthStorage } from "@/data/mock/auth";
 import { DEMO_EMAILS, userIdFor } from "@/data/mock/fixtures/auth";
 import { wib } from "../domain/helpers";
+import type { VerifyOtpResponse } from "@/data/contracts";
 
 const clock = { now: () => wib("2026-11-12 08:00") };
 const make = (scenario: (typeof AUTH_SCENARIOS)[number] = "logged_out", code = 123456): MockAuthLayer =>
   createMockAuth({ scenario, clock, storage: memoryAuthStorage(), randomInt: () => code });
+
+/** Verify and expect a normal sign-in (not the device limit). */
+async function signIn(a: MockAuthLayer, email: string, code = "123456", label?: string): Promise<VerifyOtpResponse> {
+  const r = await a.verifyOtp(email, code, label);
+  if (r.status !== "ok") throw new Error(`expected sign-in, got ${r.status}`);
+  return r;
+}
 
 async function err(p: Promise<unknown>): Promise<ApiError> {
   try {
@@ -85,8 +94,8 @@ describe("mock auth: verify OTP", () => {
   it("signs in with the right code and returns access", async () => {
     const a = make();
     await a.requestOtp(DEMO_EMAILS.active);
-    const r = await a.verifyOtp(DEMO_EMAILS.active, "123456", "Chrome Android");
-    verifyOtpResponseSchema.parse(r);
+    const r = await signIn(a, DEMO_EMAILS.active, "123456", "Chrome Android");
+    verifyOtpResponseSchema.parse({ ...r, status: undefined });
     expect(r.user).toEqual({ id: userIdFor(DEMO_EMAILS.active), email: DEMO_EMAILS.active });
     expect(r.access).toMatchObject({
       access_status: "active",
@@ -137,7 +146,7 @@ describe("mock auth: verify OTP", () => {
     ] as const) {
       const a = make();
       await a.requestOtp(email);
-      expect((await a.verifyOtp(email, "123456")).access).toMatchObject({
+      expect((await signIn(a, email)).access).toMatchObject({
         access_status: status,
         entitlement_type: null,
       });
@@ -145,7 +154,7 @@ describe("mock auth: verify OTP", () => {
     const a = make();
     await a.dev.setEntitlement("Late.Buyer@Example.test", "active");
     await a.requestOtp("late.buyer@example.test");
-    expect((await a.verifyOtp("late.buyer@example.test", "123456")).access.access_status).toBe("active");
+    expect((await signIn(a, "late.buyer@example.test")).access.access_status).toBe("active");
   });
 
   it("asks the app whether onboarding is done", async () => {
@@ -156,7 +165,7 @@ describe("mock auth: verify OTP", () => {
       onboardingCompleted: async () => true,
     });
     await a.requestOtp(DEMO_EMAILS.active);
-    expect((await a.verifyOtp(DEMO_EMAILS.active, "000001")).access.onboarding_completed).toBe(true);
+    expect((await signIn(a, DEMO_EMAILS.active, "000001")).access.onboarding_completed).toBe(true);
   });
 });
 
@@ -167,6 +176,7 @@ describe("mock auth: sessions and devices", () => {
     ["purchase_pending", { authenticated: true, reason: null }],
     ["no_active_access", { authenticated: true, reason: null }],
     ["session_expired", { authenticated: false, reason: "expired" }],
+    ["device_limit", { authenticated: false, reason: "none" }],
   ] as const)("scenario %s", async (name, expected) => {
     const s = authSessionSchema.parse(await make(name).getSession());
     expect(s).toMatchObject(expected);
@@ -175,7 +185,7 @@ describe("mock auth: sessions and devices", () => {
   it("session expires after 30 days (provisional)", async () => {
     const a = make();
     await a.requestOtp(DEMO_EMAILS.active);
-    await a.verifyOtp(DEMO_EMAILS.active, "123456");
+    await signIn(a, DEMO_EMAILS.active);
     await a.dev.advance(29 * 86_400_000);
     expect((await a.getSession()).authenticated).toBe(true);
     await a.dev.advance(2 * 86_400_000);
@@ -205,14 +215,64 @@ describe("mock auth: sessions and devices", () => {
     expect((await err(a.revokeDevice("dev_current"))).code).toBe("VALIDATION_ERROR");
   });
 
-  it("signs out the least recently seen device when a 4th logs in", async () => {
-    const a = make("logged_in"); // already 3 active devices for the demo user
+  it("AUTH-DEVICE: a 4th login after a right code is refused with the device list and a pending token", async () => {
+    const a = make("device_limit"); // signed out, 3 active devices for the demo user
     await a.requestOtp(DEMO_EMAILS.active);
     const r = await a.verifyOtp(DEMO_EMAILS.active, "123456", "Tablet baru");
+    expect(r.status).toBe("device_limit");
+    if (r.status !== "device_limit") return;
+    deviceLimitResponseSchema.parse(r);
+    expect(r.max_devices).toBe(3);
+    expect(r.devices).toHaveLength(3);
+    expect(r.devices.every((d) => !d.is_current)).toBe(true);
+    // No session was created and nothing was signed out by itself.
+    expect(await a.getSession()).toMatchObject({ authenticated: false });
+  });
+
+  it("AUTH-DEVICE: removing one device lets the login continue, and the token works once", async () => {
+    const a = make("device_limit");
+    await a.requestOtp(DEMO_EMAILS.active);
+    const r = await a.verifyOtp(DEMO_EMAILS.active, "123456");
+    if (r.status !== "device_limit") throw new Error("expected device_limit");
+    const done = await a.completePendingLogin(r.pending_token, "dev_old_2", "Tablet baru");
+    verifyOtpResponseSchema.parse(done);
     const ids = (await a.listDevices()).map((d) => d.id);
     expect(ids).toHaveLength(3);
-    expect(ids).toContain(r.device_id);
-    expect(ids).not.toContain("dev_other_2"); // seen 9 days ago, the oldest
+    expect(ids).toContain(done.device_id);
+    expect(ids).not.toContain("dev_old_2"); // the one the user chose, not the oldest
+    expect(ids).toContain("dev_old_3");
+    expect((await err(a.completePendingLogin(r.pending_token, "dev_old_1"))).code).toBe("PENDING_LOGIN_INVALID");
+  });
+
+  it("AUTH-DEVICE: the pending token expires after 10 minutes and a wrong device id does not burn it", async () => {
+    const a = make("device_limit");
+    await a.requestOtp(DEMO_EMAILS.active);
+    const r = await a.verifyOtp(DEMO_EMAILS.active, "123456");
+    if (r.status !== "device_limit") throw new Error("expected device_limit");
+    expect((await err(a.completePendingLogin(r.pending_token, "dev_nope"))).code).toBe("NOT_FOUND");
+    await a.dev.advance(10 * 60_000 + 1000);
+    expect((await err(a.completePendingLogin(r.pending_token, "dev_old_1"))).code).toBe("PENDING_LOGIN_INVALID");
+    expect((await err(a.completePendingLogin("pl_made_up", "dev_old_1"))).code).toBe("PENDING_LOGIN_INVALID");
+  });
+
+  it("a wrong code never reveals the device list", async () => {
+    const a = make("device_limit");
+    await a.requestOtp(DEMO_EMAILS.active);
+    expect((await err(a.verifyOtp(DEMO_EMAILS.active, "000000"))).code).toBe("INVALID_OTP");
+  });
+
+  it("seeds each new user's mock database from the entitlement", async () => {
+    const a = make();
+    await a.requestOtp(DEMO_EMAILS.active);
+    const r = await signIn(a, DEMO_EMAILS.active);
+    expect(await a.dev.seedFor(r.user.id)).toBe("onboarding_pending");
+    expect(await make("logged_in").dev.seedFor(userIdFor(DEMO_EMAILS.active))).toBe("new_account");
+    const p = make();
+    await p.requestOtp(DEMO_EMAILS.pending);
+    expect(await p.dev.seedFor((await signIn(p, DEMO_EMAILS.pending)).user.id)).toBe("purchase_pending");
+    const n = make();
+    await n.requestOtp("someone@example.test");
+    expect(await n.dev.seedFor((await signIn(n, "someone@example.test")).user.id)).toBe("no_active_access");
   });
 
   it("reports a revoked current device as signed out with reason 'revoked'", async () => {
@@ -242,7 +302,7 @@ describe("auth layer selection", () => {
   });
   it("mock mode returns the mock", () =>
     expect(createAuthLayer({ mode: "mock", storage: memoryAuthStorage() })).toHaveProperty("dev"));
-  it("lists every auth scenario", () => expect(AUTH_SCENARIOS).toHaveLength(5));
+  it("lists every auth scenario", () => expect(AUTH_SCENARIOS).toHaveLength(6));
 });
 
 describe("auth persistence in IndexedDB", () => {
