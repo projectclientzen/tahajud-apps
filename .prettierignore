@@ -1,0 +1,4 @@
+pnpm-lock.yaml
+.next
+content/*.json
+docs/PRD-v1.1.md

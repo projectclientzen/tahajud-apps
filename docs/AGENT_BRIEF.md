@@ -226,6 +226,9 @@ Prompt:
 Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S1 (Foundation, design system, app shell) sesuai §8 brief. Mulai dari main terbaru. Pakai skill desain/UI yang tersedia di sesi ini. Jangan kerjakan scope sesi lain. Di akhir: jalankan typecheck, lint, test, e2e; update docs/STATUS.md dan docs/SESSION_LOG.md; commit dan push. Laporkan apa yang REAL vs SIMULATED.
 ```
 
+### Mode paralel aktif (12 Nov 2026)
+Dua agen jalan bersamaan: Agen A = `docs/briefs/AGENT-A-S1.md`, Agen B = `docs/briefs/AGENT-B-S2.md`. Aturan pembagian file dan git: `docs/briefs/PARALLEL-RULES.md`. Agen push ke branch sesi masing-masing; orchestrator merge ke `main` (A dulu, lalu B).
+
 ### S1 lanjutan (WIP sudah ada di repo, mulai dari sini)
 Status awal: scaffold, token, komponen, shell, gallery, 60 unit test, dan build sudah lolos. Lihat SESSION_LOG entri "S1 WIP" dan `docs/DECISIONS.md`.
 Sisa pekerjaan:
