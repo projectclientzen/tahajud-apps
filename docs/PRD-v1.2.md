@@ -5,7 +5,7 @@
 
 | Field | Nilai |
 |-------|-------|
-| Versi | 1.2.2 |
+| Versi | 1.2.3 |
 | Tanggal | 12 November 2026 |
 | Menggantikan | PRD v1.1 (`docs/PRD-v1.1.md`, disimpan untuk riwayat) |
 | Status | Implementation baseline. Item bertanda PROV belum final |
@@ -42,6 +42,11 @@
 - Witir Level 2-3 dicatat sebagai dua aktivitas: 2 rakaat dan 1 rakaat.
 - Panduan durasi tilawah dari owner.
 - Daftar usulan koreksi harakat di `docs/CONTENT-REVIEW.md` (belum diterapkan).
+
+### Changelog v1.2.3 (12 Nov 2026, jawaban owner ronde 2)
+- Label status baru "Sedang berjalan" untuk `in_progress`.
+- Legenda "Amalan tanpa label Opsional adalah syarat sesi tuntas di aplikasi" disetujui.
+- Sesi login 30 hari dan batas 3 perangkat disetujui; perangkat ke-4 ditolak dengan pilihan mengeluarkan satu perangkat.
 
 ### Changelog v1.2.2 (12 Nov 2026, jawaban owner)
 - Dzikir setelah Subuh (post-Fajr) berlaku untuk SEMUA level.
@@ -246,6 +251,7 @@ Touch target ≥ 44×44px; navigasi keyboard; label screen reader; `prefers-redu
 | missed | Terlewat | lingkaran kosong |
 | excused | Berhalangan | jeda |
 | upcoming | Akan datang | jam |
+| in_progress | Sedang berjalan | titik berdenyut statis (tanpa animasi saat reduced motion) [v1.2.3] |
 
 Nada: suportif, tanpa shaming, tanpa menilai iman. Tanpa em-dash di copy UI.
 
@@ -872,7 +878,8 @@ Setiap perubahan penting menyimpan actor, entity, action, before/after, alasan, 
 - Magic link opsional: membuka halaman konfirmasi dengan tombol "Masuk", bukan login otomatis saat link dibuka.
 - Cookie sesi: Secure, HttpOnly, SameSite=Lax. Validasi Origin untuk mutasi.
 - Parameter redirect hanya path internal dari allowlist.
-- Sesi user 30 hari dengan refresh (PROV); admin 8 jam.
+- Sesi user 30 hari dengan refresh (disetujui owner v1.2.3); admin 8 jam.
+- Batas 3 perangkat aktif (disetujui owner v1.2.3). Login di perangkat ke-4 DITOLAK: setelah OTP benar, tampilkan "Akunmu sudah aktif di 3 perangkat (maksimal)" beserta daftar perangkat (label, terakhir aktif). User bisa mengeluarkan satu perangkat lalu melanjutkan login, atau batal. Tidak ada pengeluaran otomatis. Izin mengeluarkan perangkat berasal dari OTP yang baru diverifikasi (token login tertunda, berlaku 10 menit, sekali pakai).
 - Email via custom SMTP domain sendiri dengan SPF, DKIM, DMARC.
 
 ### 24.2 Otorisasi
@@ -1047,7 +1054,6 @@ PWA only; akses berbayar Scalev; passwordless; tiga level; progress kumulatif ta
 - Bank bedtime minimal 30 pesan.
 - Daftar aktivitas required.
 - Mode berhalangan rentang (maks 15 hari) dan dzikir tetap tercatat saat berhalangan.
-- Batas 3 perangkat aktif.
 - Retensi payload webhook 90 hari.
 - Kedaluwarsa notifikasi per tipe.
 - Ejaan: usulan "Istiqomah" konsisten di semua UI (termasuk judul Level 3), atau "Istikamah" sesuai KBBI di semua tempat. Owner memilih satu [v1.2: DOC-03].

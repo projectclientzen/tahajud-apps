@@ -67,3 +67,10 @@ Pertanyaan owner baru:
 2. Legenda "Amalan tanpa label Opsional adalah syarat sesi tuntas di aplikasi": cukup jelas, tidak terbaca sebagai hukum fikih?
 3. Login perangkat ke-4: keluarkan perangkat terlama (default sekarang) atau tolak.
 4. Sesi login 30 hari dan batas 3 perangkat (PROV).
+
+## Keputusan owner ronde 2 (2026-11-12) dan persiapan ronde 3
+- Label "Sedang berjalan" untuk `in_progress`: disetujui (PRD v1.2.3 §7.7).
+- Legenda syarat aplikasi (bukan hukum fikih): disetujui.
+- Batas 3 perangkat: perangkat ke-4 DITOLAK dengan peringatan dan pilihan mengeluarkan satu perangkat; tidak ada pengeluaran otomatis (mengganti default S4a-10).
+- Sesi login 30 hari: disetujui.
+- Brief ronde 3 siap: `docs/briefs/T1.md`, `docs/briefs/T2.md`, `docs/briefs/PARALLEL-RULES.md`. Menunggu "gas".

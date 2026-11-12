@@ -1,41 +1,32 @@
-# Aturan kerja paralel, ronde 2 (Agen A: S3, Agen B: S4a)
+# Aturan kerja paralel, ronde 3 (Agen A: T1, Agen B: T2)
 
-Ronde 1 (S1 + S2) selesai dan sudah di-merge. Arsip: `docs/briefs/round1/`.
-Dua agen bekerja bersamaan, masing-masing di sesi dan branch sendiri. Orchestrator yang merge ke `main` (A dulu, lalu B).
+Rencana induk: `docs/PLAN.md`. Arsip ronde sebelumnya: `docs/briefs/round1/`, `docs/briefs/round2/`.
+Tim kerja: Sonnet. Orchestrator (Opus) yang merge ke `main` (A dulu, lalu B).
 
 ## Kepemilikan file
-| Area | Agen A (S3 layar inti) | Agen B (S4a offline + auth/profil data) |
-|------|------------------------|------------------------------------------|
-| `src/app/(app)/dashboard/**`, `worship/**`, `levels/**` | tulis | jangan sentuh |
-| `src/app/(auth)/**`, `src/app/onboarding/**`, `src/app/(app)/quran/**`, `profile/**`, `reports/**`, `settings/**` | jangan sentuh | jangan sentuh (ronde 3) |
-| `src/components/dashboard|worship|dhikr|levels|dev-panel/**` | tulis | jangan sentuh |
-| `src/components/providers/**` (DataProvider, hooks) | tulis | jangan sentuh |
-| `src/components/ui/**`, `brand/**`, `shell/**` | boleh tambah komponen baru dan perbaiki bug; jangan ubah API komponen yang sudah ada tanpa mencatatnya | jangan sentuh |
-| `src/components/pwa/**` (install guide, update prompt) | jangan sentuh | tulis |
-| `src/app/globals.css`, `src/lib/cn.ts` | tulis (catat token baru) | jangan sentuh |
-| `src/domain/**` | baca saja; minta perubahan lewat file sesi | tulis (hanya jika perlu) |
-| `src/data/**` | baca saja; minta perubahan lewat file sesi | tulis |
-| `src/offline/**`, service worker, `next.config.ts` | jangan sentuh | tulis |
-| `eslint.config.mjs` | jangan sentuh | tulis |
-| `tests/e2e/**` | tulis file baru `s3-*.spec.ts`; boleh perbaiki spec lama | tulis file baru `s4a-*.spec.ts` saja |
-| `tests/unit/**` | file baru di `tests/unit/ui/**` saja | tulis (kecuali `tests/unit/ui/**`) |
-| `package.json`, `pnpm-lock.yaml` | boleh tambah dependency UI (catat alasan) | boleh tambah dependency data/offline (catat alasan) |
-| `docs/sessions/S3.md` | tulis | - |
-| `docs/sessions/S4a.md` | - | tulis |
-| `docs/STATUS.md` | hanya baris UI: Dashboard, Worship session, Dzikir counter, Level journey | hanya baris Offline |
-| `CLAUDE.md`, `docs/AGENT_BRIEF.md`, `docs/PRD-*.md`, `docs/SESSION_LOG.md`, `docs/DECISIONS.md`, `content/**`, `docs/briefs/**` | jangan sentuh | jangan sentuh |
+| Area | Agen A (T1) | Agen B (T2) |
+|------|-------------|-------------|
+| `src/app/(auth)/**`, `src/app/onboarding/**`, `src/app/access-status/**` | tulis | jangan sentuh |
+| `src/app/(app)/quran/**`, `reports/**`, `settings/**`, `notifications/**`, `help/**`, `profile/**` | jangan sentuh | tulis |
+| `src/components/auth/**`, `onboarding/**`, `providers/**`, `shell/**`, `dhikr/counter-screen.tsx`, `pwa/**` (penempatan) | tulis | jangan sentuh |
+| `src/components/quran/**`, `reports/**`, `settings/**`, `notifications/**`, `help/**` | jangan sentuh | tulis |
+| `src/components/dashboard/**` | hanya kartu setup (install/notifikasi) dan ikon notifikasi/pengaturan di header | jangan sentuh |
+| `src/components/ui/**` | boleh tambah komponen baru, jangan ubah API yang ada | boleh tambah komponen baru, jangan ubah API yang ada |
+| `src/domain/auth/**`, `src/data/**` (auth, profile, offline sender), `src/offline/**` | tulis | baca saja |
+| `src/domain/content/session-status.ts` | jangan sentuh | tulis (label "Sedang berjalan") |
+| `src/domain/**` lainnya | baca saja | baca saja |
+| `src/app/layout.tsx`, `src/app/(app)/layout.tsx`, `src/app/globals.css`, `src/lib/**` | tulis | jangan sentuh (minta lewat file sesi) |
+| `tests/e2e/r3a-*.spec.ts`, `tests/unit/ui/auth-*`, `tests/unit/**` untuk domain auth/offline | tulis | jangan sentuh |
+| `tests/e2e/r3b-*.spec.ts`, `tests/unit/ui/r3b-*` | jangan sentuh | tulis |
+| Spec e2e lama | perbaiki hanya jika rusak karena perubahanmu, catat | sama |
+| `package.json`, `pnpm-lock.yaml` | boleh tambah dependency (alasan tertulis) | boleh tambah dependency (alasan tertulis) |
+| `docs/sessions/T1.md` / `T2.md` | T1 | T2 |
+| `docs/STATUS.md` | baris "Auth, onboarding, access status" dan "Offline" | baris "Quran Reader" dan "Reports, calendar, settings, notifications, help" |
+| `CLAUDE.md`, `docs/PRD-*.md`, `docs/PLAN.md`, `docs/AGENT_BRIEF.md`, `docs/SESSION_LOG.md`, `docs/DECISIONS.md`, `content/**`, `docs/briefs/**` | jangan sentuh | jangan sentuh |
 
-Kedua agen boleh menambah dependency. Jika sama-sama menambah, orchestrator menyelesaikan konflik lockfile saat merge.
+## Git dan eskalasi
+- Sinkron ke `main` dulu. Push HANYA ke branch sesimu. Prettier hanya file milikmu.
+- Gagal 2x di test yang sama: berhenti, tulis diagnosis di file sesi, laporkan ke orchestrator.
 
-## Git
-- Push HANYA ke branch sesi milikmu. JANGAN push ke `main`.
-- Jangan rebase atau force-push branch orang lain.
-- Prettier hanya pada file milikmu.
-
-## Kontrak bersama
-- Agen A memakai `createDataLayer()` dari `src/data` apa adanya. Jika ada endpoint yang kurang, tulis di "Permintaan ke orchestrator", lalu buat adapter sementara di `src/components/providers/` dengan komentar `TODO(S4a)`.
-- Agen B tidak mengubah signature repository yang sudah ada (`DataLayer`, `SessionRepository`, dst.). Penambahan boleh (repository baru, method baru).
-- Ekspor `SESSION_STATUSES`, `SessionStatus`, `SESSION_STATUS_LABEL` di `src/domain/content/session-status.ts` tetap ada.
-
-## Laporan akhir (keduanya)
-`docs/sessions/S3.md` atau `S4a.md`: yang dikerjakan, keputusan teknis (tabel), output test apa adanya, skill yang benar-benar dipanggil, sisa pekerjaan, pertanyaan untuk owner, permintaan ke orchestrator.
+## Laporan
+`docs/sessions/T1.md` / `T2.md`: yang dikerjakan, keputusan (tabel), output test asli, skill yang benar-benar dipanggil, sisa pekerjaan, pertanyaan owner, permintaan ke orchestrator.
