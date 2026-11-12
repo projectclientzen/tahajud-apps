@@ -12,6 +12,14 @@ export interface PrayerDay {
   methodVersion?: string;
   fetchedAt: string;
   validUntil: string;
+  /**
+   * Only "verified" may be shown as a verified schedule.
+   * "needs_review": cross-check with astronomical calculation differs too much.
+   * "unchecked": no coordinates available for the cross-check.
+   * Absent: provider does not do cross-checks.
+   */
+  verification?: "verified" | "needs_review" | "unchecked";
+  attribution?: string;
 }
 
 export interface PrayerTimeProvider {
