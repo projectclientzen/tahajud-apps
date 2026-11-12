@@ -114,3 +114,8 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Gerbang: typecheck 0, lint 0, unit 593 + 3 skip, audit bersih, e2e 245 passed / 1 failed pada run penuh: `r3b-quran.spec.ts:76` (badge Bacaan Jumat, `setDemoTime`). Diulang terpisah 10/10 lolos, jadi dicatat FLAKY untuk diperkuat di T8.
 - Untuk T3b: isi `PrayerTime.verification/attribution` dari `PrayerDay`. Untuk U1a: dashboard dapat memakai `ScheduleNote`.
 - Pertanyaan owner: baca 1-2 surah di HP nyata untuk cek tampilan; konfirmasi basmalah terpisah.
+
+## Merge U1a oleh orchestrator (2026-11-12 20.35 WIB)
+- Merge `claude/u1a-ui-core-worship` (`c66e3f2`) di atas main b3a43ea, tanpa konflik. Counter: seluruh lingkaran jadi tombol tap, tombol tidak bergeser saat target tercapai (bug lama diperbaiki); sesi malam: progres syarat tuntas, tombol "Lanjut: amalan berikutnya", tautan ke amalan Subuh; header dashboard satu baris di 390 px; onboarding dan levels dirapikan. Laporan `docs/sessions/U1a.md`.
+- Gerbang: typecheck 0, lint 0, unit 593 + 3 skip, audit bersih, e2e 259 passed / 1 failed (`r3b-quran.spec.ts:29`, lolos 10/10 saat diulang). Flake beban paralel berganti-ganti tiap run → tugas Q1 (stabilkan e2e) dibuka.
+- Pertanyaan owner: Wake Lock (layar tetap menyala) di counter aktif secara default? (rekomendasi agen: ya).
