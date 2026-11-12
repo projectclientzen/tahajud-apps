@@ -1,0 +1,9 @@
+{
+  "_note": "PROVISIONAL. Koordinat pusat kota PERKIRAAN (2 desimal), diketik agen dari pengetahuan umum, BUKAN dari dataset terverifikasi. Hanya untuk cek silang astronomis (toleransi 6 menit ~ 1.5 derajat bujur). Owner perlu menyediakan sumber koordinat seluruh kab/kota sebelum cek silang berlaku untuk semua wilayah.",
+  "provisional": true,
+  "regions": [
+    { "provinsi": "DKI Jakarta", "kabkota": "Kota Jakarta", "lat": -6.21, "lon": 106.85 },
+    { "provinsi": "Sulawesi Selatan", "kabkota": "Kota Makassar", "lat": -5.15, "lon": 119.43 },
+    { "provinsi": "Papua", "kabkota": "Kota Jayapura", "lat": -2.53, "lon": 140.72 }
+  ]
+}
