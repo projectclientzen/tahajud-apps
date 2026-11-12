@@ -2,7 +2,7 @@
 
 Disusun orchestrator (Opus), 12 Nov 2026, posisi `main` @ `acf45fc` (S1, S2, S3, S4a sudah merged; 333 unit + 96 e2e hijau).
 Tim: orchestrator Opus · semua tim kerja Sonnet · Fable 5.2 hanya auditor akhir (sesi baru dibuka owner) · Haiku tidak dipakai.
-Status: MENUNGGU "gas" dari owner.
+Status: berjalan. Prioritas owner (12 Nov 15.20 WIB): UI/UX dulu (ronde U1, `docs/briefs/U1.md`), backend T3b dst setelahnya. Titik lanjut: `docs/RESUME.md`.
 
 ## Gerbang verifikasi standar (berlaku untuk setiap task)
 `pnpm typecheck && pnpm lint && pnpm test && pnpm test:e2e --trace off && pnpm audit --prod` lolos di branch agen DAN di hasil gabungan orchestrator. Nama test diawali ID acceptance PRD jika ada. Axe 0 serious/critical untuk route baru (light + dark). Tidak ada test yang di-skip untuk membuatnya hijau.
