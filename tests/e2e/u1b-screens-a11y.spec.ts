@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { loadScenario } from "./s3-helpers";
 
 async function serious(page: Page, label: string) {
   const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag22aa"]).analyze();
@@ -10,6 +11,7 @@ async function serious(page: Page, label: string) {
 
 for (const theme of ["light", "dark"] as const) {
   test(`axe dan overflow: reader semua surah dan keadaan terbuka (${theme})`, async ({ page }) => {
+    test.setTimeout(120_000);
     await page.addInitScript((t) => localStorage.setItem("tt-theme", t), theme);
     const found: string[] = [];
     for (const n of [18, 36, 55, 56, 65, 67]) {
@@ -29,6 +31,7 @@ for (const theme of ["light", "dark"] as const) {
     for (const s of await page.locator("summary").all()) await s.click();
     found.push(...(await serious(page, "/help (semua level dibuka)")));
     await page.goto("/reports");
+    await loadScenario(page, "Lima malam tuntas");
     await page.getByRole("button", { name: /Tampilkan semua/ }).click();
     found.push(...(await serious(page, "/reports (daftar lengkap)")));
     expect(found).toEqual([]);
@@ -48,6 +51,7 @@ test("bantuan: level dilipat, Level 1 terbuka, bisa dibuka dengan keyboard", asy
 
 test("laporan: daftar amalan dilipat lalu dibuka semua", async ({ page }) => {
   await page.goto("/reports");
+  await loadScenario(page, "Lima malam tuntas");
   const toggle = page.getByRole("button", { name: /Tampilkan semua \d+ amalan/ });
   await expect(toggle).toBeVisible();
   const before = await page.getByRole("progressbar").count();

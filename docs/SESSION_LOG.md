@@ -90,3 +90,13 @@ Pertanyaan owner baru:
 - T1 versi sesi baru (e7ebbc2) tidak dipakai. T1b menambahkan batas 3 perangkat (perangkat ke-4 ditolak, token tertunda 10 menit), pesan sesi revoked, checklist lewat antrean offline, link header dashboard.
 - Limit token habis ~15.25 WIB: U1a, U1b, T3b, T4c terhenti tanpa commit; dijalankan ulang di sesi baru setelah reset 19.40.
 - Pertanyaan owner baru (T1b): cukupkah 4 ikon di header dashboard mobile.
+
+## Sesi U1b (Sonnet): Al-Qur'an, laporan, pengaturan, UI/UX (2026-11-12)
+Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan audit per layar: `docs/sessions/U1b.md`.
+- Dikerjakan: teks ayat asli ke Reader lewat `src/data/quran` (basmalah baris pembuka, 65:2-3 tanpa basmalah, tanpa terjemahan, atribusi Tanzil, tes byte-per-byte unit dan e2e untuk 6 bacaan); label verifikasi jadwal (`ScheduleNote`) dengan atribusi Kemenag via EQuran.id; audit dan perbaikan UI/UX `/quran`, `/quran/[surah]`, `/reports`, `/reports/calendar`, `/settings`, `/notifications`, `/help`, `/profile`; screenshot 390 dan 1280, light dan dark, sebelum dan sesudah (`docs/screenshots/u1/u1b-*`).
+- Tes: typecheck, lint, unit 572 lolos (+3 dilewati), e2e 246 passed / 30 skipped / 0 failed, audit bersih, axe 0 serious/critical.
+- Skill dipanggil lewat tool Skill: ui-ux-pro-max, antislop, antislop-ui, antislop-human, antislop-layoutmobile, antislop-copywriting. `hallmark` tidak dipanggil (tidak diminta di task ini).
+- Sisa pekerjaan: `schedule-card` dashboard (U1a) belum memakai `ScheduleNote`; mock belum punya skenario `verification: "verified"` (jalur itu hanya teruji unit); `PageHeader` padat di 390 px (milik U1a); `s3-a11y` dark mobile gagal sekali di `/worship/dhikr/[id]` (document-title), lolos di run ulang.
+- Pertanyaan untuk owner: (1) mohon baca satu atau dua surah di perangkat nyata untuk memeriksa tampilan huruf dan tanda baca (agen hanya memeriksa cakupan glyph dan screenshot); (2) setuju basmalah terpisah sebagai baris pembuka (PROV, sesuai keputusan T4).
+- Permintaan perubahan di luar scope: `content/quran/basmalah.json` dan catatan di `SOURCE.md` ditambahkan (tambahan konten, tidak mengubah `uthmani.json`); `scripts/import-quran.ts` perlu ikut membuat ulang file ini saat `--refresh`; `PrayerTime.verification` dan `attribution` opsional ditambahkan di `src/data/contracts.ts` (T3b: isi dari `PrayerDay.verification` dan `attribution`).
+

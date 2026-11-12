@@ -69,3 +69,9 @@ Temuan di luar scope (minta U1a / orchestrator):
 - R-27 (state): PASS untuk Reader (memuat, gagal, isi); rute lain memakai LoadGate yang sudah ada.
 - R-04 (ikon): ikon lucide dipertahankan dari sistem yang ada (relevan: panah, centang, peringatan), tidak ada ikon baru yang generik.
 - Block 3 (liveliness): tidak diubah; identitas visual berasal dari sistem desain yang disetujui, bukan dari sesi ini.
+
+## Hasil gerbang (diulang di commit akhir)
+- `pnpm typecheck`: 0 error. `pnpm lint`: 0 masalah. `pnpm test`: 32 file, 572 lolos, 3 dilewati (live). `pnpm audit --prod`: tidak ada kerentanan.
+- `pnpm test:e2e --trace off`: 246 passed, 30 skipped, 0 failed (mobile 320 px dan desktop 1280 px).
+- Axe 0 serious/critical: rute T2 (`r3b-help-a11y`), Reader keenam surah (setelah menandai ayat), bantuan dengan semua level terbuka, laporan dengan daftar penuh, light dan dark.
+- Run penuh pertama gagal 7 tes: 6 karena tes baru saya (timeout 30 dtk dan skenario data kurang, diperbaiki di tes) dan 1 `s3-a11y` mobile dark (`/worship/dhikr/[id]: document-title`, area U1a). Tes itu lolos di dua run berikutnya tanpa perubahan kode, jadi tampak intermiten. Belum diselidiki penyebabnya karena di luar scope: U1a perlu memeriksa `<title>` rute dhikr saat navigasi.
