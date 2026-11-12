@@ -90,3 +90,10 @@ Pertanyaan owner baru:
 - T1 versi sesi baru (e7ebbc2) tidak dipakai. T1b menambahkan batas 3 perangkat (perangkat ke-4 ditolak, token tertunda 10 menit), pesan sesi revoked, checklist lewat antrean offline, link header dashboard.
 - Limit token habis ~15.25 WIB: U1a, U1b, T3b, T4c terhenti tanpa commit; dijalankan ulang di sesi baru setelah reset 19.40.
 - Pertanyaan owner baru (T1b): cukupkah 4 ikon di header dashboard mobile.
+
+## Merge T4c (koordinat Wikidata) oleh orchestrator (2026-11-12 20.10 WIB)
+- Merge `claude/t4c-wikidata-coordinates` (`c5d7084`). 517 kab/kota: 502 cocok (1 override Kota Jakarta = Q3630), 0 ambigu, 15 unmatched tidak ditebak; 26 kab/kota Papua province_mismatch (pemekaran 2022).
+- Cek silang live Nov 2026: 448 verified, 50 needs_review (selisih 7-10 menit, kebanyakan dataran tinggi), 4 error.
+- Perbaikan orchestrator: batas kasar validasi EQuran diperlebar (Subuh 03:15-05:45, Maghrib 16:45-19:15) karena Maghrib Kalteng 17:12 WIB ditolak; cek silang adhan tetap pengaman utama. Test ditambah.
+- Gerbang: typecheck 0, lint 0, unit 570 + 3 live skip, e2e 210 passed / 0 failed, audit bersih.
+- Pertanyaan owner (tidak mendesak): ambang 6 menit untuk dataran tinggi (50 wilayah needs_review) dipertahankan atau disesuaikan setelah uji akurasi.
