@@ -17,9 +17,12 @@ Baca file ini setiap awal sesi. Lalu baca `docs/AGENT_BRIEF.md` dan kerjakan HAN
 - JANGAN mengasumsikan kredensial (Scalev, SIHAT, Supabase, VAPID, email) tersedia. Pakai adapter + mock, baca dari env, gagal dengan pesan jelas.
 - JANGAN memalsukan response API eksternal di mode production. Mock hanya aktif saat `NEXT_PUBLIC_DATA_MODE=mock`, dan UI wajib menampilkan badge "Data demo" (sentence case, komponen `DemoBadge`).
 - JANGAN memberi akses berbayar dari klaim client atau dari payload webhook saja. Entitlement aktif hanya setelah order diverifikasi ke API Scalev (atau approve manual admin). Server adalah sumber kebenaran untuk entitlement, status sesi, dan kelulusan level.
-- Browser hanya memakai Supabase untuk Auth. Semua baca/tulis data lewat `/api/v1`. Role `authenticated` tidak punya INSERT/UPDATE/DELETE langsung di tabel tracking.
+- Semua baca/tulis data dari browser lewat `/api/v1` (auth dikelola app sendiri, tidak bergantung Supabase Auth; target deploy VPS Postgres). Role `authenticated` tidak punya INSERT/UPDATE/DELETE langsung di tabel tracking.
 - Service worker tidak boleh cache respons `/api/`. Data offline per user di IndexedDB, dihapus saat logout.
-- Login utama = OTP 6 digit diketik di app (magic link gagal di PWA iOS).
+- Login = EMAIL + PASSWORD (keputusan owner 13 Nov 2026, menggantikan OTP). Akun dibuat lewat AKTIVASI: user mengisi email + nomor HP yang dipakai saat order di Scalev; cocok dengan order lunas yang sudah diverifikasi server → buat password. Tanpa SMTP.
+  - PENGECUALIAN TERTULIS OWNER atas aturan "email harus terverifikasi lewat mailbox": bukti kepemilikan = pengetahuan email + nomor HP order (bukan akses mailbox). Risiko diterima owner; mitigasi wajib: rate limit per email/HP/IP, respons generik, aktivasi sekali per entitlement, batas 3 perangkat, audit log.
+  - Aturan tetap: tidak ada password default bersama; password hanya disimpan sebagai hash (scrypt/argon2id), tidak pernah plaintext di log/DB/sheet; token reset single-use + kedaluwarsa.
+  - Akun staff tim owner (`staff_comp`) dibuat dari admin tanpa pembelian, bypass syarat level, tercatat di audit log, dikecualikan dari laporan pembeli.
 - JANGAN reset progress level karena malam terlewat, dan JANGAN mengunci ulang level yang sudah terbuka. JANGAN buat leaderboard / ranking.
 - JANGAN tampilkan data excused/berhalangan per user ke admin mana pun (bisa menyiratkan data kesehatan).
 - JANGAN commit secret. `.env.local` masuk `.gitignore`; sediakan `.env.example`.
