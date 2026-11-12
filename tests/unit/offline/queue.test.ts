@@ -297,6 +297,24 @@ describe("offline queue: logout safety and purge", () => {
   });
 });
 
+describe("offline queue: listing pending notes", () => {
+  it("lists pending notes for one entity, oldest first, and leaves refused ones out", async () => {
+    const s = setup(always("rejected", { code: "SESSION_LOCKED" }));
+    const a = await s.q.enqueue(op("e1", 1));
+    await s.q.enqueue(op("e2", 2));
+    const c = await s.q.enqueue({
+      ...op("e1"),
+      operation_type: "checklist_set",
+      payload: { checked: true, version: 0 },
+    });
+    expect((await s.q.listPending("e1")).map((i) => i.seq)).toEqual([a.seq, c.seq]);
+    expect(await s.q.listPending()).toHaveLength(3);
+    await s.q.flushNow(); // the server refuses everything
+    expect(await s.q.listPending()).toEqual([]);
+    expect(await s.q.listRejected()).toHaveLength(3);
+  });
+});
+
 describe("user database upgrade", () => {
   it("adds the queue store to a version 1 database and keeps the mock state", async () => {
     const userId = "upgrade-user";

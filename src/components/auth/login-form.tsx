@@ -10,7 +10,7 @@ import { rememberLogin } from "./seed-user";
 
 /** Step 1 of OTP sign-in. The answer is the same for every email (AUTH-06): nothing says whether it has access. */
 export function LoginForm() {
-  const { auth, status } = useAuth();
+  const { auth, status, session } = useAuth();
   const router = useRouter();
   const [email, setEmail] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
@@ -41,6 +41,12 @@ export function LoginForm() {
         <h1 className="text-page-title font-bold">Masuk</h1>
         <p className="text-text-muted">Pakai email yang sama dengan saat checkout. Kami kirim kode 6 digit ke sana.</p>
       </div>
+      {session?.reason === "revoked" ? (
+        <p role="status" className="rounded-[var(--radius-control)] bg-info-soft p-3 text-text">
+          Perangkat ini dikeluarkan dari akunmu lewat perangkat lain. Masuk lagi dengan kode email untuk melanjutkan.
+          Catatan ibadahmu tidak hilang.
+        </p>
+      ) : null}
       <div className="flex flex-col gap-2">
         <label htmlFor="login-email" className="font-semibold">
           Email

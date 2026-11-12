@@ -6,17 +6,33 @@ export interface DeviceRef {
 }
 
 /**
- * Devices to sign out so that one more login still fits under the limit (PRD §17.1, PROV).
- * Oldest `lastSeenAt` goes first. Returns [] when there is room.
+ * Device limit (PRD §24.1, owner decision v1.2.3). The 4th login is refused after the OTP is correct.
+ * Nothing is signed out automatically: the user picks one device to remove, or cancels.
  */
-export function devicesToRevoke(
+export type DeviceLimitDecision = { ok: true } | { ok: false; max: number };
+
+export function checkDeviceLimit(
   active: readonly DeviceRef[],
   max: number = PROVISIONAL_AUTH.maxActiveDevices,
-): string[] {
-  const excess = active.length + 1 - max;
-  if (excess <= 0) return [];
-  return [...active]
-    .sort((a, b) => a.lastSeenAt - b.lastSeenAt)
-    .slice(0, excess)
-    .map((d) => d.id);
+): DeviceLimitDecision {
+  return active.length < max ? { ok: true } : { ok: false, max };
+}
+
+/** A pending login lives 10 minutes and works once (PRD §24.1). */
+export const PENDING_LOGIN_TTL_MS = 10 * 60_000;
+
+export interface PendingLogin {
+  email: string;
+  userId: string;
+  createdAt: number;
+  used: boolean;
+}
+
+export type PendingLoginCheck = { ok: true } | { ok: false; reason: "missing" | "expired" | "used" };
+
+export function checkPendingLogin(p: PendingLogin | null | undefined, now: number): PendingLoginCheck {
+  if (!p) return { ok: false, reason: "missing" };
+  if (p.used) return { ok: false, reason: "used" };
+  if (now - p.createdAt > PENDING_LOGIN_TTL_MS) return { ok: false, reason: "expired" };
+  return { ok: true };
 }

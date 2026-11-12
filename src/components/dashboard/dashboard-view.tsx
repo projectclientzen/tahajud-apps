@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarOff, UserRound } from "lucide-react";
+import { Bell, CalendarOff, ChartColumn, Settings, UserRound, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { LoadGate } from "@/components/providers/load-gate";
 import { useData, useLoad } from "@/components/providers/data-provider";
@@ -9,6 +9,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/feedback-state";
 import type { Dashboard } from "@/data";
+import { cn } from "@/lib/cn";
 import { ActivityStats } from "./activity-stats";
 import { CalendarCard } from "./calendar-card";
 import { ExcuseSheet } from "./excuse-sheet";
@@ -16,6 +17,14 @@ import { LevelCard } from "./level-card";
 import { ScheduleCard } from "./schedule-card";
 import { SetupCards } from "./setup-cards";
 import { SummaryCard } from "./summary-card";
+
+/** Header shortcuts (PRD §8.2 A): notifications, full report, settings, profile. */
+const HEADER_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/notifications", label: "Notifikasi", icon: Bell },
+  { href: "/reports", label: "Laporan", icon: ChartColumn },
+  { href: "/settings", label: "Pengaturan", icon: Settings },
+  { href: "/profile", label: "Profil", icon: UserRound },
+];
 
 function ctaFor(s: NonNullable<Dashboard["current_session"]>): { label: string; href: string } {
   switch (s.state) {
@@ -127,9 +136,18 @@ export function DashboardView() {
         title="Dashboard Istiqomah"
         description="Assalamu'alaikum, selamat melanjutkan perjalanan istiqomahmu."
         actions={
-          <Link href="/profile" aria-label="Profil" className={buttonVariants({ variant: "ghost", size: "icon" })}>
-            <UserRound aria-hidden className="size-5" />
-          </Link>
+          <>
+            {HEADER_LINKS.map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                aria-label={label}
+                className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-11")}
+              >
+                <Icon aria-hidden className="size-5" />
+              </Link>
+            ))}
+          </>
         }
       />
       <LoadGate data={data} error={error} loading={loading} onRetry={reload}>

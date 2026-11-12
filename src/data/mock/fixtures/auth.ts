@@ -23,6 +23,7 @@ export const AUTH_SCENARIOS = [
   "purchase_pending",
   "no_active_access",
   "session_expired",
+  "device_limit",
 ] as const;
 export type AuthScenarioName = (typeof AUTH_SCENARIOS)[number];
 
@@ -39,9 +40,20 @@ export function buildAuthScenario(name: AuthScenarioName, now: number): AuthStat
     session: null,
     signedOutReason: "none",
     devices: {},
+    pendingLogins: {},
     clockOverride: null,
   };
   if (name === "logged_out") return base;
+  if (name === "device_limit") {
+    // Signed out, but the demo account already has 3 active devices: the next login hits the limit.
+    const uid = userIdFor(DEMO_EMAILS.active);
+    base.devices[uid] = [
+      { id: "dev_old_1", label: "Contoh: iPhone Safari", lastSeenAt: now - 2 * DAY, revokedAt: null },
+      { id: "dev_old_2", label: "Contoh: Laptop Firefox", lastSeenAt: now - 5 * DAY, revokedAt: null },
+      { id: "dev_old_3", label: "Contoh: Android Chrome", lastSeenAt: now - 12 * DAY, revokedAt: null },
+    ];
+    return base;
+  }
 
   const email =
     name === "purchase_pending"

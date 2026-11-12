@@ -5,6 +5,9 @@ import * as React from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { errorMessage } from "@/components/providers/data-provider";
 import { Button } from "@/components/ui/button";
+import type { DeviceLimitResponse } from "@/data";
+import { describeDevice } from "@/lib/device-label";
+import { DeviceLimitPanel } from "./device-limit-panel";
 import { CS_WHATSAPP_URL, SCALEV_URL, fieldClass } from "./auth-shell";
 import { recallLogin, rememberLogin, seedUserData } from "./seed-user";
 
@@ -20,6 +23,7 @@ export function VerifyForm() {
   const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [wait, setWait] = React.useState(RESEND_SECONDS);
+  const [limit, setLimit] = React.useState<DeviceLimitResponse | null>(null);
 
   React.useEffect(() => {
     const r = recallLogin();
@@ -42,7 +46,13 @@ export function VerifyForm() {
     setBusy(true);
     setError(null);
     try {
-      const res = await auth.verifyOtp(email, code, "Perangkat ini");
+      const res = await auth.verifyOtp(email, code, describeDevice());
+      if (res.status === "device_limit") {
+        // Right code, but 3 devices are active. The user picks one to remove, or cancels (PRD §24.1).
+        setLimit(res);
+        setBusy(false);
+        return;
+      }
       await seedUserData(res);
       await refresh();
       router.replace("/dashboard");
@@ -66,6 +76,7 @@ export function VerifyForm() {
   }
 
   if (email === null) return null;
+  if (limit) return <DeviceLimitPanel limit={limit} />;
   return (
     <div className="flex flex-col gap-6">
       <form onSubmit={submit} className="flex flex-col gap-5" noValidate>

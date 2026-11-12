@@ -17,6 +17,7 @@ const SCENARIO_LABEL: Record<AuthScenarioName, string> = {
   purchase_pending: "Pembelian belum terverifikasi",
   no_active_access: "Email tanpa akses",
   session_expired: "Sesi kedaluwarsa",
+  device_limit: "Belum masuk, akun sudah di 3 perangkat",
 };
 
 /**

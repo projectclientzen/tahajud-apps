@@ -76,6 +76,14 @@ export class OfflineQueue {
     return this.snap.pending;
   }
 
+  /** Notes still waiting or being sent, oldest first. Screens use it to show a change the server has not confirmed yet. */
+  async listPending(entityId?: string): Promise<QueueItem[]> {
+    await this.ready();
+    return [...this.items.values()]
+      .filter((i) => i.sync_status !== "rejected" && (entityId === undefined || i.entity_id === entityId))
+      .sort((a, b) => a.seq - b.seq);
+  }
+
   async listRejected(): Promise<QueueItem[]> {
     await this.ready();
     return [...this.items.values()].filter((i) => i.sync_status === "rejected");

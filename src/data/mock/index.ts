@@ -116,6 +116,7 @@ export function createMockAuth(opts: CreateMockAuthOptions = {}): MockAuthLayer 
     engine: a,
     requestOtp: (e) => a.requestOtp(e),
     verifyOtp: (e, c, l) => a.verifyOtp(e, c, l),
+    completePendingLogin: (t, d, l) => a.completePendingLogin(t, d, l),
     getSession: () => a.getSession(),
     logout: () => a.logout(),
     listDevices: () => a.listDevices(),

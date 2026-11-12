@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { devicesToRevoke } from "@/domain/auth/devices";
+import { PENDING_LOGIN_TTL_MS, checkDeviceLimit, checkPendingLogin } from "@/domain/auth/devices";
 import { isPlausibleEmail, normalizeEmail } from "@/domain/auth/email";
 import { OTP_RULES, checkOtp, decideOtpRequest, generateOtp, isValidOtpFormat, newOtpRecord } from "@/domain/auth/otp";
 import { PROVISIONAL_AUTH } from "@/domain/config/provisional";
@@ -90,14 +90,22 @@ describe("OTP rules (PRD §24.1, fixed numbers)", () => {
 describe("devices (limit is provisional)", () => {
   it("keeps the PROV limit at 3", () =>
     expect(PROVISIONAL_AUTH).toMatchObject({ provisional: true, maxActiveDevices: 3, sessionDays: 30 }));
-  it("revokes the least recently seen device when a new login would pass the limit", () => {
+  it("AUTH-DEVICE: refuses a 4th device and never picks one to sign out by itself", () => {
     const d = [
       { id: "a", lastSeenAt: 30 },
       { id: "b", lastSeenAt: 10 },
       { id: "c", lastSeenAt: 20 },
     ];
-    expect(devicesToRevoke(d)).toEqual(["b"]);
-    expect(devicesToRevoke(d.slice(0, 2))).toEqual([]);
-    expect(devicesToRevoke(d, 1)).toEqual(["b", "c", "a"].slice(0, 3));
+    expect(checkDeviceLimit(d)).toEqual({ ok: false, max: 3 });
+    expect(checkDeviceLimit(d.slice(0, 2))).toEqual({ ok: true });
+    expect(checkDeviceLimit([])).toEqual({ ok: true });
+    expect(checkDeviceLimit(d, 4)).toEqual({ ok: true });
+  });
+  it("a pending login works for 10 minutes and once", () => {
+    const p = { email: "a@b.test", userId: "u", createdAt: 1_000, used: false };
+    expect(checkPendingLogin(p, 1_000 + PENDING_LOGIN_TTL_MS)).toEqual({ ok: true });
+    expect(checkPendingLogin(p, 1_000 + PENDING_LOGIN_TTL_MS + 1)).toEqual({ ok: false, reason: "expired" });
+    expect(checkPendingLogin({ ...p, used: true }, 2_000)).toEqual({ ok: false, reason: "used" });
+    expect(checkPendingLogin(undefined, 2_000)).toEqual({ ok: false, reason: "missing" });
   });
 });
