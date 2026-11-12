@@ -1,9 +1,4143 @@
 {
-  "_note": "PROVISIONAL. Koordinat pusat kota PERKIRAAN (2 desimal), diketik agen dari pengetahuan umum, BUKAN dari dataset terverifikasi. Hanya untuk cek silang astronomis (toleransi 6 menit ~ 1.5 derajat bujur). Owner perlu menyediakan sumber koordinat seluruh kab/kota sebelum cek silang berlaku untuk semua wilayah.",
-  "provisional": true,
+  "_note": "Koordinat dari Wikidata (CC0), dicocokkan ke nama EQuran oleh scripts/import-coordinates.ts. Dipakai hanya untuk cek silang astronomis (toleransi 6 menit). Wilayah di 'unmatched' tidak diisi tebakan dan tetap verification 'unchecked'. Wikidata bisa memberi titik ibu kota atau pusat wilayah, jadi akurasinya ratusan meter sampai beberapa kilometer, cukup untuk cek 6 menit.",
+  "provisional": false,
+  "source": "https://www.wikidata.org",
+  "license": "CC0 1.0",
+  "fetched_at": "2026-11-12T12:54:28.429Z",
   "regions": [
-    { "provinsi": "DKI Jakarta", "kabkota": "Kota Jakarta", "lat": -6.21, "lon": 106.85 },
-    { "provinsi": "Sulawesi Selatan", "kabkota": "Kota Makassar", "lat": -5.15, "lon": 119.43 },
-    { "provinsi": "Papua", "kabkota": "Kota Jayapura", "lat": -2.53, "lon": 140.72 }
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Aceh Barat",
+      "lat": 4.45,
+      "lon": 96.183333,
+      "wikidata_id": "Q5778",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Aceh Barat Daya",
+      "lat": 3.791111,
+      "lon": 95.916667,
+      "wikidata_id": "Q5775",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Aceh Besar",
+      "lat": 5.366667,
+      "lon": 95.533333,
+      "wikidata_id": "Q5662",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Aceh Jaya",
+      "lat": 4.816667,
+      "lon": 95.666667,
+      "wikidata_id": "Q5667",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Aceh Selatan",
+      "lat": 3.133333,
+      "lon": 97.45,
+      "wikidata_id": "Q5759",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Aceh Singkil",
+      "lat": 2.333333,
+      "lon": 97.666667,
+      "wikidata_id": "Q5672",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Aceh Tamiang",
+      "lat": 4.274906,
+      "lon": 97.872161,
+      "wikidata_id": "Q5678",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Aceh Tengah",
+      "lat": 4.333333,
+      "lon": 96.333333,
+      "wikidata_id": "Q5675",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Aceh Tenggara",
+      "lat": 3.47308,
+      "lon": 97.81921,
+      "wikidata_id": "Q5763",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Aceh Timur",
+      "lat": 4.616667,
+      "lon": 97.616667,
+      "wikidata_id": "Q5674",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Aceh Utara",
+      "lat": 4.916667,
+      "lon": 97,
+      "wikidata_id": "Q5750",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Bener Meriah",
+      "lat": 4.75,
+      "lon": 97,
+      "wikidata_id": "Q5719",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Bireuen",
+      "lat": 5.083333,
+      "lon": 96.6,
+      "wikidata_id": "Q5722",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Gayo Lues",
+      "lat": 4,
+      "lon": 97,
+      "wikidata_id": "Q5666",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Nagan Raya",
+      "lat": 4.16888,
+      "lon": 96.32438,
+      "wikidata_id": "Q5746",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Pidie",
+      "lat": 5.08,
+      "lon": 96.11,
+      "wikidata_id": "Q5751",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Pidie Jaya",
+      "lat": 5.15,
+      "lon": 96.21667,
+      "wikidata_id": "Q5754",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kab. Simeulue",
+      "lat": 2.61667,
+      "lon": 96.08333,
+      "wikidata_id": "Q5757",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kota Banda Aceh",
+      "lat": 5.55,
+      "lon": 95.3175,
+      "wikidata_id": "Q5779",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kota Langsa",
+      "lat": 4.466667,
+      "lon": 97.95,
+      "wikidata_id": "Q5781",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kota Lhokseumawe",
+      "lat": 5.18,
+      "lon": 97.150556,
+      "wikidata_id": "Q5784",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kota Sabang",
+      "lat": 5.893056,
+      "lon": 95.32,
+      "wikidata_id": "Q5787",
+      "match": "name"
+    },
+    {
+      "provinsi": "Aceh",
+      "kabkota": "Kota Subulussalam",
+      "lat": 2.642222,
+      "lon": 98.004167,
+      "wikidata_id": "Q5789",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bali",
+      "kabkota": "Kab. Badung",
+      "lat": -8.583333,
+      "lon": 115.183333,
+      "wikidata_id": "Q11482",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bali",
+      "kabkota": "Kab. Bangli",
+      "lat": -8.28325,
+      "lon": 115.33278,
+      "wikidata_id": "Q11491",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bali",
+      "kabkota": "Kab. Buleleng",
+      "lat": -8.2,
+      "lon": 114.95,
+      "wikidata_id": "Q11495",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bali",
+      "kabkota": "Kab. Gianyar",
+      "lat": -8.466667,
+      "lon": 115.283333,
+      "wikidata_id": "Q11496",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bali",
+      "kabkota": "Kab. Jembrana",
+      "lat": -8.3,
+      "lon": 114.666667,
+      "wikidata_id": "Q11499",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bali",
+      "kabkota": "Kab. Karangasem",
+      "lat": -8.366667,
+      "lon": 115.516667,
+      "wikidata_id": "Q11501",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bali",
+      "kabkota": "Kab. Klungkung",
+      "lat": -8.538922,
+      "lon": 115.404511,
+      "wikidata_id": "Q11503",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bali",
+      "kabkota": "Kab. Tabanan",
+      "lat": -8.551147,
+      "lon": 115.121614,
+      "wikidata_id": "Q11505",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bali",
+      "kabkota": "Kota Denpasar",
+      "lat": -8.671667,
+      "lon": 115.233889,
+      "wikidata_id": "Q11506",
+      "match": "name"
+    },
+    {
+      "provinsi": "Banten",
+      "kabkota": "Kab. Lebak",
+      "lat": -6.65,
+      "lon": 106.21667,
+      "wikidata_id": "Q10119",
+      "match": "name"
+    },
+    {
+      "provinsi": "Banten",
+      "kabkota": "Kab. Pandeglang",
+      "lat": -6.309167,
+      "lon": 106.104722,
+      "wikidata_id": "Q10121",
+      "match": "name"
+    },
+    {
+      "provinsi": "Banten",
+      "kabkota": "Kab. Serang",
+      "lat": -6.15,
+      "lon": 106,
+      "wikidata_id": "Q10122",
+      "match": "name"
+    },
+    {
+      "provinsi": "Banten",
+      "kabkota": "Kab. Tangerang",
+      "lat": -6.2,
+      "lon": 106.49,
+      "wikidata_id": "Q10123",
+      "match": "name"
+    },
+    {
+      "provinsi": "Banten",
+      "kabkota": "Kota Cilegon",
+      "lat": -6.016667,
+      "lon": 106.016667,
+      "wikidata_id": "Q10124",
+      "match": "name"
+    },
+    {
+      "provinsi": "Banten",
+      "kabkota": "Kota Serang",
+      "lat": -6.12,
+      "lon": 106.150278,
+      "wikidata_id": "Q10126",
+      "match": "name"
+    },
+    {
+      "provinsi": "Banten",
+      "kabkota": "Kota Tangerang",
+      "lat": -6.170278,
+      "lon": 106.640278,
+      "wikidata_id": "Q10127",
+      "match": "name"
+    },
+    {
+      "provinsi": "Banten",
+      "kabkota": "Kota Tangerang Selatan",
+      "lat": -6.288889,
+      "lon": 106.718056,
+      "wikidata_id": "Q10128",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bengkulu",
+      "kabkota": "Kab. Bengkulu Selatan",
+      "lat": -4.463482,
+      "lon": 102.917003,
+      "wikidata_id": "Q8040",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bengkulu",
+      "kabkota": "Kab. Bengkulu Tengah",
+      "lat": -3.20679,
+      "lon": 102.12616,
+      "wikidata_id": "Q7796",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bengkulu",
+      "kabkota": "Kab. Bengkulu Utara",
+      "lat": -3.33333,
+      "lon": 102.05,
+      "wikidata_id": "Q8034",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bengkulu",
+      "kabkota": "Kab. Kaur",
+      "lat": -4.589298,
+      "lon": 103.416759,
+      "wikidata_id": "Q3182322",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bengkulu",
+      "kabkota": "Kab. Kepahiang",
+      "lat": -3.601944,
+      "lon": 102.564167,
+      "wikidata_id": "Q7940",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bengkulu",
+      "kabkota": "Kab. Lebong",
+      "lat": -3.24278,
+      "lon": 102.3349,
+      "wikidata_id": "Q8031",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bengkulu",
+      "kabkota": "Kab. Mukomuko",
+      "lat": -2.552915,
+      "lon": 101.104218,
+      "wikidata_id": "Q8033",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bengkulu",
+      "kabkota": "Kab. Rejang Lebong",
+      "lat": -3.433333,
+      "lon": 102.716667,
+      "wikidata_id": "Q8035",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bengkulu",
+      "kabkota": "Kab. Seluma",
+      "lat": -3.96644,
+      "lon": 102.47429,
+      "wikidata_id": "Q8037",
+      "match": "name"
+    },
+    {
+      "provinsi": "Bengkulu",
+      "kabkota": "Kota Bengkulu",
+      "lat": -3.795556,
+      "lon": 102.259167,
+      "wikidata_id": "Q8042",
+      "match": "name"
+    },
+    {
+      "provinsi": "D.I. Yogyakarta",
+      "kabkota": "Kab. Bantul",
+      "lat": -7.884611,
+      "lon": 110.334111,
+      "wikidata_id": "Q11477",
+      "match": "name"
+    },
+    {
+      "provinsi": "D.I. Yogyakarta",
+      "kabkota": "Kab. Gunungkidul",
+      "lat": -7.965,
+      "lon": 110.6,
+      "wikidata_id": "Q11478",
+      "match": "name"
+    },
+    {
+      "provinsi": "D.I. Yogyakarta",
+      "kabkota": "Kab. Kulon Progo",
+      "lat": -7.8596,
+      "lon": 110.1579,
+      "wikidata_id": "Q11479",
+      "match": "name"
+    },
+    {
+      "provinsi": "D.I. Yogyakarta",
+      "kabkota": "Kab. Sleman",
+      "lat": -7.68167,
+      "lon": 110.32333,
+      "wikidata_id": "Q11480",
+      "match": "name"
+    },
+    {
+      "provinsi": "D.I. Yogyakarta",
+      "kabkota": "Kota Yogyakarta",
+      "lat": -7.800457,
+      "lon": 110.39128,
+      "wikidata_id": "Q7568",
+      "match": "name"
+    },
+    {
+      "provinsi": "DKI Jakarta",
+      "kabkota": "Kota Jakarta",
+      "lat": -6.175278,
+      "lon": 106.826944,
+      "wikidata_id": "Q3630",
+      "match": "manual_qid"
+    },
+    {
+      "provinsi": "Gorontalo",
+      "kabkota": "Kab. Boalemo",
+      "lat": 0.65,
+      "lon": 122.316667,
+      "wikidata_id": "Q14508",
+      "match": "name"
+    },
+    {
+      "provinsi": "Gorontalo",
+      "kabkota": "Kab. Bone Bolango",
+      "lat": 0.55,
+      "lon": 123.2,
+      "wikidata_id": "Q14519",
+      "match": "name"
+    },
+    {
+      "provinsi": "Gorontalo",
+      "kabkota": "Kab. Gorontalo",
+      "lat": 0.5728,
+      "lon": 122.2337,
+      "wikidata_id": "Q14521",
+      "match": "name"
+    },
+    {
+      "provinsi": "Gorontalo",
+      "kabkota": "Kab. Gorontalo Utara",
+      "lat": 0.790958,
+      "lon": 122.86866,
+      "wikidata_id": "Q14522",
+      "match": "name"
+    },
+    {
+      "provinsi": "Gorontalo",
+      "kabkota": "Kota Gorontalo",
+      "lat": 0.542222,
+      "lon": 123.061389,
+      "wikidata_id": "Q14525",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jambi",
+      "kabkota": "Kab. Batanghari",
+      "lat": -1.713795,
+      "lon": 103.261667,
+      "wikidata_id": "Q7370",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jambi",
+      "kabkota": "Kab. Bungo",
+      "lat": -1.516059,
+      "lon": 102.118757,
+      "wikidata_id": "Q7373",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jambi",
+      "kabkota": "Kab. Kerinci",
+      "lat": -1.936083,
+      "lon": 101.342528,
+      "wikidata_id": "Q7376",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jambi",
+      "kabkota": "Kab. Merangin",
+      "lat": -2.069167,
+      "lon": 102.132778,
+      "wikidata_id": "Q7379",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jambi",
+      "kabkota": "Kab. Muaro Jambi",
+      "lat": -1.44951,
+      "lon": 103.5161,
+      "wikidata_id": "Q7381",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jambi",
+      "kabkota": "Kab. Sarolangun",
+      "lat": -2.3,
+      "lon": 102.65,
+      "wikidata_id": "Q7383",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jambi",
+      "kabkota": "Kab. Tanjung Jabung Barat",
+      "lat": -0.826341,
+      "lon": 103.461477,
+      "wikidata_id": "Q7388",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jambi",
+      "kabkota": "Kab. Tanjung Jabung Timur",
+      "lat": -1.13198,
+      "lon": 103.61755,
+      "wikidata_id": "Q7384",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jambi",
+      "kabkota": "Kab. Tebo",
+      "lat": -1.38333,
+      "lon": 102.317,
+      "wikidata_id": "Q7389",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jambi",
+      "kabkota": "Kota Jambi",
+      "lat": -1.628794,
+      "lon": 103.608227,
+      "wikidata_id": "Q7578",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jambi",
+      "kabkota": "Kota Sungai Penuh",
+      "lat": -2.063611,
+      "lon": 101.396111,
+      "wikidata_id": "Q7592",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Bandung",
+      "lat": -7.021935,
+      "lon": 107.528075,
+      "wikidata_id": "Q10332",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Bandung Barat",
+      "lat": -6.841117,
+      "lon": 107.512583,
+      "wikidata_id": "Q10388",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Bekasi",
+      "lat": -6.365909,
+      "lon": 107.173086,
+      "wikidata_id": "Q10340",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Bogor",
+      "lat": -6.4803,
+      "lon": 106.8247,
+      "wikidata_id": "Q10363",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Cianjur",
+      "lat": -6.821222,
+      "lon": 107.140101,
+      "wikidata_id": "Q10367",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Cirebon",
+      "lat": -6.757837,
+      "lon": 108.480462,
+      "wikidata_id": "Q10368",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Garut",
+      "lat": -7.204694,
+      "lon": 107.88759,
+      "wikidata_id": "Q10371",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Indramayu",
+      "lat": -6.326944,
+      "lon": 108.322222,
+      "wikidata_id": "Q10374",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Karawang",
+      "lat": -6.305085,
+      "lon": 107.300258,
+      "wikidata_id": "Q10375",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Kuningan",
+      "lat": -6.976605,
+      "lon": 108.484902,
+      "wikidata_id": "Q10376",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Majalengka",
+      "lat": -6.835273,
+      "lon": 108.227655,
+      "wikidata_id": "Q10377",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Pangandaran",
+      "lat": -7.701655,
+      "lon": 108.49422,
+      "wikidata_id": "Q46483",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Purwakarta",
+      "lat": -6.538564,
+      "lon": 107.443557,
+      "wikidata_id": "Q10378",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Subang",
+      "lat": -6.56985,
+      "lon": 107.762831,
+      "wikidata_id": "Q10380",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Sukabumi",
+      "lat": -6.987276,
+      "lon": 106.551093,
+      "wikidata_id": "Q10381",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Sumedang",
+      "lat": -6.85,
+      "lon": 107.916667,
+      "wikidata_id": "Q10382",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Tasikmalaya",
+      "lat": -7.365833,
+      "lon": 108.101944,
+      "wikidata_id": "Q10385",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kota Bandung",
+      "lat": -6.921944,
+      "lon": 107.606944,
+      "wikidata_id": "Q10389",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kota Banjar",
+      "lat": -7.366667,
+      "lon": 108.533333,
+      "wikidata_id": "Q10391",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kota Bekasi",
+      "lat": -6.233333,
+      "lon": 107,
+      "wikidata_id": "Q10392",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kota Bogor",
+      "lat": -6.597803,
+      "lon": 106.799263,
+      "wikidata_id": "Q10393",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kota Cimahi",
+      "lat": -6.880038,
+      "lon": 107.53852,
+      "wikidata_id": "Q10394",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kota Cirebon",
+      "lat": -6.73969,
+      "lon": 108.552968,
+      "wikidata_id": "Q10395",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kota Depok",
+      "lat": -6.405031,
+      "lon": 106.817308,
+      "wikidata_id": "Q10396",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kota Sukabumi",
+      "lat": -6.932,
+      "lon": 106.918564,
+      "wikidata_id": "Q10397",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kota Tasikmalaya",
+      "lat": -7.325802,
+      "lon": 108.220181,
+      "wikidata_id": "Q10399",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Banjarnegara",
+      "lat": -7.39611,
+      "lon": 109.757,
+      "wikidata_id": "Q10604",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Banyumas",
+      "lat": -7.425,
+      "lon": 109.23,
+      "wikidata_id": "Q10605",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Batang",
+      "lat": -6.908112,
+      "lon": 109.730419,
+      "wikidata_id": "Q10607",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Blora",
+      "lat": -7.06667,
+      "lon": 111.38333,
+      "wikidata_id": "Q10608",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Boyolali",
+      "lat": -7.532222,
+      "lon": 110.6025,
+      "wikidata_id": "Q10609",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Brebes",
+      "lat": -7.05,
+      "lon": 108.9,
+      "wikidata_id": "Q10610",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Cilacap",
+      "lat": -7.733333,
+      "lon": 109,
+      "wikidata_id": "Q10612",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Demak",
+      "lat": -6.883333,
+      "lon": 110.666667,
+      "wikidata_id": "Q10613",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Grobogan",
+      "lat": -7.03,
+      "lon": 110.921111,
+      "wikidata_id": "Q10614",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Jepara",
+      "lat": -6.533333,
+      "lon": 110.666667,
+      "wikidata_id": "Q10615",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Karanganyar",
+      "lat": -7.596111,
+      "lon": 110.950833,
+      "wikidata_id": "Q10616",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Kebumen",
+      "lat": -7.629444,
+      "lon": 109.570556,
+      "wikidata_id": "Q10617",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Kendal",
+      "lat": -7.0256,
+      "lon": 110.1685,
+      "wikidata_id": "Q10618",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Klaten",
+      "lat": -7.683333,
+      "lon": 110.616667,
+      "wikidata_id": "Q10619",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Kudus",
+      "lat": -6.8,
+      "lon": 110.866667,
+      "wikidata_id": "Q10620",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Magelang",
+      "lat": -7.6575,
+      "lon": 110.273056,
+      "wikidata_id": "Q10621",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Pati",
+      "lat": -6.76667,
+      "lon": 111.1,
+      "wikidata_id": "Q10622",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Pekalongan",
+      "lat": -6.8825,
+      "lon": 109.67,
+      "wikidata_id": "Q10623",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Pemalang",
+      "lat": -7.033333,
+      "lon": 109.4,
+      "wikidata_id": "Q10624",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Purbalingga",
+      "lat": -7.283333,
+      "lon": 109.35,
+      "wikidata_id": "Q10625",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Purworejo",
+      "lat": -7.716667,
+      "lon": 110.016667,
+      "wikidata_id": "Q10674",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Rembang",
+      "lat": -6.716667,
+      "lon": 111.35,
+      "wikidata_id": "Q10684",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Semarang",
+      "lat": -7.265556,
+      "lon": 110.335833,
+      "wikidata_id": "Q10687",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Sragen",
+      "lat": -7.41278,
+      "lon": 110.935,
+      "wikidata_id": "Q10688",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Sukoharjo",
+      "lat": -7.68333,
+      "lon": 110.83333,
+      "wikidata_id": "Q10692",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Tegal",
+      "lat": -6.866667,
+      "lon": 109.15,
+      "wikidata_id": "Q10705",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Temanggung",
+      "lat": -7.3,
+      "lon": 110.166667,
+      "wikidata_id": "Q10979",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Wonogiri",
+      "lat": -7.91667,
+      "lon": 111,
+      "wikidata_id": "Q10981",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kab. Wonosobo",
+      "lat": -7.361389,
+      "lon": 109.926669,
+      "wikidata_id": "Q11013",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kota Magelang",
+      "lat": -7.470556,
+      "lon": 110.217778,
+      "wikidata_id": "Q11017",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kota Pekalongan",
+      "lat": -6.888333,
+      "lon": 109.675278,
+      "wikidata_id": "Q11026",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kota Salatiga",
+      "lat": -7.338889,
+      "lon": 110.502222,
+      "wikidata_id": "Q11021",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kota Semarang",
+      "lat": -6.99,
+      "lon": 110.4225,
+      "wikidata_id": "Q11025",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kota Surakarta",
+      "lat": -7.566667,
+      "lon": 110.816667,
+      "wikidata_id": "Q4803",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Tengah",
+      "kabkota": "Kota Tegal",
+      "lat": -6.8675,
+      "lon": 109.1375,
+      "wikidata_id": "Q11027",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Bangkalan",
+      "lat": -7.029194,
+      "lon": 112.746132,
+      "wikidata_id": "Q11066",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Banyuwangi",
+      "lat": -8.226667,
+      "lon": 114.366389,
+      "wikidata_id": "Q11067",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Blitar",
+      "lat": -8.13333,
+      "lon": 112.25,
+      "wikidata_id": "Q11069",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Bojonegoro",
+      "lat": -7.275,
+      "lon": 111.795,
+      "wikidata_id": "Q11071",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Bondowoso",
+      "lat": -7.9404,
+      "lon": 113.9834,
+      "wikidata_id": "Q11076",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Gresik",
+      "lat": -7.1933,
+      "lon": 112.553,
+      "wikidata_id": "Q11077",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Jember",
+      "lat": -8.168889,
+      "lon": 113.702222,
+      "wikidata_id": "Q11080",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Jombang",
+      "lat": -7.466667,
+      "lon": 112.233333,
+      "wikidata_id": "Q11082",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Kediri",
+      "lat": -7.83333,
+      "lon": 112.16667,
+      "wikidata_id": "Q11084",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Lamongan",
+      "lat": -7.116667,
+      "lon": 112.416667,
+      "wikidata_id": "Q11086",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Lumajang",
+      "lat": -8.133333,
+      "lon": 113.216667,
+      "wikidata_id": "Q11087",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Madiun",
+      "lat": -7.61667,
+      "lon": 111.65,
+      "wikidata_id": "Q11091",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Magetan",
+      "lat": -7.65,
+      "lon": 111.366667,
+      "wikidata_id": "Q11092",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Malang",
+      "lat": -7.9797,
+      "lon": 112.6304,
+      "wikidata_id": "Q11095",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Mojokerto",
+      "lat": -7.55,
+      "lon": 112.5,
+      "wikidata_id": "Q11096",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Nganjuk",
+      "lat": -7.6,
+      "lon": 111.933333,
+      "wikidata_id": "Q11098",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Ngawi",
+      "lat": -7.463611,
+      "lon": 111.298333,
+      "wikidata_id": "Q11108",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Pacitan",
+      "lat": -8.13333,
+      "lon": 111.16667,
+      "wikidata_id": "Q11111",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Pamekasan",
+      "lat": -7.066667,
+      "lon": 113.5,
+      "wikidata_id": "Q11112",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Pasuruan",
+      "lat": -7.73333,
+      "lon": 112.83333,
+      "wikidata_id": "Q11115",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Ponorogo",
+      "lat": -7.868611,
+      "lon": 111.461944,
+      "wikidata_id": "Q11118",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Probolinggo",
+      "lat": -7.735278,
+      "lon": 113.471667,
+      "wikidata_id": "Q11121",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Sampang",
+      "lat": -7.05,
+      "lon": 113.25,
+      "wikidata_id": "Q11127",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Sidoarjo",
+      "lat": -7.453028,
+      "lon": 112.717333,
+      "wikidata_id": "Q11129",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Situbondo",
+      "lat": -7.71667,
+      "lon": 114.05,
+      "wikidata_id": "Q11134",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Sumenep",
+      "lat": -7.016667,
+      "lon": 113.866667,
+      "wikidata_id": "Q11137",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Trenggalek",
+      "lat": -8.05,
+      "lon": 111.716667,
+      "wikidata_id": "Q11139",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Tuban",
+      "lat": -6.88333,
+      "lon": 112.05,
+      "wikidata_id": "Q11141",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kab. Tulungagung",
+      "lat": -8.066667,
+      "lon": 111.9,
+      "wikidata_id": "Q11143",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kota Batu",
+      "lat": -7.8672,
+      "lon": 112.5239,
+      "wikidata_id": "Q11434",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kota Blitar",
+      "lat": -8.1,
+      "lon": 112.166667,
+      "wikidata_id": "Q11441",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kota Kediri",
+      "lat": -7.811111,
+      "lon": 112.004722,
+      "wikidata_id": "Q11443",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kota Madiun",
+      "lat": -7.63,
+      "lon": 111.523056,
+      "wikidata_id": "Q11444",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kota Malang",
+      "lat": -7.96893,
+      "lon": 112.632728,
+      "wikidata_id": "Q11445",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kota Mojokerto",
+      "lat": -7.472222,
+      "lon": 112.433611,
+      "wikidata_id": "Q11447",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kota Pasuruan",
+      "lat": -7.640622,
+      "lon": 112.906478,
+      "wikidata_id": "Q11449",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kota Probolinggo",
+      "lat": -7.75,
+      "lon": 113.216667,
+      "wikidata_id": "Q11450",
+      "match": "name"
+    },
+    {
+      "provinsi": "Jawa Timur",
+      "kabkota": "Kota Surabaya",
+      "lat": -7.246284,
+      "lon": 112.737767,
+      "wikidata_id": "Q11462",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Bengkayang",
+      "lat": 1.06911,
+      "lon": 109.66393,
+      "wikidata_id": "Q14156",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Kapuas Hulu",
+      "lat": 0.81667,
+      "lon": 112.76667,
+      "wikidata_id": "Q14157",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Kayong Utara",
+      "lat": -1.43711,
+      "lon": 110.79781,
+      "wikidata_id": "Q14158",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Ketapang",
+      "lat": -1.58333,
+      "lon": 110.5,
+      "wikidata_id": "Q14159",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Kubu Raya",
+      "lat": 0.01637,
+      "lon": 109.33731,
+      "wikidata_id": "Q14160",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Landak",
+      "lat": 0.42373,
+      "lon": 109.75917,
+      "wikidata_id": "Q14161",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Melawi",
+      "lat": -0.336111,
+      "lon": 111.698056,
+      "wikidata_id": "Q14162",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Mempawah",
+      "lat": 0.25,
+      "lon": 109.16667,
+      "wikidata_id": "Q14163",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Sambas",
+      "lat": 1.41667,
+      "lon": 109.33333,
+      "wikidata_id": "Q14164",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Sanggau",
+      "lat": 0.123424,
+      "lon": 110.597,
+      "wikidata_id": "Q14165",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Sekadau",
+      "lat": 0.03485,
+      "lon": 110.95066,
+      "wikidata_id": "Q14166",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kab. Sintang",
+      "lat": -0.083333,
+      "lon": 112.083333,
+      "wikidata_id": "Q14167",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kota Singkawang",
+      "lat": 0.9,
+      "lon": 108.983333,
+      "wikidata_id": "Q14169",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kab. Balangan",
+      "lat": -2.364001,
+      "lon": 115.470514,
+      "wikidata_id": "Q14170",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kab. Banjar",
+      "lat": -3.408131,
+      "lon": 114.848542,
+      "wikidata_id": "Q14171",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kab. Barito Kuala",
+      "lat": -2.981143,
+      "lon": 114.766779,
+      "wikidata_id": "Q14172",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kab. Hulu Sungai Selatan",
+      "lat": -2.78667,
+      "lon": 115.26592,
+      "wikidata_id": "Q14176",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kab. Hulu Sungai Tengah",
+      "lat": -2.584656,
+      "lon": 115.385171,
+      "wikidata_id": "Q14173",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kab. Hulu Sungai Utara",
+      "lat": -2.419284,
+      "lon": 115.25428,
+      "wikidata_id": "Q14175",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kab. Kotabaru",
+      "lat": -3,
+      "lon": 116,
+      "wikidata_id": "Q14174",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kab. Tabalong",
+      "lat": -2.164736,
+      "lon": 115.382213,
+      "wikidata_id": "Q14177",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kab. Tanah Bumbu",
+      "lat": -3.483634,
+      "lon": 115.947938,
+      "wikidata_id": "Q14179",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kab. Tanah Laut",
+      "lat": -3.799739,
+      "lon": 114.782593,
+      "wikidata_id": "Q14178",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kab. Tapin",
+      "lat": -2.930897,
+      "lon": 115.156682,
+      "wikidata_id": "Q14180",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kota Banjarbaru",
+      "lat": -3.438903,
+      "lon": 114.830881,
+      "wikidata_id": "Q14181",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Selatan",
+      "kabkota": "Kota Banjarmasin",
+      "lat": -3.314429,
+      "lon": 114.592254,
+      "wikidata_id": "Q14182",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Barito Selatan",
+      "lat": -1.86667,
+      "lon": 114.73333,
+      "wikidata_id": "Q14391",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Barito Timur",
+      "lat": -1.93333,
+      "lon": 115.1,
+      "wikidata_id": "Q14190",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Barito Utara",
+      "lat": -0.98333,
+      "lon": 115.1,
+      "wikidata_id": "Q14209",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Gunung Mas",
+      "lat": -0.95,
+      "lon": 113.5,
+      "wikidata_id": "Q14192",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Kapuas",
+      "lat": -3,
+      "lon": 114.38,
+      "wikidata_id": "Q14193",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Katingan",
+      "lat": -2.06667,
+      "lon": 113.4,
+      "wikidata_id": "Q4201892",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Kotawaringin Barat",
+      "lat": -2.4,
+      "lon": 111.73333,
+      "wikidata_id": "Q14393",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Kotawaringin Timur",
+      "lat": -2.08333,
+      "lon": 112.75,
+      "wikidata_id": "Q14191",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Lamandau",
+      "lat": -1.83828,
+      "lon": 111.2869,
+      "wikidata_id": "Q14194",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Murung Raya",
+      "lat": -1.408333,
+      "lon": 115.133333,
+      "wikidata_id": "Q14195",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Pulang Pisau",
+      "lat": -3.11858,
+      "lon": 113.8623,
+      "wikidata_id": "Q14385",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Seruyan",
+      "lat": -2.33333,
+      "lon": 112.25,
+      "wikidata_id": "Q14389",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kab. Sukamara",
+      "lat": -2.62675,
+      "lon": 111.23681,
+      "wikidata_id": "Q14386",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Tengah",
+      "kabkota": "Kota Palangkaraya",
+      "lat": -2.21,
+      "lon": 113.92,
+      "wikidata_id": "Q14409",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Timur",
+      "kabkota": "Kab. Berau",
+      "lat": 2,
+      "lon": 117.3,
+      "wikidata_id": "Q14395",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Timur",
+      "kabkota": "Kab. Kutai Barat",
+      "lat": -0.511667,
+      "lon": 115.777222,
+      "wikidata_id": "Q14489",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Timur",
+      "kabkota": "Kab. Kutai Kartanegara",
+      "lat": -0.44019,
+      "lon": 116.98139,
+      "wikidata_id": "Q14473",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Timur",
+      "kabkota": "Kab. Kutai Timur",
+      "lat": 1.03769,
+      "lon": 117.83112,
+      "wikidata_id": "Q14468",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Timur",
+      "kabkota": "Kab. Mahakam ULU",
+      "lat": 0.5,
+      "lon": 115.28,
+      "wikidata_id": "Q12488347",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Timur",
+      "kabkota": "Kab. Paser",
+      "lat": -1.43517,
+      "lon": 116.23535,
+      "wikidata_id": "Q14485",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Timur",
+      "kabkota": "Kab. Penajam Paser Utara",
+      "lat": -1.291709,
+      "lon": 116.513796,
+      "wikidata_id": "Q14479",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Timur",
+      "kabkota": "Kota Balikpapan",
+      "lat": -1.237926,
+      "lon": 116.856251,
+      "wikidata_id": "Q14492",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Timur",
+      "kabkota": "Kota Bontang",
+      "lat": 0.133333,
+      "lon": 117.5,
+      "wikidata_id": "Q14495",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Timur",
+      "kabkota": "Kota Samarinda",
+      "lat": -0.502222,
+      "lon": 117.153611,
+      "wikidata_id": "Q14499",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Utara",
+      "kabkota": "Kab. Bulungan",
+      "lat": 3,
+      "lon": 117.16667,
+      "wikidata_id": "Q14404",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Utara",
+      "kabkota": "Kab. Malinau",
+      "lat": 2.45,
+      "lon": 115.683333,
+      "wikidata_id": "Q14476",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Utara",
+      "kabkota": "Kab. Nunukan",
+      "lat": 4.133333,
+      "lon": 116.7,
+      "wikidata_id": "Q14481",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Utara",
+      "kabkota": "Kab. Tana Tidung",
+      "lat": 3.55,
+      "lon": 117.25,
+      "wikidata_id": "Q14487",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kalimantan Utara",
+      "kabkota": "Kota Tarakan",
+      "lat": 3.3,
+      "lon": 117.633333,
+      "wikidata_id": "Q14501",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Bangka Belitung",
+      "kabkota": "Kab. Bangka",
+      "lat": -1.9,
+      "lon": 105.883333,
+      "wikidata_id": "Q8163",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Bangka Belitung",
+      "kabkota": "Kab. Bangka Barat",
+      "lat": -1.95839,
+      "lon": 105.53741,
+      "wikidata_id": "Q8176",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Bangka Belitung",
+      "kabkota": "Kab. Bangka Selatan",
+      "lat": -2.766667,
+      "lon": 106.333333,
+      "wikidata_id": "Q8173",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Bangka Belitung",
+      "kabkota": "Kab. Bangka Tengah",
+      "lat": -2.416667,
+      "lon": 106.233333,
+      "wikidata_id": "Q8166",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Bangka Belitung",
+      "kabkota": "Kab. Belitung",
+      "lat": -2.866667,
+      "lon": 107.7,
+      "wikidata_id": "Q8164",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Bangka Belitung",
+      "kabkota": "Kab. Belitung Timur",
+      "lat": -2.9,
+      "lon": 108.05,
+      "wikidata_id": "Q8169",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Bangka Belitung",
+      "kabkota": "Kota Pangkal Pinang",
+      "lat": -2.1,
+      "lon": 106.1,
+      "wikidata_id": "Q8179",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Kab. Bintan",
+      "lat": 0.95,
+      "lon": 104.61944,
+      "wikidata_id": "Q10097",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Kab. Karimun",
+      "lat": 0.80764,
+      "lon": 103.41911,
+      "wikidata_id": "Q10098",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Kab. Kepulauan Anambas",
+      "lat": 3,
+      "lon": 106,
+      "wikidata_id": "Q26759674",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Kab. Lingga",
+      "lat": -0.266667,
+      "lon": 104.483333,
+      "wikidata_id": "Q10099",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Kab. Natuna",
+      "lat": 4,
+      "lon": 108.25,
+      "wikidata_id": "Q10100",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Kota Batam",
+      "lat": 1.13,
+      "lon": 104.053056,
+      "wikidata_id": "Q10103",
+      "match": "name"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Kota Tanjung Pinang",
+      "lat": 0.918778,
+      "lon": 104.455417,
+      "wikidata_id": "Q10104",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Lampung Barat",
+      "lat": -5.14904,
+      "lon": 104.19309,
+      "wikidata_id": "Q8153",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Lampung Selatan",
+      "lat": -5.56243,
+      "lon": 105.547531,
+      "wikidata_id": "Q8147",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Lampung Tengah",
+      "lat": -4.86667,
+      "lon": 105.26667,
+      "wikidata_id": "Q8135",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Lampung Timur",
+      "lat": -5.10273,
+      "lon": 105.68003,
+      "wikidata_id": "Q8136",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Lampung Utara",
+      "lat": -4.81667,
+      "lon": 104.8,
+      "wikidata_id": "Q8140",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Mesuji",
+      "lat": -4.0439,
+      "lon": 105.4013,
+      "wikidata_id": "Q8139",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Pesawaran",
+      "lat": -5.4298,
+      "lon": 105.17899,
+      "wikidata_id": "Q8144",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Pesisir Barat",
+      "lat": -5.188835,
+      "lon": 103.935852,
+      "wikidata_id": "Q46481",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Pringsewu",
+      "lat": -5.42211,
+      "lon": 104.93454,
+      "wikidata_id": "Q8145",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Tanggamus",
+      "lat": -5.481456,
+      "lon": 104.682405,
+      "wikidata_id": "Q8149",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Tulang Bawang",
+      "lat": -4.20604,
+      "lon": 105.57999,
+      "wikidata_id": "Q8151",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Tulang Bawang Barat",
+      "lat": -4.43975,
+      "lon": 105.0444,
+      "wikidata_id": "Q8154",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kab. Way Kanan",
+      "lat": -4.44705,
+      "lon": 104.52753,
+      "wikidata_id": "Q8152",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kota Bandar Lampung",
+      "lat": -5.429444,
+      "lon": 105.2625,
+      "wikidata_id": "Q8156",
+      "match": "name"
+    },
+    {
+      "provinsi": "Lampung",
+      "kabkota": "Kota Metro",
+      "lat": -5.116667,
+      "lon": 105.3,
+      "wikidata_id": "Q8158",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku",
+      "kabkota": "Kab. Buru",
+      "lat": -3.25983,
+      "lon": 127.10289,
+      "wikidata_id": "Q16564",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku",
+      "kabkota": "Kab. Buru Selatan",
+      "lat": -3.838097,
+      "lon": 126.734592,
+      "wikidata_id": "Q16583",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku",
+      "kabkota": "Kab. Kepulauan Aru",
+      "lat": -6.2,
+      "lon": 134.5,
+      "wikidata_id": "Q16561",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku",
+      "kabkota": "Kab. Maluku Barat Daya",
+      "lat": -8.17024,
+      "lon": 127.788938,
+      "wikidata_id": "Q18935",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku",
+      "kabkota": "Kab. Maluku Tengah",
+      "lat": -3.29967,
+      "lon": 128.956524,
+      "wikidata_id": "Q4201768",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku",
+      "kabkota": "Kab. Maluku Tenggara",
+      "lat": -5.655972,
+      "lon": 132.743987,
+      "wikidata_id": "Q18849",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku",
+      "kabkota": "Kab. Seram Bagian Barat",
+      "lat": -3.069101,
+      "lon": 128.202908,
+      "wikidata_id": "Q18942",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku",
+      "kabkota": "Kab. Seram Bagian Timur",
+      "lat": -3.103133,
+      "lon": 130.490832,
+      "wikidata_id": "Q16569",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku",
+      "kabkota": "Kota Ambon",
+      "lat": -3.696667,
+      "lon": 128.178333,
+      "wikidata_id": "Q18970",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku",
+      "kabkota": "Kota Tual",
+      "lat": -5.642577,
+      "lon": 132.742993,
+      "wikidata_id": "Q18975",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku Utara",
+      "kabkota": "Kab. Halmahera Barat",
+      "lat": 1.41709,
+      "lon": 127.55264,
+      "wikidata_id": "Q19150",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku Utara",
+      "kabkota": "Kab. Halmahera Selatan",
+      "lat": -0.3955,
+      "lon": 127.90833,
+      "wikidata_id": "Q19148",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku Utara",
+      "kabkota": "Kab. Halmahera Tengah",
+      "lat": 0.48056,
+      "lon": 128.25,
+      "wikidata_id": "Q19144",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku Utara",
+      "kabkota": "Kab. Halmahera Timur",
+      "lat": 1.33517,
+      "lon": 128.48627,
+      "wikidata_id": "Q19145",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku Utara",
+      "kabkota": "Kab. Halmahera Utara",
+      "lat": 1.731944,
+      "lon": 128.007778,
+      "wikidata_id": "Q19147",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku Utara",
+      "kabkota": "Kab. Kepulauan Sula",
+      "lat": -1.849167,
+      "lon": 125.314444,
+      "wikidata_id": "Q19149",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku Utara",
+      "kabkota": "Kab. Pulau Morotai",
+      "lat": 2.3,
+      "lon": 128.4,
+      "wikidata_id": "Q17053892",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku Utara",
+      "kabkota": "Kab. Pulau Taliabu",
+      "lat": -1.8,
+      "lon": 124.8,
+      "wikidata_id": "Q676084",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku Utara",
+      "kabkota": "Kota Ternate",
+      "lat": 0.783333,
+      "lon": 127.366667,
+      "wikidata_id": "Q19151",
+      "match": "name"
+    },
+    {
+      "provinsi": "Maluku Utara",
+      "kabkota": "Kota Tidore Kepulauan",
+      "lat": 0.609444,
+      "lon": 127.569722,
+      "wikidata_id": "Q19153",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Barat",
+      "kabkota": "Kab. Bima",
+      "lat": -8.574444,
+      "lon": 119.0375,
+      "wikidata_id": "Q14114",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Barat",
+      "kabkota": "Kab. Dompu",
+      "lat": -8.533333,
+      "lon": 118.466667,
+      "wikidata_id": "Q14117",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Barat",
+      "kabkota": "Kab. Lombok Barat",
+      "lat": -8.716667,
+      "lon": 116.116667,
+      "wikidata_id": "Q14123",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Barat",
+      "kabkota": "Kab. Lombok Tengah",
+      "lat": -8.7,
+      "lon": 116.266667,
+      "wikidata_id": "Q14119",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Barat",
+      "kabkota": "Kab. Lombok Timur",
+      "lat": -8.65,
+      "lon": 116.533333,
+      "wikidata_id": "Q14115",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Barat",
+      "kabkota": "Kab. Lombok Utara",
+      "lat": -8.35,
+      "lon": 116.15,
+      "wikidata_id": "Q14121",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Barat",
+      "kabkota": "Kab. Sumbawa",
+      "lat": -8.744806,
+      "lon": 117.671528,
+      "wikidata_id": "Q14122",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Barat",
+      "kabkota": "Kab. Sumbawa Barat",
+      "lat": -8.78737,
+      "lon": 116.926,
+      "wikidata_id": "Q14124",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Barat",
+      "kabkota": "Kota Bima",
+      "lat": -8.46,
+      "lon": 118.726667,
+      "wikidata_id": "Q14128",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Barat",
+      "kabkota": "Kota Mataram",
+      "lat": -8.583333,
+      "lon": 116.116667,
+      "wikidata_id": "Q14126",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Alor",
+      "lat": -8.25,
+      "lon": 124.75,
+      "wikidata_id": "Q14131",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Belu",
+      "lat": -9.1,
+      "lon": 124.9,
+      "wikidata_id": "Q14133",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Ende",
+      "lat": -8.840556,
+      "lon": 121.663889,
+      "wikidata_id": "Q14140",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Flores Timur",
+      "lat": -8.341208,
+      "lon": 122.988115,
+      "wikidata_id": "Q14136",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Kupang",
+      "lat": -10.163611,
+      "lon": 123.590278,
+      "wikidata_id": "Q14141",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Lembata",
+      "lat": -8.41396,
+      "lon": 123.55225,
+      "wikidata_id": "Q14142",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Malaka",
+      "lat": -9.567222,
+      "lon": 124.9075,
+      "wikidata_id": "Q4069046",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Manggarai",
+      "lat": -8.612651,
+      "lon": 120.462584,
+      "wikidata_id": "Q14143",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Manggarai Barat",
+      "lat": -8.64484,
+      "lon": 119.88281,
+      "wikidata_id": "Q14153",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Manggarai Timur",
+      "lat": -8.75,
+      "lon": 120.608611,
+      "wikidata_id": "Q14137",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Nagekeo",
+      "lat": -8.8721,
+      "lon": 121.20963,
+      "wikidata_id": "Q14144",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Ngada",
+      "lat": -8.66667,
+      "lon": 121,
+      "wikidata_id": "Q14145",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Rote Ndao",
+      "lat": -10.466667,
+      "lon": 123.383333,
+      "wikidata_id": "Q14147",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Sabu Raijua",
+      "lat": -10.56286,
+      "lon": 121.78894,
+      "wikidata_id": "Q14148",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Sikka",
+      "lat": -8.616389,
+      "lon": 122.208056,
+      "wikidata_id": "Q14150",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Sumba Barat",
+      "lat": -9.56667,
+      "lon": 119.45,
+      "wikidata_id": "Q14154",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Sumba Barat Daya",
+      "lat": -9.56216,
+      "lon": 119.08905,
+      "wikidata_id": "Q14152",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Sumba Tengah",
+      "lat": -9.62941,
+      "lon": 119.61914,
+      "wikidata_id": "Q14134",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Sumba Timur",
+      "lat": -9.88333,
+      "lon": 120.25,
+      "wikidata_id": "Q14139",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Timor Tengah Selatan",
+      "lat": -9.471667,
+      "lon": 124.804722,
+      "wikidata_id": "Q14151",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kab. Timor Tengah Utara",
+      "lat": -9.446667,
+      "lon": 124.478056,
+      "wikidata_id": "Q14146",
+      "match": "name"
+    },
+    {
+      "provinsi": "Nusa Tenggara Timur",
+      "kabkota": "Kota Kupang",
+      "lat": -10.163333,
+      "lon": 123.577778,
+      "wikidata_id": "Q14155",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Asmat",
+      "lat": -5.3795,
+      "lon": 138.46344,
+      "wikidata_id": "Q27228",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Biak Numfor",
+      "lat": -1.03333,
+      "lon": 136,
+      "wikidata_id": "Q27246",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Boven Digoel",
+      "lat": -6,
+      "lon": 140,
+      "wikidata_id": "Q27262",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Deiyai",
+      "lat": -4.100318,
+      "lon": 136.435068,
+      "wikidata_id": "Q27386",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Dogiyai",
+      "lat": -4.057,
+      "lon": 135.709,
+      "wikidata_id": "Q27413",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Intan Jaya",
+      "lat": -3.41016,
+      "lon": 136.70837,
+      "wikidata_id": "Q27458",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Jayapura",
+      "lat": -3,
+      "lon": 139.95,
+      "wikidata_id": "Q27477",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Jayawijaya",
+      "lat": -4.08333,
+      "lon": 139.08333,
+      "wikidata_id": "Q27529",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Keerom",
+      "lat": -2.883694,
+      "lon": 140.74357,
+      "wikidata_id": "Q27573",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Kepulauan Yapen",
+      "lat": -1.78773,
+      "lon": 136.27716,
+      "wikidata_id": "Q27848",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Lanny Jaya",
+      "lat": -3.9125,
+      "lon": 138.287778,
+      "wikidata_id": "Q27594",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Mamberamo Raya",
+      "lat": -2.23561,
+      "lon": 137.78229,
+      "wikidata_id": "Q27668",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Mamberamo Tengah",
+      "lat": -3.88333,
+      "lon": 139.16667,
+      "wikidata_id": "Q27316",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Mappi",
+      "lat": -6.49971,
+      "lon": 139.34441,
+      "wikidata_id": "Q27679",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Merauke",
+      "lat": -7.66667,
+      "lon": 139.66667,
+      "wikidata_id": "Q27693",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Mimika",
+      "lat": -4.54357,
+      "lon": 136.56555,
+      "wikidata_id": "Q27700",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Nabire",
+      "lat": -3.54016,
+      "lon": 135.55511,
+      "wikidata_id": "Q27708",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Nduga",
+      "lat": -4.45093,
+      "lon": 138.10089,
+      "wikidata_id": "Q27724",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Paniai",
+      "lat": -3.9,
+      "lon": 136.6,
+      "wikidata_id": "Q27738",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Pegunungan Bintang",
+      "lat": -4.52167,
+      "lon": 140.29541,
+      "wikidata_id": "Q27750",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Puncak",
+      "lat": -4.14204,
+      "lon": 137.09702,
+      "wikidata_id": "Q27761",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Puncak Jaya",
+      "lat": -3.5107,
+      "lon": 137.8661,
+      "wikidata_id": "Q27771",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Sarmi",
+      "lat": -2.41667,
+      "lon": 139.08333,
+      "wikidata_id": "Q27784",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Supiori",
+      "lat": -0.733333,
+      "lon": 135.583,
+      "wikidata_id": "Q27793",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Tolikara",
+      "lat": -3.46667,
+      "lon": 138.61667,
+      "wikidata_id": "Q27802",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Waropen",
+      "lat": -2.286,
+      "lon": 137.01837,
+      "wikidata_id": "Q27815",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Yahukimo",
+      "lat": -4.886999,
+      "lon": 139.520008,
+      "wikidata_id": "Q27825",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Yalimo",
+      "lat": -3.785,
+      "lon": 139.447,
+      "wikidata_id": "Q27838",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kota Jayapura",
+      "lat": -2.5425,
+      "lon": 140.704479,
+      "wikidata_id": "Q27860",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Fakfak",
+      "lat": -2.9167,
+      "lon": 132.3,
+      "wikidata_id": "Q26727",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Kaimana",
+      "lat": -3.66093,
+      "lon": 133.77451,
+      "wikidata_id": "Q26739",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Manokwari",
+      "lat": -0.86291,
+      "lon": 134.06402,
+      "wikidata_id": "Q26748",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Manokwari Selatan",
+      "lat": -1.0798,
+      "lon": 133.96729,
+      "wikidata_id": "Q12488351",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Maybrat",
+      "lat": -1.2155,
+      "lon": 132.35092,
+      "wikidata_id": "Q26759",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Pegunungan Arfak",
+      "lat": -0.93523,
+      "lon": 133.89587,
+      "wikidata_id": "Q16251650",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Raja Ampat",
+      "lat": -0.5,
+      "lon": 130,
+      "wikidata_id": "Q26785",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Sorong",
+      "lat": -1.1,
+      "lon": 131.51667,
+      "wikidata_id": "Q26792",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Sorong Selatan",
+      "lat": -1.50495,
+      "lon": 132.28638,
+      "wikidata_id": "Q26802",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Tambrauw",
+      "lat": -0.60515,
+      "lon": 132.48962,
+      "wikidata_id": "Q26810",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Teluk Bintuni",
+      "lat": -1.88037,
+      "lon": 133.33105,
+      "wikidata_id": "Q26819",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kab. Teluk Wondama",
+      "lat": -2.7,
+      "lon": 134.5,
+      "wikidata_id": "Q26827",
+      "match": "name"
+    },
+    {
+      "provinsi": "Papua Barat",
+      "kabkota": "Kota Sorong",
+      "lat": -0.87956,
+      "lon": 131.26104,
+      "wikidata_id": "Q26837",
+      "match": "name",
+      "province_mismatch": true
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kab. Bengkalis",
+      "lat": 1.489722,
+      "lon": 102.079722,
+      "wikidata_id": "Q7594",
+      "match": "name"
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kab. Indragiri Hilir",
+      "lat": -0.315556,
+      "lon": 103.158056,
+      "wikidata_id": "Q7599",
+      "match": "name"
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kab. Indragiri Hulu",
+      "lat": -0.55,
+      "lon": 102.316667,
+      "wikidata_id": "Q7605",
+      "match": "name"
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kab. Kampar",
+      "lat": 0.313609,
+      "lon": 101.018525,
+      "wikidata_id": "Q7613",
+      "match": "name"
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kab. Kepulauan Meranti",
+      "lat": 0.97488,
+      "lon": 102.69539,
+      "wikidata_id": "Q7630",
+      "match": "name"
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kab. Kuantan Singingi",
+      "lat": -0.47532,
+      "lon": 101.45857,
+      "wikidata_id": "Q7626",
+      "match": "name"
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kab. Pelalawan",
+      "lat": 0.20822,
+      "lon": 102.18607,
+      "wikidata_id": "Q7641",
+      "match": "name"
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kab. Rokan Hilir",
+      "lat": 2.16599,
+      "lon": 100.82514,
+      "wikidata_id": "Q7759",
+      "match": "name"
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kab. Rokan Hulu",
+      "lat": 0.933333,
+      "lon": 100.5,
+      "wikidata_id": "Q7744",
+      "match": "name"
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kab. Siak",
+      "lat": 0.974444,
+      "lon": 102.013333,
+      "wikidata_id": "Q7777",
+      "match": "name"
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kota Dumai",
+      "lat": 1.666667,
+      "lon": 101.45,
+      "wikidata_id": "Q7782",
+      "match": "name"
+    },
+    {
+      "provinsi": "Riau",
+      "kabkota": "Kota Pekanbaru",
+      "lat": 0.533333,
+      "lon": 101.45,
+      "wikidata_id": "Q7786",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Barat",
+      "kabkota": "Kab. Majene",
+      "lat": -3.547545,
+      "lon": 118.957853,
+      "wikidata_id": "Q15344",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Barat",
+      "kabkota": "Kab. Mamasa",
+      "lat": -3.11306,
+      "lon": 119.383,
+      "wikidata_id": "Q15347",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Barat",
+      "kabkota": "Kab. Mamuju",
+      "lat": -2.683333,
+      "lon": 118.9,
+      "wikidata_id": "Q15349",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Barat",
+      "kabkota": "Kab. Mamuju Tengah",
+      "lat": -2.090105,
+      "lon": 119.488072,
+      "wikidata_id": "Q12488349",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Barat",
+      "kabkota": "Kab. Polewali Mandar",
+      "lat": -3.41333,
+      "lon": 119.325,
+      "wikidata_id": "Q15353",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Bantaeng",
+      "lat": -5.53333,
+      "lon": 119.933,
+      "wikidata_id": "Q14590",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Barru",
+      "lat": -3.24333,
+      "lon": 119.681,
+      "wikidata_id": "Q14593",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Bone",
+      "lat": -4.538611,
+      "lon": 120.329722,
+      "wikidata_id": "Q14595",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Bulukumba",
+      "lat": -5.416667,
+      "lon": 120.233333,
+      "wikidata_id": "Q14596",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Enrekang",
+      "lat": -3.5,
+      "lon": 119.866667,
+      "wikidata_id": "Q14599",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Gowa",
+      "lat": -5.333333,
+      "lon": 119.666667,
+      "wikidata_id": "Q14601",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Jeneponto",
+      "lat": -5.63333,
+      "lon": 119.73333,
+      "wikidata_id": "Q14602",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Kepulauan Selayar",
+      "lat": -6.81667,
+      "lon": 120.8,
+      "wikidata_id": "Q14619",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Luwu",
+      "lat": -3.348333,
+      "lon": 120.221111,
+      "wikidata_id": "Q14604",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Luwu Timur",
+      "lat": -2.531944,
+      "lon": 121.123056,
+      "wikidata_id": "Q14597",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Luwu Utara",
+      "lat": -2.6,
+      "lon": 120.25,
+      "wikidata_id": "Q14606",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Maros",
+      "lat": -5.016494,
+      "lon": 119.574467,
+      "wikidata_id": "Q14611",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Pangkajene Dan Kepulauan",
+      "lat": -4.75,
+      "lon": 119.5,
+      "wikidata_id": "Q14613",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Pinrang",
+      "lat": -3.78333,
+      "lon": 119.633,
+      "wikidata_id": "Q14615",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Sidenreng Rappang",
+      "lat": -3.92694,
+      "lon": 119.796,
+      "wikidata_id": "Q11214749",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Sinjai",
+      "lat": -5.1993,
+      "lon": 120.1544,
+      "wikidata_id": "Q14622",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Soppeng",
+      "lat": -4.348611,
+      "lon": 119.8825,
+      "wikidata_id": "Q14629",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Takalar",
+      "lat": -5.416667,
+      "lon": 119.583333,
+      "wikidata_id": "Q14630",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Tana Toraja",
+      "lat": -3.166667,
+      "lon": 119.75,
+      "wikidata_id": "Q14632",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Toraja Utara",
+      "lat": -2.927222,
+      "lon": 119.791944,
+      "wikidata_id": "Q14609",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kab. Wajo",
+      "lat": -4.126389,
+      "lon": 120.031944,
+      "wikidata_id": "Q14633",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kota Makassar",
+      "lat": -5.133056,
+      "lon": 119.413611,
+      "wikidata_id": "Q14634",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kota Palopo",
+      "lat": -3,
+      "lon": 120.2,
+      "wikidata_id": "Q14635",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Selatan",
+      "kabkota": "Kota Parepare",
+      "lat": -4.016667,
+      "lon": 119.623611,
+      "wikidata_id": "Q14636",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Banggai",
+      "lat": -0.957091,
+      "lon": 122.558593,
+      "wikidata_id": "Q15810",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Banggai Kepulauan",
+      "lat": -1.408619,
+      "lon": 123.206363,
+      "wikidata_id": "Q15812",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Banggai Laut",
+      "lat": -1.5888,
+      "lon": 123.5008,
+      "wikidata_id": "Q12488339",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Buol",
+      "lat": 1.010469,
+      "lon": 121.35425,
+      "wikidata_id": "Q15813",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Donggala",
+      "lat": -0.694444,
+      "lon": 119.730556,
+      "wikidata_id": "Q15814",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Morowali",
+      "lat": -2.818536,
+      "lon": 121.860786,
+      "wikidata_id": "Q15815",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Morowali Utara",
+      "lat": -1.7207,
+      "lon": 121.24649,
+      "wikidata_id": "Q12488353",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Parigi Moutong",
+      "lat": 0.3368,
+      "lon": 120.17841,
+      "wikidata_id": "Q15816",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Poso",
+      "lat": -1.4,
+      "lon": 120.75,
+      "wikidata_id": "Q15817",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Sigi",
+      "lat": -1.385,
+      "lon": 119.967,
+      "wikidata_id": "Q15822",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Tojo UNA-UNA",
+      "lat": -0.875556,
+      "lon": 121.63,
+      "wikidata_id": "Q15823",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kab. Toli-Toli",
+      "lat": 1.03861,
+      "lon": 120.818,
+      "wikidata_id": "Q15824",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tengah",
+      "kabkota": "Kota Palu",
+      "lat": -0.895,
+      "lon": 119.859444,
+      "wikidata_id": "Q15826",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Bombana",
+      "lat": -4.625556,
+      "lon": 121.816389,
+      "wikidata_id": "Q15356",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Buton",
+      "lat": -5.31667,
+      "lon": 122.58333,
+      "wikidata_id": "Q15357",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Buton Selatan",
+      "lat": -5.56667,
+      "lon": 122.7,
+      "wikidata_id": "Q19745612",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Buton Tengah",
+      "lat": -5.31667,
+      "lon": 122.33333,
+      "wikidata_id": "Q19745487",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Buton Utara",
+      "lat": -5.01457,
+      "lon": 122.93015,
+      "wikidata_id": "Q15366",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Kolaka",
+      "lat": -4.04917,
+      "lon": 121.616,
+      "wikidata_id": "Q15358",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Kolaka Timur",
+      "lat": -4.01807,
+      "lon": 121.86172,
+      "wikidata_id": "Q15960838",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Kolaka Utara",
+      "lat": -3.33722,
+      "lon": 121.044,
+      "wikidata_id": "Q15369",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Konawe",
+      "lat": -3.91717,
+      "lon": 122.08823,
+      "wikidata_id": "Q15359",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Konawe Kepulauan",
+      "lat": -4.11656,
+      "lon": 123.10181,
+      "wikidata_id": "Q15730145",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Konawe Selatan",
+      "lat": -3.411414,
+      "lon": 122.019965,
+      "wikidata_id": "Q15372",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Konawe Utara",
+      "lat": -3.411414,
+      "lon": 122.019965,
+      "wikidata_id": "Q15370",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Muna",
+      "lat": -4.8425,
+      "lon": 122.648,
+      "wikidata_id": "Q15363",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Muna Barat",
+      "lat": -4.83333,
+      "lon": 122.48333,
+      "wikidata_id": "Q19746428",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kab. Wakatobi",
+      "lat": -5.31934,
+      "lon": 123.5948,
+      "wikidata_id": "Q15375",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kota Bau-Bau",
+      "lat": -5.462222,
+      "lon": 122.605833,
+      "wikidata_id": "Q15378",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Tenggara",
+      "kabkota": "Kota Kendari",
+      "lat": -3.9675,
+      "lon": 122.594722,
+      "wikidata_id": "Q15379",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kab. Bolaang Mongondow",
+      "lat": 0.75,
+      "lon": 124.08333,
+      "wikidata_id": "Q15833",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kab. Bolaang Mongondow Selatan",
+      "lat": 0.352778,
+      "lon": 123.799167,
+      "wikidata_id": "Q15841",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kab. Bolaang Mongondow Timur",
+      "lat": 0.77,
+      "lon": 124.613889,
+      "wikidata_id": "Q15834",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kab. Bolaang Mongondow Utara",
+      "lat": 0.78527,
+      "lon": 123.41766,
+      "wikidata_id": "Q15837",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kab. Kepulauan Sangihe",
+      "lat": 3,
+      "lon": 125.5,
+      "wikidata_id": "Q15839",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kab. Kepulauan Siau Tagulandang Biaro",
+      "lat": 2.35,
+      "lon": 125.416667,
+      "wikidata_id": "Q15840",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kab. Kepulauan Talaud",
+      "lat": 4.31178,
+      "lon": 126.78085,
+      "wikidata_id": "Q17056608",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kab. Minahasa",
+      "lat": 1.2537,
+      "lon": 124.83,
+      "wikidata_id": "Q15836",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kab. Minahasa Selatan",
+      "lat": 0.583333,
+      "lon": 124.3,
+      "wikidata_id": "Q15842",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kab. Minahasa Tenggara",
+      "lat": 1.05633,
+      "lon": 124.7925,
+      "wikidata_id": "Q15843",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kab. Minahasa Utara",
+      "lat": 1.4025,
+      "lon": 124.96,
+      "wikidata_id": "Q15838",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kota Bitung",
+      "lat": 1.447222,
+      "lon": 125.197778,
+      "wikidata_id": "Q15845",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kota Kotamobagu",
+      "lat": 0.733333,
+      "lon": 124.316667,
+      "wikidata_id": "Q15846",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kota Manado",
+      "lat": 1.493056,
+      "lon": 124.841261,
+      "wikidata_id": "Q15847",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sulawesi Utara",
+      "kabkota": "Kota Tomohon",
+      "lat": 1.324421,
+      "lon": 124.82254,
+      "wikidata_id": "Q15848",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Agam",
+      "lat": -0.266667,
+      "lon": 100,
+      "wikidata_id": "Q6019",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Dharmasraya",
+      "lat": -1.05,
+      "lon": 101.367,
+      "wikidata_id": "Q6024",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Kepulauan Mentawai",
+      "lat": -2.183333,
+      "lon": 99.65,
+      "wikidata_id": "Q6038",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Lima Puluh Kota",
+      "lat": -0.0168,
+      "lon": 100.5872,
+      "wikidata_id": "Q6032",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Padang Pariaman",
+      "lat": -0.6,
+      "lon": 100.28333,
+      "wikidata_id": "Q6042",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Pasaman",
+      "lat": 0.166667,
+      "lon": 100.117,
+      "wikidata_id": "Q6048",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Pasaman Barat",
+      "lat": 0.28152,
+      "lon": 99.51965,
+      "wikidata_id": "Q6103",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Pesisir Selatan",
+      "lat": -1.35,
+      "lon": 100.567,
+      "wikidata_id": "Q6065",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Sijunjung",
+      "lat": -0.700556,
+      "lon": 100.9775,
+      "wikidata_id": "Q6055",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Solok",
+      "lat": -0.96667,
+      "lon": 100.81667,
+      "wikidata_id": "Q6058",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Solok Selatan",
+      "lat": -1.233331,
+      "lon": 101.417,
+      "wikidata_id": "Q6083",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kab. Tanah Datar",
+      "lat": -0.45,
+      "lon": 100.583,
+      "wikidata_id": "Q6093",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kota Bukittinggi",
+      "lat": -0.309722,
+      "lon": 100.375278,
+      "wikidata_id": "Q7248",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kota Padang",
+      "lat": -0.955556,
+      "lon": 100.360556,
+      "wikidata_id": "Q7253",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kota Padangpanjang",
+      "lat": -0.464444,
+      "lon": 100.400833,
+      "wikidata_id": "Q7256",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kota Pariaman",
+      "lat": -0.626111,
+      "lon": 100.120556,
+      "wikidata_id": "Q7258",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kota Payakumbuh",
+      "lat": -0.224444,
+      "lon": 100.6325,
+      "wikidata_id": "Q7261",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kota Sawahlunto",
+      "lat": -0.682778,
+      "lon": 100.778333,
+      "wikidata_id": "Q7263",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Barat",
+      "kabkota": "Kota Solok",
+      "lat": -0.788333,
+      "lon": 100.654167,
+      "wikidata_id": "Q7266",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Banyuasin",
+      "lat": -2.883333,
+      "lon": 104.383056,
+      "wikidata_id": "Q8107",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Empat Lawang",
+      "lat": -3.75,
+      "lon": 103,
+      "wikidata_id": "Q8112",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Lahat",
+      "lat": -3.786389,
+      "lon": 103.542778,
+      "wikidata_id": "Q8117",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Muara Enim",
+      "lat": -4.2327,
+      "lon": 103.6141,
+      "wikidata_id": "Q8119",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Musi Banyuasin",
+      "lat": -2.893889,
+      "lon": 103.8125,
+      "wikidata_id": "Q8120",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Musi Rawas",
+      "lat": -3.08333,
+      "lon": 103.2,
+      "wikidata_id": "Q8121",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Musi Rawas Utara",
+      "lat": -2.73515,
+      "lon": 102.901465,
+      "wikidata_id": "Q18511812",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Ogan ILIR",
+      "lat": -3.43186,
+      "lon": 104.62727,
+      "wikidata_id": "Q8122",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Ogan Komering ILIR",
+      "lat": -3.36667,
+      "lon": 105.36667,
+      "wikidata_id": "Q8125",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Ogan Komering ULU",
+      "lat": -4.13333,
+      "lon": 104.03333,
+      "wikidata_id": "Q8126",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Ogan Komering ULU Selatan",
+      "lat": -4.65728,
+      "lon": 104.00659,
+      "wikidata_id": "Q8127",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Ogan Komering ULU Timur",
+      "lat": -3.85679,
+      "lon": 104.75209,
+      "wikidata_id": "Q8110",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kab. Penukal Abab Lematang ILIR",
+      "lat": -3.21342,
+      "lon": 104.08722,
+      "wikidata_id": "Q15729116",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kota Lubuklinggau",
+      "lat": -3.296667,
+      "lon": 102.861667,
+      "wikidata_id": "Q8129",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kota Pagar Alam",
+      "lat": -4.021667,
+      "lon": 103.252222,
+      "wikidata_id": "Q8130",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kota Palembang",
+      "lat": -2.983333,
+      "lon": 104.764444,
+      "wikidata_id": "Q8131",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Selatan",
+      "kabkota": "Kota Prabumulih",
+      "lat": -3.432778,
+      "lon": 104.235556,
+      "wikidata_id": "Q8133",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Asahan",
+      "lat": 3,
+      "lon": 99.1667,
+      "wikidata_id": "Q1795",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Batu Bara",
+      "lat": 3.16166,
+      "lon": 99.52652,
+      "wikidata_id": "Q5797",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Dairi",
+      "lat": 2.86667,
+      "lon": 98.23333,
+      "wikidata_id": "Q5801",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Deli Serdang",
+      "lat": 3.55,
+      "lon": 98.85,
+      "wikidata_id": "Q5804",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Humbang Hasundutan",
+      "lat": 2.26551,
+      "lon": 98.50376,
+      "wikidata_id": "Q5808",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Karo",
+      "lat": 3.11667,
+      "lon": 98.3,
+      "wikidata_id": "Q5810",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Labuhanbatu",
+      "lat": 2.26667,
+      "lon": 100.1,
+      "wikidata_id": "Q5814",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Labuhanbatu Selatan",
+      "lat": 1.982778,
+      "lon": 100.0975,
+      "wikidata_id": "Q5905",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Labuhanbatu Utara",
+      "lat": 2.333333,
+      "lon": 99.6375,
+      "wikidata_id": "Q5842",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Langkat",
+      "lat": 3.766667,
+      "lon": 98.216667,
+      "wikidata_id": "Q5833",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Mandailing Natal",
+      "lat": 0.78378,
+      "lon": 99.25495,
+      "wikidata_id": "Q5837",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Nias",
+      "lat": 1.03333,
+      "lon": 97.76667,
+      "wikidata_id": "Q5841",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Nias Barat",
+      "lat": 1.05966,
+      "lon": 97.58606,
+      "wikidata_id": "Q5909",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Nias Selatan",
+      "lat": 0.583353,
+      "lon": 97.777667,
+      "wikidata_id": "Q5918",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Nias Utara",
+      "lat": 1.3875,
+      "lon": 97.36,
+      "wikidata_id": "Q5853",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Padang Lawas",
+      "lat": 1.126026,
+      "lon": 99.813309,
+      "wikidata_id": "Q5866",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Padang Lawas Utara",
+      "lat": 1.46011,
+      "lon": 99.67346,
+      "wikidata_id": "Q5857",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Pakpak Bharat",
+      "lat": 2.56667,
+      "lon": 98.28333,
+      "wikidata_id": "Q5872",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Samosir",
+      "lat": 2.64025,
+      "lon": 98.71525,
+      "wikidata_id": "Q5888",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Serdang Bedagai",
+      "lat": 3.36667,
+      "lon": 99.03333,
+      "wikidata_id": "Q5899",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Simalungun",
+      "lat": 2.9,
+      "lon": 99,
+      "wikidata_id": "Q5903",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Tapanuli Selatan",
+      "lat": 1.517652,
+      "lon": 99.30107,
+      "wikidata_id": "Q5914",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Tapanuli Tengah",
+      "lat": 1.9,
+      "lon": 98.66667,
+      "wikidata_id": "Q5800",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Tapanuli Utara",
+      "lat": 2.0028,
+      "lon": 99.0707,
+      "wikidata_id": "Q5863",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kota Binjai",
+      "lat": 3.6,
+      "lon": 98.485278,
+      "wikidata_id": "Q5954",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kota Gunungsitoli",
+      "lat": 1.116667,
+      "lon": 97.566667,
+      "wikidata_id": "Q5967",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kota Medan",
+      "lat": 3.589444,
+      "lon": 98.673889,
+      "wikidata_id": "Q5972",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kota Pematangsiantar",
+      "lat": 2.96,
+      "lon": 99.06,
+      "wikidata_id": "Q5979",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kota Sibolga",
+      "lat": 1.7425,
+      "lon": 98.779167,
+      "wikidata_id": "Q5984",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kota Tanjungbalai",
+      "lat": 2.966667,
+      "lon": 99.8,
+      "wikidata_id": "Q5987",
+      "match": "name"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kota Tebing Tinggi",
+      "lat": 3.328333,
+      "lon": 99.1625,
+      "wikidata_id": "Q5989",
+      "match": "name"
+    }
+  ],
+  "unmatched": [
+    {
+      "provinsi": "DKI Jakarta",
+      "kabkota": "Kab. Kepulauan Seribu",
+      "status": "unmatched",
+      "reason": "no Wikidata item with this name and class and a coordinate"
+    },
+    {
+      "provinsi": "Gorontalo",
+      "kabkota": "Kab. Pahuwato",
+      "status": "unmatched",
+      "reason": "no Wikidata item with this name and class and a coordinate"
+    },
+    {
+      "provinsi": "Jawa Barat",
+      "kabkota": "Kab. Ciamis",
+      "status": "unmatched",
+      "reason": "no Wikidata item with this name and class and a coordinate"
+    },
+    {
+      "provinsi": "Kalimantan Barat",
+      "kabkota": "Kota Pontianak",
+      "status": "unmatched",
+      "reason": "no Wikidata item with this name and class and a coordinate"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Pekajang Kab. Lingga",
+      "status": "unmatched",
+      "reason": "name is not a regency/city name (sub-area label)"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Pulau Laut Kab. Natuna",
+      "status": "unmatched",
+      "reason": "name is not a regency/city name (sub-area label)"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Pulau Midai Kab. Natuna",
+      "status": "unmatched",
+      "reason": "name is not a regency/city name (sub-area label)"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Pulau Serasan Kab. Natuna",
+      "status": "unmatched",
+      "reason": "name is not a regency/city name (sub-area label)"
+    },
+    {
+      "provinsi": "Kepulauan Riau",
+      "kabkota": "Pulau Tambelan Kab. Bintan",
+      "status": "unmatched",
+      "reason": "name is not a regency/city name (sub-area label)"
+    },
+    {
+      "provinsi": "Maluku",
+      "kabkota": "Kab. Maluku Tenggara Barat",
+      "status": "unmatched",
+      "reason": "no Wikidata item with this name and class and a coordinate"
+    },
+    {
+      "provinsi": "Maluku Utara",
+      "kabkota": "Kota Sofifi",
+      "status": "unmatched",
+      "reason": "no Wikidata item with this name and class and a coordinate"
+    },
+    {
+      "provinsi": "Papua",
+      "kabkota": "Kab. Yapen Waropen",
+      "status": "unmatched",
+      "reason": "no Wikidata item with this name and class and a coordinate"
+    },
+    {
+      "provinsi": "Sulawesi Barat",
+      "kabkota": "Kab. Mamuju Utara",
+      "status": "unmatched",
+      "reason": "no Wikidata item with this name and class and a coordinate"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kab. Toba Samosir",
+      "status": "unmatched",
+      "reason": "no Wikidata item with this name and class and a coordinate"
+    },
+    {
+      "provinsi": "Sumatera Utara",
+      "kabkota": "Kota Padangsidempuan",
+      "status": "unmatched",
+      "reason": "no Wikidata item with this name and class and a coordinate"
+    }
   ]
 }
