@@ -21,6 +21,8 @@ export const API_ERROR_CODES = [
   "OFFLINE",
   "NOT_AVAILABLE",
   "RATE_LIMITED",
+  "UNAUTHENTICATED",
+  "INVALID_OTP",
 ] as const;
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
 export const apiErrorSchema = z.object({
@@ -305,3 +307,76 @@ export const notificationPreferencesSchema = z.object({
   quiet_hours: z.object({ enabled: z.boolean(), start: clock, end: clock, allow_worship: z.boolean() }),
 });
 export type NotificationPreferences = z.infer<typeof notificationPreferencesSchema>;
+
+// ---- auth (§19.1, §24.1) ----
+export const requestOtpRequestSchema = z.object({ email: z.string().trim().min(3).max(254) });
+export type RequestOtpRequest = z.infer<typeof requestOtpRequestSchema>;
+/** Identical for registered and unregistered emails (anti enumeration). */
+export const requestOtpResponseSchema = z.object({
+  ok: z.literal(true),
+  message: z.string(),
+  resend_after_seconds: z.number().int(),
+});
+export type RequestOtpResponse = z.infer<typeof requestOtpResponseSchema>;
+
+export const verifyOtpRequestSchema = z.object({
+  email: z.string().trim().min(3).max(254),
+  code: z.string().regex(/^\d{6}$/),
+});
+export type VerifyOtpRequest = z.infer<typeof verifyOtpRequestSchema>;
+
+export const authUserSchema = z.object({ id: z.string(), email: z.string() });
+export const verifyOtpResponseSchema = z.object({
+  user: authUserSchema,
+  device_id: z.string(),
+  expires_at: isoInstant,
+  access: accessSchema,
+});
+export type VerifyOtpResponse = z.infer<typeof verifyOtpResponseSchema>;
+
+export const authSessionSchema = z.object({
+  authenticated: z.boolean(),
+  /** Why the user is signed out: never signed in or logged out, session ran out, or another device signed this one out. */
+  reason: z.enum(["none", "expired", "revoked"]).nullable(),
+  user: authUserSchema.nullable(),
+  device_id: z.string().nullable(),
+  expires_at: isoInstant.nullable(),
+});
+export type AuthSession = z.infer<typeof authSessionSchema>;
+
+export const deviceSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  last_seen_at: isoInstant,
+  is_current: z.boolean(),
+});
+export type Device = z.infer<typeof deviceSchema>;
+
+// ---- profile (§19.2) ----
+export const themePrefSchema = z.enum(["system", "light", "dark", "auto-night"]);
+export const profileSchema = z.object({
+  user_id: z.string(),
+  display_name: z.string().nullable(),
+  region_id: z.string().nullable(),
+  schedule_mode: z.enum(["region", "manual"]),
+  timezone: z.string(),
+  /** Null until onboarding completes. */
+  program_start_date: isoDate.nullable(),
+  onboarding_completed: z.boolean(),
+  theme_pref: themePrefSchema,
+  quran_font_size: z.number().int().min(24).max(44),
+  dhikr_font_size: z.number().int().min(26).max(34),
+});
+export type Profile = z.infer<typeof profileSchema>;
+
+export const profileUpdateSchema = z.object({ display_name: z.string().trim().max(60).nullable() });
+export type ProfileUpdate = z.infer<typeof profileUpdateSchema>;
+
+export const preferencesUpdateSchema = z
+  .object({
+    theme_pref: themePrefSchema,
+    quran_font_size: z.number().int().min(24).max(44),
+    dhikr_font_size: z.number().int().min(26).max(34),
+  })
+  .partial();
+export type PreferencesUpdate = z.infer<typeof preferencesUpdateSchema>;

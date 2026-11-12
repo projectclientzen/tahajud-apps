@@ -1,6 +1,13 @@
-import { createHttpDataLayer } from "./http";
-import type { DataLayer } from "./repositories";
-import { createMockDataLayer, type CreateMockOptions, type MockDataLayer } from "./mock";
+import { createHttpAuthRepository, createHttpDataLayer } from "./http";
+import type { AuthRepository, DataLayer } from "./repositories";
+import {
+  createMockAuth,
+  createMockDataLayer,
+  type CreateMockAuthOptions,
+  type CreateMockOptions,
+  type MockAuthLayer,
+  type MockDataLayer,
+} from "./mock";
 
 export type DataMode = "mock" | "live";
 
@@ -14,7 +21,25 @@ export function createDataLayer(opts: CreateMockOptions & { mode?: DataMode }): 
   return mode === "live" ? createHttpDataLayer() : createMockDataLayer(opts);
 }
 
+/** Sign-in repository. Mock mode simulates OTP and sessions in the browser. Live mode is a stub until S5. */
+export function createAuthLayer(
+  opts: CreateMockAuthOptions & { mode?: DataMode } = {},
+): AuthRepository | MockAuthLayer {
+  const mode = opts.mode ?? resolveDataMode();
+  return mode === "live" ? createHttpAuthRepository() : createMockAuth(opts);
+}
+
 export * from "./contracts";
 export type * from "./repositories";
-export { createMockDataLayer, type MockDataLayer, type MockDevTools } from "./mock";
+export {
+  createMockAuth,
+  createMockDataLayer,
+  AUTH_SCENARIOS,
+  type AuthScenarioName,
+  type MockAuthDevTools,
+  type MockAuthLayer,
+  type MockDataLayer,
+  type MockDevTools,
+} from "./mock";
+export { purgeUserDb } from "./user-db";
 export { SCENARIOS, type ScenarioName } from "./mock/state";

@@ -78,3 +78,12 @@ export const PROVISIONAL_ITEMS = [
   "bedtimeBankMinimum",
   "alKahfiFallbackMaghrib",
 ] as const;
+
+/** Auth settings still waiting for approval (PRD §24.1, §30.2). OTP rules themselves are fixed, see domain/auth/otp.ts. */
+export const PROVISIONAL_AUTH = {
+  provisional: true,
+  /** User session lifetime with refresh, days. */
+  sessionDays: 30,
+  /** Active devices per user. */
+  maxActiveDevices: 3,
+} as const;

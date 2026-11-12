@@ -11,6 +11,7 @@ import { planWake } from "@/domain/prayer/wake-plan";
 import {
   checkUnlock,
   computeLevelProgress,
+  initialLevelState,
   levelForSession,
   type SessionOutcome,
 } from "@/domain/progression/progression";
@@ -31,6 +32,8 @@ import {
   counterOperationsRequestSchema,
   excuseRequestSchema,
   locationUpdateSchema,
+  preferencesUpdateSchema,
+  profileUpdateSchema,
   notificationPreferencesSchema,
   quranProgressUpdateSchema,
   checklistUpdateRequestSchema,
@@ -47,6 +50,9 @@ import {
   type NightSession,
   type NotificationPreferences,
   type PrayerTime,
+  type PreferencesUpdate,
+  type Profile,
+  type ProfileUpdate,
   type QuranProgress,
   type QuranProgressUpdate,
   type ReportResponse,
@@ -56,7 +62,14 @@ import {
 } from "../contracts";
 import { DEMO_FAJR_LOCAL, DEMO_MAGHRIB_LOCAL, DEMO_REGIONS, DEMO_SCHEDULE_NOTE } from "./fixtures/regions";
 import { buildScenario } from "./fixtures/scenarios";
-import type { MockState, ScenarioName, StateStorage, StoredSession } from "./state";
+import {
+  DEFAULT_PROFILE,
+  type MockProfile,
+  type MockState,
+  type ScenarioName,
+  type StateStorage,
+  type StoredSession,
+} from "./state";
 
 export interface Clock {
   /** Real time. Injected so tests never depend on the machine clock. */
@@ -99,6 +112,7 @@ export class MockEngine {
       const stored = await this.opts.storage.load();
       this.state =
         stored ?? buildScenario(this.opts.scenario ?? "new_account", this.opts.clock.now(), this.opts.userId);
+      this.state.profile ??= { ...DEFAULT_PROFILE };
       if (!stored) await this.opts.storage.save(this.state);
     }
     return this.state;
@@ -487,6 +501,7 @@ export class MockEngine {
       const c = parseClock(hhmm);
       return zonedInstant(date, c.hour, c.minute, tz);
     };
+    if (st.scheduleMode === "region" && st.regionId === null) return null; // onboarding has not chosen a region yet
     if (st.scheduleMode === "manual") {
       const m = st.manualSchedule;
       if (!m) return null;
@@ -624,6 +639,72 @@ export class MockEngine {
     // Existing session rows keep their frozen zone. Only sessions created later use the new one.
     await this.save();
     return this.prayerTime(st, this.activeKey(st));
+  }
+
+  // ---------- profile (§19.2) ----------
+  private profileView(st: MockState): Profile {
+    const p = st.profile as MockProfile;
+    return {
+      user_id: this.opts.userId,
+      display_name: p.displayName,
+      region_id: st.regionId,
+      schedule_mode: st.scheduleMode,
+      timezone: st.timezone,
+      program_start_date: st.access.onboarding_completed ? st.programStartDate : null,
+      onboarding_completed: st.access.onboarding_completed,
+      theme_pref: p.themePref,
+      quran_font_size: p.quranFontSize,
+      dhikr_font_size: p.dhikrFontSize,
+    };
+  }
+
+  async getProfile(): Promise<Profile> {
+    const st = await this.s();
+    this.requireActive(st);
+    return this.profileView(st);
+  }
+
+  async updateProfile(raw: ProfileUpdate): Promise<Profile> {
+    const req = profileUpdateSchema.parse(raw);
+    const st = await this.s();
+    this.requireActive(st);
+    st.profile = { ...(st.profile as MockProfile), displayName: req.display_name === "" ? null : req.display_name };
+    await this.save();
+    return this.profileView(st);
+  }
+
+  async updatePreferences(raw: PreferencesUpdate): Promise<Profile> {
+    const req = preferencesUpdateSchema.parse(raw);
+    const st = await this.s();
+    this.requireActive(st);
+    const cur = st.profile as MockProfile;
+    st.profile = {
+      ...cur,
+      themePref: req.theme_pref ?? cur.themePref,
+      quranFontSize: req.quran_font_size ?? cur.quranFontSize,
+      dhikrFontSize: req.dhikr_font_size ?? cur.dhikrFontSize,
+    };
+    await this.save();
+    return this.profileView(st);
+  }
+
+  /**
+   * Finishes onboarding. program_start_date becomes the first session the user can still do (S2-3), and the
+   * level state restarts from it. A second call changes nothing.
+   */
+  async completeOnboarding(): Promise<Profile> {
+    const st = await this.s();
+    this.requireActive(st);
+    if (!st.access.onboarding_completed) {
+      if (st.scheduleMode === "region" && st.regionId === null) {
+        throw new ApiError("VALIDATION_ERROR", "Pilih wilayah atau atur jadwal manual dulu.");
+      }
+      st.programStartDate = this.activeKey(st);
+      st.levelState = initialLevelState(st.programStartDate, this.now());
+      st.access = { ...st.access, onboarding_completed: true };
+      await this.save();
+    }
+    return this.profileView(st);
   }
 
   // ---------- reports ----------

@@ -17,7 +17,7 @@ Spesifikasi berlaku: `docs/PRD-v1.2.md`
 | UI | Auth, onboarding, access status | TODO | S4 |
 | UI | Quran Reader | TODO | S4 (UI) / S7 (dataset) |
 | UI | Reports, calendar, settings, notifications, help | TODO | S4 |
-| Offline | IndexedDB queue + service worker | TODO | S4 |
+| Offline | IndexedDB queue + service worker | REAL (logic), belum di layar | S4a di branch sesi (belum merge): antrean per user, sender, trigger, SW (shell + aset statis, `/api/` tidak di-cache), offline fallback, komponen panduan pasang. Diuji di Chromium; Safari iOS belum. Auth OTP + profil repository SIMULATED (mock), live = stub sampai S5. Pemasangan ke UI di ronde 3. Detail: `docs/sessions/S4a.md` |
 | Backend | Supabase schema + RLS | TODO | S5, butuh project Supabase |
 | Backend | Auth OTP + entitlement guard | TODO | S5 |
 | Backend | API v1 + server progression | TODO | S5 |

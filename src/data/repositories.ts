@@ -1,5 +1,12 @@
 import type {
   Access,
+  AuthSession,
+  Device,
+  PreferencesUpdate,
+  Profile,
+  ProfileUpdate,
+  RequestOtpResponse,
+  VerifyOtpResponse,
   CalendarResponse,
   ChecklistUpdateRequest,
   CounterOperationsRequest,
@@ -94,6 +101,35 @@ export interface NotificationRepository {
   putPreferences(prefs: NotificationPreferences): Promise<NotificationPreferences>;
 }
 
+export interface ProfileRepository {
+  /** GET /me/profile */
+  getProfile(): Promise<Profile>;
+  /** PATCH /me/profile */
+  updateProfile(patch: ProfileUpdate): Promise<Profile>;
+  /** PUT /me/location. Region or manual schedule. Same rules as PrayerRepository.setLocation. */
+  setLocation(req: LocationUpdate): Promise<PrayerTime>;
+  /** POST /me/onboarding/complete. Sets program_start_date once (S2-3). Calling again changes nothing. */
+  completeOnboarding(): Promise<Profile>;
+  /** PUT /me/preferences. Display preferences only. */
+  updatePreferences(patch: PreferencesUpdate): Promise<Profile>;
+}
+
+/** Sign-in side. Lives outside DataLayer because it exists before a user id does. */
+export interface AuthRepository {
+  /** POST /auth/request-otp. The answer never depends on whether the email has access. */
+  requestOtp(email: string): Promise<RequestOtpResponse>;
+  /** POST /auth/verify-otp */
+  verifyOtp(email: string, code: string, deviceLabel?: string): Promise<VerifyOtpResponse>;
+  /** GET /me, auth part */
+  getSession(): Promise<AuthSession>;
+  /** POST /auth/logout. This device only. */
+  logout(): Promise<void>;
+  /** GET /me/devices */
+  listDevices(): Promise<Device[]>;
+  /** DELETE /me/devices/:id. Another device only. */
+  revokeDevice(id: string): Promise<void>;
+}
+
 export interface DataLayer {
   mode: "mock" | "live";
   access: AccessRepository;
@@ -104,4 +140,5 @@ export interface DataLayer {
   prayer: PrayerRepository;
   quran: QuranProgressRepository;
   notifications: NotificationRepository;
+  profile: ProfileRepository;
 }

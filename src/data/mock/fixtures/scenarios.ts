@@ -6,7 +6,7 @@ import { initialLevelState } from "@/domain/progression/progression";
 import { addDays } from "@/domain/time/tz";
 import type { LevelNumber } from "@/domain/config/provisional";
 import type { NotificationPreferences } from "../../contracts";
-import type { MockState, ScenarioName, StoredSession } from "../state";
+import { DEFAULT_PROFILE, type MockState, type ScenarioName, type StoredSession } from "../state";
 
 export const DEMO_USER_NAME = "Pengguna Demo";
 const DEMO_TZ = "Asia/Jakarta";
@@ -67,6 +67,7 @@ function base(now: Date): MockState {
     quranProgress: {},
     clockOverride: null,
     installPromptDone: false,
+    profile: { ...DEFAULT_PROFILE, displayName: DEMO_USER_NAME },
   };
 }
 
@@ -135,6 +136,21 @@ export function buildScenario(name: ScenarioName, now: Date, userId: string): Mo
         expires_at: null,
         onboarding_completed: false,
       };
+      break;
+    case "no_active_access":
+      s = base(now);
+      s.access = {
+        authenticated: true,
+        access_status: "none",
+        entitlement_type: null,
+        expires_at: null,
+        onboarding_completed: false,
+      };
+      break;
+    case "onboarding_pending":
+      s = base(now);
+      s.access.onboarding_completed = false;
+      s.regionId = null; // no region chosen yet: onboarding must set one
       break;
     case "manual_schedule":
       s = base(now);

@@ -11,6 +11,8 @@ export const SCENARIOS = [
   "stale_schedule",
   "purchase_pending",
   "manual_schedule",
+  "no_active_access",
+  "onboarding_pending",
 ] as const;
 export type ScenarioName = (typeof SCENARIOS)[number];
 
@@ -25,6 +27,20 @@ export interface StoredSession {
   /** Checklist state. Counter counts live in `counterStore`. */
   activities: Record<string, StoredActivity>;
 }
+
+export interface MockProfile {
+  displayName: string | null;
+  themePref: "system" | "light" | "dark" | "auto-night";
+  quranFontSize: number;
+  dhikrFontSize: number;
+}
+
+export const DEFAULT_PROFILE: MockProfile = {
+  displayName: null,
+  themePref: "system",
+  quranFontSize: 30,
+  dhikrFontSize: 28,
+};
 
 export interface ManualSchedule {
   timezone: string;
@@ -55,6 +71,8 @@ export interface MockState {
   /** Frozen dev clock (ISO), or null to follow real time. */
   clockOverride: string | null;
   installPromptDone: boolean;
+  /** Absent in states saved before S4a. Filled with defaults on load. */
+  profile?: MockProfile;
 }
 
 /** Persistence boundary. IndexedDB in the browser, memory in tests. */

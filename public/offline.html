@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Sedang offline | Tahajud Tracker</title>
+    <style>
+      :root {
+        --bg: #faf7ed;
+        --text: #354f40;
+        --muted: #566459;
+        --btn: #354f40;
+        --on-btn: #faf7ed;
+        --border: #7d8577;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #25372f;
+          --text: #faf7ed;
+          --muted: #c8c9b8;
+          --btn: #a9c0a9;
+          --on-btn: #25372f;
+          --border: #8ba190;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 24px 16px;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          16px/1.6 system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+      }
+      main {
+        max-width: 28rem;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 1.5rem;
+        line-height: 1.25;
+      }
+      p {
+        margin: 0 0 16px;
+        color: var(--muted);
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+      }
+      a,
+      button {
+        min-height: 48px;
+        padding: 0 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        font: inherit;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      button {
+        border: 0;
+        background: var(--btn);
+        color: var(--on-btn);
+      }
+      a {
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+      :focus-visible {
+        outline: 3px solid var(--text);
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Kamu sedang offline</h1>
+      <p>
+        Halaman ini belum tersimpan di perangkat. Catatan yang sudah kamu isi tetap aman dan dikirim begitu koneksi
+        kembali.
+      </p>
+      <div class="row">
+        <button type="button" onclick="location.reload()">Coba lagi</button>
+        <a href="/dashboard">Buka beranda</a>
+      </div>
+    </main>
+  </body>
+</html>

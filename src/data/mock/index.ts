@@ -1,4 +1,13 @@
-import type { DataLayer } from "../repositories";
+import type { AuthRepository, DataLayer } from "../repositories";
+import {
+  MockAuth,
+  idbAuthStorage,
+  memoryAuthStorage,
+  type AuthOptions,
+  type AuthState,
+  type EntitlementStatus,
+} from "./auth";
+import type { AuthScenarioName } from "./fixtures/auth";
 import { MockEngine, type Clock, type EngineOptions } from "./engine";
 import { idbStorage, memoryStorage } from "./storage";
 import type { ScenarioName } from "./state";
@@ -60,6 +69,13 @@ export function createMockDataLayer(opts: CreateMockOptions): MockDataLayer {
     },
     quran: { getProgress: () => e.getQuranProgress(), putProgress: (s, r) => e.putQuranProgress(s, r) },
     notifications: { getPreferences: () => e.getPreferences(), putPreferences: (p) => e.putPreferences(p) },
+    profile: {
+      getProfile: () => e.getProfile(),
+      updateProfile: (p) => e.updateProfile(p),
+      setLocation: (r) => e.setLocation(r),
+      completeOnboarding: () => e.completeOnboarding(),
+      updatePreferences: (p) => e.updatePreferences(p),
+    },
     dev: {
       setNow: (iso) => e.dev_setNow(iso),
       advance: (ms) => e.dev_advance(ms),
@@ -74,3 +90,46 @@ export function createMockDataLayer(opts: CreateMockOptions): MockDataLayer {
 }
 
 export { SCENARIOS, type ScenarioName } from "./state";
+
+export interface MockAuthDevTools {
+  /** Code in the "email" for this address. Dev panel only. */
+  peekOtp(email: string): Promise<string | null>;
+  outbox(): Promise<AuthState["outbox"]>;
+  setNow(iso: string | null): Promise<void>;
+  advance(ms: number): Promise<void>;
+  setEntitlement(email: string, status: EntitlementStatus): Promise<void>;
+  loadScenario(name: AuthScenarioName): Promise<void>;
+  reset(): Promise<void>;
+}
+
+export type MockAuthLayer = AuthRepository & { mode: "mock"; dev: MockAuthDevTools; engine: MockAuth };
+
+export type CreateMockAuthOptions = Partial<
+  Pick<AuthOptions, "clock" | "storage" | "scenario" | "randomInt" | "onboardingCompleted">
+>;
+
+export function createMockAuth(opts: CreateMockAuthOptions = {}): MockAuthLayer {
+  const storage = opts.storage ?? (typeof indexedDB === "undefined" ? memoryAuthStorage() : idbAuthStorage());
+  const a = new MockAuth({ ...opts, storage, clock: opts.clock ?? realClock });
+  return {
+    mode: "mock",
+    engine: a,
+    requestOtp: (e) => a.requestOtp(e),
+    verifyOtp: (e, c, l) => a.verifyOtp(e, c, l),
+    getSession: () => a.getSession(),
+    logout: () => a.logout(),
+    listDevices: () => a.listDevices(),
+    revokeDevice: (id) => a.revokeDevice(id),
+    dev: {
+      peekOtp: (e) => a.dev_peekOtp(e),
+      outbox: () => a.dev_outbox(),
+      setNow: (i) => a.dev_setNow(i),
+      advance: (m) => a.dev_advance(m),
+      setEntitlement: (e, s) => a.dev_setEntitlement(e, s),
+      loadScenario: (n) => a.dev_loadScenario(n),
+      reset: () => a.dev_reset(),
+    },
+  };
+}
+
+export { AUTH_SCENARIOS, type AuthScenarioName } from "./fixtures/auth";
