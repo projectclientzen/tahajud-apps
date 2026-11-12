@@ -1,6 +1,6 @@
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, relative, sep } from "node:path";
 import { createHttpAuthRepository, createHttpDataLayer } from "@/data/http";
 import type { AuthConfig } from "@/server/auth/config";
 import { setDepsForTests } from "@/server/api/deps";
@@ -15,17 +15,26 @@ interface Route {
 }
 
 // The real route files, found the way Next finds them. Nothing is mocked between the request and the database.
-const modules = import.meta.glob("../../../src/app/api/v1/**/route.ts", { eager: true }) as Record<
-  string,
-  Record<string, Handler>
->;
-const routes: Route[] = Object.entries(modules).map(([file, mod]) => {
-  const path = file.split("/api/v1/")[1]!.replace(/\/?route\.ts$/, "");
-  const segs = path === "" ? [] : path.split("/");
-  return { segs, methods: mod, score: segs.filter((s) => !s.startsWith("[")).length };
-});
+const ROUTE_ROOT = join(process.cwd(), "src", "app", "api", "v1");
+function routeFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory() ? routeFiles(join(dir, e.name)) : e.name === "route.ts" ? [join(dir, e.name)] : [],
+  );
+}
+let routes: Route[] | null = null;
+async function loadRoutes(): Promise<Route[]> {
+  routes ??= await Promise.all(
+    routeFiles(ROUTE_ROOT).map(async (file) => {
+      const mod = (await import(/* @vite-ignore */ file)) as Record<string, Handler>;
+      const rel = relative(ROUTE_ROOT, dirname(file));
+      const segs = rel === "" ? [] : rel.split(sep);
+      return { segs, methods: mod, score: segs.filter((s) => !s.startsWith("[")).length };
+    }),
+  );
+  return routes;
+}
 
-function match(pathname: string): { route: Route; params: Record<string, string> } | null {
+function match(routes: Route[], pathname: string): { route: Route; params: Record<string, string> } | null {
   const parts = pathname
     .replace(/^\/api\/v1\/?/, "")
     .split("/")
@@ -52,7 +61,7 @@ function match(pathname: string): { route: Route; params: Record<string, string>
 export const ORIGIN = "http://localhost:3100";
 
 export async function dispatch(req: Request): Promise<Response> {
-  const m = match(new URL(req.url).pathname);
+  const m = match(await loadRoutes(), new URL(req.url).pathname);
   const handler = m?.route.methods[req.method];
   if (!m || !handler) return new Response("no route", { status: m ? 405 : 404 });
   return handler(req, { params: Promise.resolve(m.params) });
