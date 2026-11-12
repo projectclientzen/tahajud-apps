@@ -24,8 +24,11 @@ export function timezoneForProvince(provinsi: string): string {
   return tz;
 }
 
-/** Provisional coordinates, see content/regions/crosscheck-coordinates.json. */
+const coordinateIndex = new Map<string, LatLon>(
+  coordinatesData.regions.map((r) => [makeEquranRegionId(r.provinsi, r.kabkota), { lat: r.lat, lon: r.lon }]),
+);
+
+/** Wikidata (CC0) coordinates, see content/regions/crosscheck-coordinates.json. Unmatched regions return null. */
 export function crosscheckCoordinates(provinsi: string, kabkota: string): LatLon | null {
-  const r = coordinatesData.regions.find((x) => x.provinsi === provinsi && x.kabkota === kabkota);
-  return r ? { lat: r.lat, lon: r.lon } : null;
+  return coordinateIndex.get(makeEquranRegionId(provinsi, kabkota)) ?? null;
 }
