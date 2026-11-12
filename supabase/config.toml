@@ -1,0 +1,17 @@
+# Local Supabase settings for `supabase start`. NOT validated: Docker is not available in the build container,
+# so the CLI never read this file. Check it the first time you run the CLI on a machine with Docker.
+project_id = "tahajud-tracker"
+
+[api]
+enabled = true
+port = 54321
+# app_private is never exposed. Only these RPCs and read-only tables are reachable (see the security migration).
+schemas = ["public"]
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]

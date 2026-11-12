@@ -18,7 +18,7 @@ Spesifikasi berlaku: `docs/PRD-v1.2.md`
 | UI | Quran Reader | TODO | S4 (UI) / S7 (dataset) |
 | UI | Reports, calendar, settings, notifications, help | TODO | S4 |
 | Offline | IndexedDB queue + service worker | REAL (logic), belum di layar | S4a di branch sesi (belum merge): antrean per user, sender, trigger, SW (shell + aset statis, `/api/` tidak di-cache), offline fallback, komponen panduan pasang. Diuji di Chromium; Safari iOS belum. Auth OTP + profil repository SIMULATED (mock), live = stub sampai S5. Pemasangan ke UI di ronde 3. Detail: `docs/sessions/S4a.md` |
-| Backend | Supabase schema + RLS | TODO | S5, butuh project Supabase |
+| Backend | Supabase schema + RLS | REAL (diuji di PGlite), belum di Supabase | T3a di branch sesi (belum merge): 35 tabel PRD §17, RLS di semua tabel, `authenticated` hanya SELECT + 4 RPC, fungsi `apply_counter_operation` (lolos uji paritas dengan domain), `ensure_active_session`, `set_checklist`, progres level, seed dari JSON owner. 123 test DB. Docker tidak ada, jadi belum dicoba di Supabase/PostgreSQL 15-17. Fungsi baca, excuse, onboarding, perangkat ke-4 menunggu T3b. Detail: `docs/sessions/T3a.md` |
 | Backend | Auth OTP + entitlement guard | TODO | S5 |
 | Backend | API v1 + server progression | TODO | S5 |
 | Integrasi | Scalev webhook + reconciliation | TODO | S6, butuh secret + payload asli |
