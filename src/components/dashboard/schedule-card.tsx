@@ -3,6 +3,7 @@
 import { Clock, MapPin } from "lucide-react";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { useNow } from "@/components/providers/data-provider";
+import { ScheduleNote } from "@/components/settings/schedule-note";
 import type { PrayerTime, WakePlan } from "@/data";
 import { formatClock, formatDateLong, formatDuration, tzLabel } from "@/lib/format-id";
 
@@ -50,8 +51,8 @@ export function ScheduleCard({ prayer, wake }: { prayer: PrayerTime; wake: WakeP
           {wake.sleep_warning}
         </p>
       ) : null}
-      <div className="flex flex-col gap-0.5 border-t border-border pt-3">
-        <CardDescription>Sumber: {prayer.label ?? "tidak diketahui"}</CardDescription>
+      <div className="flex flex-col gap-1 border-t border-border pt-3">
+        <ScheduleNote fajr={prayer} className="flex flex-col gap-0.5 text-helper text-text-muted" />
         {prayer.cache_status === "cached" ? (
           <CardDescription>Memakai jadwal tersimpan karena sumber belum bisa dihubungi.</CardDescription>
         ) : null}
@@ -60,7 +61,6 @@ export function ScheduleCard({ prayer, wake }: { prayer: PrayerTime; wake: WakeP
             Terakhir sinkron {formatClock(prayer.fetched_at, tz)} {tzLabel(tz)}.
           </CardDescription>
         ) : null}
-        {prayer.demo_note ? <CardDescription>{prayer.demo_note}</CardDescription> : null}
       </div>
     </Card>
   );
