@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Circle, CircleCheck } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { useData } from "@/components/providers/data-provider";
@@ -76,17 +76,28 @@ export function ActivityRow({ activity: a, onChanged, onError }: RowProps) {
   if (a.kind === "counter") {
     const target = a.target ?? 0;
     return (
-      <li>
+      <li id={`act-${a.id}`}>
         <Link
           href={`/worship/dhikr/${encodeURIComponent(a.id)}`}
-          className="flex min-h-14 items-center gap-3 rounded-[var(--radius-control)] p-3 hover:bg-surface-2"
+          className="flex min-h-16 items-center gap-3 rounded-[var(--radius-control)] p-3 hover:bg-surface-2"
         >
+          {a.completed ? (
+            <CircleCheck aria-hidden className="size-7 shrink-0 text-success" strokeWidth={2} />
+          ) : (
+            <Circle aria-hidden className="size-7 shrink-0 text-border-strong" strokeWidth={1.75} />
+          )}
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className="font-medium">{a.title}</span>
               <Tag required={a.required} />
             </div>
+            <span className="text-helper tabular-nums text-text-muted">
+              {a.count} dari {target}
+              {a.unit ? ` ${a.unit}` : ""}
+              {a.completed ? ", selesai" : ""}
+            </span>
             <ProgressBar
+              hideText
               label={a.completed ? "Selesai" : "Hitungan"}
               value={Math.min(a.count, target)}
               max={Math.max(target, 1)}
@@ -122,16 +133,16 @@ export function ActivityRow({ activity: a, onChanged, onError }: RowProps) {
 
   const note = a.type === "quran" ? "Reader menyusul. Centang setelah selesai membaca." : a.guidance;
   return (
-    <li>
+    <li id={`act-${a.id}`}>
       <label
         className={cn(
-          "flex min-h-14 items-start gap-3 rounded-[var(--radius-control)] p-3 hover:bg-surface-2",
+          "flex min-h-16 items-start gap-3 rounded-[var(--radius-control)] p-3 hover:bg-surface-2",
           saving && "opacity-60",
         )}
       >
         <input
           type="checkbox"
-          className="mt-0.5 size-6 shrink-0 accent-[var(--primary)]"
+          className="mt-0 size-7 shrink-0 accent-[var(--primary)]"
           checked={local ?? a.checked}
           disabled={saving}
           onChange={toggle}
