@@ -512,14 +512,13 @@ describe("data layer selection", () => {
     expect(resolveDataMode(undefined)).toBe("mock");
     expect(resolveDataMode("production")).toBe("mock");
   });
-  it("live mode is a stub that fails with a clear message until S5", async () => {
+  it("live mode calls /api/v1: with no server in reach it fails as OFFLINE, never with made-up data (T3b)", async () => {
     const live = createDataLayer({ userId: "u", mode: "live" });
     expect(live.mode).toBe("live");
     const err = await live.session.getActiveSession().catch((e: unknown) => e);
     expect(err).toBeInstanceOf(ApiError);
-    expect((err as ApiError).code).toBe("NOT_AVAILABLE");
-    expect((err as ApiError).message).toMatch(/S5/);
-    expect(JSON.stringify((err as ApiError).toJSON())).toContain("NOT_AVAILABLE");
+    expect((err as ApiError).code).toBe("OFFLINE");
+    expect(JSON.stringify((err as ApiError).toJSON())).toContain("OFFLINE");
     expect(await Promise.resolve(live.report)).toBe(live.report);
   });
   it("mock mode returns the mock layer", () => {
