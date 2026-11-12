@@ -135,3 +135,11 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Orchestrator melepas `test.fixme` di `tests/e2e/t3b-level1.live.ts` (perbaikan loop sudah di main sejak da88b12).
 - Gerbang: typecheck 0, lint 0, unit 815 + 3 skip, audit bersih, e2e mock 260 passed / 0 failed, e2e live 12 passed / 0 failed.
 - Keputusan owner: tetap Supabase (Auth + Postgres) sampai semua fix; pindah ke VPS menyusul (dibantu Hermes, termasuk Scalev). Scalev (T5) TIDAK dikerjakan orchestrator.
+
+## Merge Q1 + T3c oleh orchestrator (2026-11-13 06.35 WIB)
+- Q1 (`claude/q1-e2e-flaky`): akar flake = state mock dibaca/ditulis bersamaan sehingga tulisan hilang; diperbaiki di kode (satu load bersama, antrean tulis berurutan, epoch). Bukti agen: 3 run penuh berturut-turut 260/0 failed. Hapus akun mandiri diganti kartu "Hapus data lewat CS" (keputusan owner).
+- T3c (`claude/t3c-api-missing`): 8 endpoint baru (data-export, delete-account nonaktif default via `ACCOUNT_SELF_DELETE`, prayer-times, quran/surahs, push-subscriptions, me/notifications), kode error FORBIDDEN_ORIGIN, INTERNAL_ERROR, FEATURE_DISABLED.
+- Integrasi orchestrator: sender antrean offline me-retry INTERNAL_ERROR dan FORBIDDEN_ORIGIN (test baru); env CS WhatsApp disatukan ke `NEXT_PUBLIC_CS_WHATSAPP`; `NEXT_PUBLIC_SCALEV_URL` di .env.example; badge dev Next.js disembunyikan (menutupi tombol alat demo).
+- Gerbang: typecheck 0, lint 0, unit 981 + 3 skip, audit bersih, e2e mock 260/0 failed, e2e live 24/0 failed. Kegagalan live sebelumnya berasal dari server preview lama di container (tidak terulang di checkout bersih; agen Q1 juga 24/24).
+- Catatan: branch `claude/integration-r4a` ter-push tanpa sengaja (isi sama dengan branch orchestrator), boleh dihapus owner.
+- Keputusan owner berjalan: login email + password (bukan OTP), menunggu jawaban Hermes soal alur password dan detail Scalev.
