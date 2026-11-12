@@ -466,53 +466,53 @@ end $$;
 -- ---------- public wrappers (signed-in user, server clock) ----------
 create or replace function public.get_access() returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.get_access(auth.uid(), pg_catalog.now())
+  select app_private.get_access(auth.uid(), app_private.server_now())
 $$;
 create or replace function public.get_profile() returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.get_profile(auth.uid(), pg_catalog.now())
+  select app_private.get_profile(auth.uid(), app_private.server_now())
 $$;
 create or replace function public.update_profile(p_display_name text) returns jsonb
 language sql security definer set search_path = '' as $$
-  select app_private.update_profile(auth.uid(), pg_catalog.now(), p_display_name)
+  select app_private.update_profile(auth.uid(), app_private.server_now(), p_display_name)
 $$;
 create or replace function public.update_preferences(p_theme text, p_quran int, p_dhikr int) returns jsonb
 language sql security definer set search_path = '' as $$
-  select app_private.update_preferences(auth.uid(), pg_catalog.now(), p_theme, p_quran, p_dhikr)
+  select app_private.update_preferences(auth.uid(), app_private.server_now(), p_theme, p_quran, p_dhikr)
 $$;
 create or replace function public.set_location(
   p_mode text, p_region_id uuid, p_timezone text, p_fajr text, p_maghrib text
 ) returns void
 language sql security definer set search_path = '' as $$
-  select app_private.set_location(auth.uid(), pg_catalog.now(), p_mode, p_region_id, p_timezone, p_fajr, p_maghrib)
+  select app_private.set_location(auth.uid(), app_private.server_now(), p_mode, p_region_id, p_timezone, p_fajr, p_maghrib)
 $$;
 create or replace function public.complete_onboarding() returns jsonb
 language sql security definer set search_path = '' as $$
-  select app_private.complete_onboarding(auth.uid(), pg_catalog.now())
+  select app_private.complete_onboarding(auth.uid(), app_private.server_now())
 $$;
 create or replace function public.get_notification_prefs() returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.get_notification_prefs(auth.uid(), pg_catalog.now())
+  select app_private.get_notification_prefs(auth.uid(), app_private.server_now())
 $$;
 create or replace function public.put_notification_prefs(p jsonb) returns jsonb
 language sql security definer set search_path = '' as $$
-  select app_private.put_notification_prefs(auth.uid(), pg_catalog.now(), p)
+  select app_private.put_notification_prefs(auth.uid(), app_private.server_now(), p)
 $$;
 create or replace function public.get_quran_progress() returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.get_quran_progress(auth.uid(), pg_catalog.now())
+  select app_private.get_quran_progress(auth.uid(), app_private.server_now())
 $$;
 create or replace function public.put_quran_progress(p_surah int, p_ayah int) returns jsonb
 language sql security definer set search_path = '' as $$
-  select app_private.put_quran_progress(auth.uid(), pg_catalog.now(), p_surah, p_ayah)
+  select app_private.put_quran_progress(auth.uid(), app_private.server_now(), p_surah, p_ayah)
 $$;
 create or replace function public.add_excuse(p_from date, p_to date) returns jsonb
 language sql security definer set search_path = '' as $$
-  select app_private.add_excuse(auth.uid(), pg_catalog.now(), p_from, p_to)
+  select app_private.add_excuse(auth.uid(), app_private.server_now(), p_from, p_to)
 $$;
 create or replace function public.cancel_excuse(p_date date) returns jsonb
 language sql security definer set search_path = '' as $$
-  select app_private.cancel_excuse(auth.uid(), pg_catalog.now(), p_date)
+  select app_private.cancel_excuse(auth.uid(), app_private.server_now(), p_date)
 $$;
 
 grant execute on function public.get_access() to authenticated;

@@ -54,7 +54,8 @@ function reject(reason: string): never {
  */
 export function validateEquranMonth(raw: unknown, req: EquranRequest): EquranMonth {
   const parsed = equranMonthSchema.safeParse(raw);
-  if (!parsed.success) reject(`schema: ${parsed.error.issues[0]?.path.join(".") ?? ""} ${parsed.error.issues[0]?.message ?? ""}`.trim());
+  if (!parsed.success)
+    reject(`schema: ${parsed.error.issues[0]?.path.join(".") ?? ""} ${parsed.error.issues[0]?.message ?? ""}`.trim());
   const body = parsed.data;
 
   if (body.code !== 200) reject(`code ${body.code}`);
@@ -79,7 +80,8 @@ export function validateEquranMonth(raw: unknown, req: EquranRequest): EquranMon
     const fajr = mins(row.subuh);
     const maghrib = mins(row.maghrib);
     if (fajr < FAJR_RANGE[0] || fajr > FAJR_RANGE[1]) reject(`day ${dayNo}: subuh ${row.subuh} out of range`);
-    if (maghrib < MAGHRIB_RANGE[0] || maghrib > MAGHRIB_RANGE[1]) reject(`day ${dayNo}: maghrib ${row.maghrib} out of range`);
+    if (maghrib < MAGHRIB_RANGE[0] || maghrib > MAGHRIB_RANGE[1])
+      reject(`day ${dayNo}: maghrib ${row.maghrib} out of range`);
   });
 
   return body;

@@ -1,12 +1,7 @@
 import type { Agent } from "node:https";
 import { WebPushError, sendNotification, setVapidDetails } from "web-push";
 import { buildPayload } from "./payload";
-import {
-  PushConfigError,
-  type NotificationPayload,
-  type PushSubscriptionRecord,
-  type SendOutcome,
-} from "./types";
+import { PushConfigError, type NotificationPayload, type PushSubscriptionRecord, type SendOutcome } from "./types";
 
 export interface VapidConfig {
   subject: string;
@@ -17,7 +12,9 @@ export interface VapidConfig {
 export function vapidFromEnv(env: Record<string, string | undefined> = process.env): VapidConfig {
   const missing = ["VAPID_SUBJECT", "VAPID_PUBLIC_KEY", "VAPID_PRIVATE_KEY"].filter((k) => !env[k]?.trim());
   if (missing.length > 0) {
-    throw new PushConfigError(`Missing env: ${missing.join(", ")}. Generate keys with "npx web-push generate-vapid-keys".`);
+    throw new PushConfigError(
+      `Missing env: ${missing.join(", ")}. Generate keys with "npx web-push generate-vapid-keys".`,
+    );
   }
   return {
     subject: env.VAPID_SUBJECT!.trim(),

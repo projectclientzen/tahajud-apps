@@ -18,6 +18,11 @@ alter table public.session_excuses enable row level security;
 revoke all on public.session_excuses from anon, authenticated;
 
 -- ---------- helpers ----------
+-- The one place the server clock is read. Every public wrapper asks this function, so tests can move time
+-- without giving a client any way to send "now". Production keeps this body (checked by tests/db/api-reads).
+create or replace function app_private.server_now() returns timestamptz
+language sql stable set search_path = '' as $$ select pg_catalog.now() $$;
+
 create or replace function app_private.iso(p_ts timestamptz) returns text
 language sql immutable set search_path = '' as $$
   select pg_catalog.to_char(p_ts at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
@@ -417,31 +422,37 @@ end $$;
 
 -- ---------- prayer time row for a date. The API applies the schedule rules (chooseSchedule) ----------
 -- Region mode reads the cached provider row. Manual mode builds the instants from the user's own times.
-create or replace function app_private.prayer_row_json(p_uid uuid, p_now timestamptz, p_date date) returns jsonb
+create or replace function app_private.prayer_row_json(p_uid uuid, p_now timestamptz, p_date date default null) returns jsonb
 language plpgsql stable set search_path = '' as $$
-declare p public.profiles; r public.regions; t public.prayer_times; m jsonb; v_tz text;
+declare p public.profiles; r public.regions; t public.prayer_times; m jsonb; v_tz text; v_date date;
 begin
   perform app_private.require_active(p_uid, p_now);
   select * into p from public.profiles where user_id = p_uid;
+  -- No date means the active session: the next Fajr this user is working towards.
+  v_date := coalesce(p_date, app_private.user_active_key(p_uid, p_now));
+  if v_date is null then
+    return pg_catalog.jsonb_build_object('mode', 'region', 'local_date', null, 'region_id', null, 'region_name', null,
+      'timezone', null, 'fajr_at', null, 'maghrib_at', null, 'fetched_at', null, 'valid_until', null);
+  end if;
   if p.manual_schedule is not null and p.region_id is null then
     m := p.manual_schedule;
     v_tz := m ->> 'timezone';
     return pg_catalog.jsonb_build_object(
-      'mode', 'manual', 'region_id', null, 'region_name', null, 'timezone', v_tz,
-      'fajr_at', app_private.iso(((p_date + (m ->> 'fajr')::time)::timestamp) at time zone v_tz),
+      'mode', 'manual', 'local_date', v_date, 'region_id', null, 'region_name', null, 'timezone', v_tz,
+      'fajr_at', app_private.iso(((v_date + (m ->> 'fajr')::time)::timestamp) at time zone v_tz),
       'maghrib_at', case when m ->> 'maghrib' is null then null
-                         else app_private.iso(((p_date + (m ->> 'maghrib')::time)::timestamp) at time zone v_tz) end,
+                         else app_private.iso(((v_date + (m ->> 'maghrib')::time)::timestamp) at time zone v_tz) end,
       'fetched_at', null, 'valid_until', null);
   end if;
   if p.region_id is null then
-    return pg_catalog.jsonb_build_object('mode', 'region', 'region_id', null, 'region_name', null, 'timezone',
+    return pg_catalog.jsonb_build_object('mode', 'region', 'local_date', v_date, 'region_id', null, 'region_name', null, 'timezone',
       app_private.user_timezone(p_uid), 'fajr_at', null, 'maghrib_at', null, 'fetched_at', null, 'valid_until', null);
   end if;
   select * into r from public.regions where id = p.region_id;
-  select * into t from public.prayer_times pt where pt.region_id = p.region_id and pt.local_date = p_date
+  select * into t from public.prayer_times pt where pt.region_id = p.region_id and pt.local_date = v_date
     order by pt.fetched_at desc limit 1;
   return pg_catalog.jsonb_build_object(
-    'mode', 'region', 'region_id', r.id, 'region_name', r.city_name, 'timezone', r.timezone,
+    'mode', 'region', 'local_date', v_date, 'region_id', r.id, 'region_name', r.city_name, 'timezone', r.timezone,
     'fajr_at', case when t.id is null then null else app_private.iso(t.fajr_at) end,
     'maghrib_at', case when t.id is null or t.maghrib_at is null then null else app_private.iso(t.maghrib_at) end,
     'fetched_at', case when t.id is null then null else app_private.iso(t.fetched_at) end,
@@ -461,51 +472,51 @@ end $$;
 -- ---------- public wrappers ----------
 create or replace function public.get_active_session() returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.active_session_json(auth.uid(), pg_catalog.now())
+  select app_private.active_session_json(auth.uid(), app_private.server_now())
 $$;
 create or replace function public.get_night_session(p_session_id uuid) returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.get_session_json(auth.uid(), pg_catalog.now(), p_session_id)
+  select app_private.get_session_json(auth.uid(), app_private.server_now(), p_session_id)
 $$;
 create or replace function public.get_session_summary(p_session_id uuid) returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.get_session_summary(auth.uid(), pg_catalog.now(), p_session_id)
+  select app_private.get_session_summary(auth.uid(), app_private.server_now(), p_session_id)
 $$;
 create or replace function public.get_current_level() returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.get_current_level(auth.uid(), pg_catalog.now())
+  select app_private.get_current_level(auth.uid(), app_private.server_now())
 $$;
 create or replace function public.get_level_progress() returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.get_level_progress(auth.uid(), pg_catalog.now())
+  select app_private.get_level_progress(auth.uid(), app_private.server_now())
 $$;
 create or replace function public.get_calendar(p_from date default null, p_to date default null) returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.calendar_json(auth.uid(), pg_catalog.now(), p_from, p_to)
+  select app_private.calendar_json(auth.uid(), app_private.server_now(), p_from, p_to)
 $$;
 create or replace function public.get_report(p_period int) returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.report_json(auth.uid(), pg_catalog.now(), p_period)
+  select app_private.report_json(auth.uid(), app_private.server_now(), p_period)
 $$;
 create or replace function public.get_activity_stats() returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.get_activity_stats(auth.uid(), pg_catalog.now())
+  select app_private.get_activity_stats(auth.uid(), app_private.server_now())
 $$;
 create or replace function public.get_session_history() returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.session_history_json(auth.uid(), pg_catalog.now())
+  select app_private.session_history_json(auth.uid(), app_private.server_now())
 $$;
 create or replace function public.get_dashboard() returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.dashboard_json(auth.uid(), pg_catalog.now())
+  select app_private.dashboard_json(auth.uid(), app_private.server_now())
 $$;
-create or replace function public.get_prayer_row(p_date date) returns jsonb
+create or replace function public.get_prayer_row(p_date date default null) returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.prayer_row_json(auth.uid(), pg_catalog.now(), p_date)
+  select app_private.prayer_row_json(auth.uid(), app_private.server_now(), p_date)
 $$;
 create or replace function public.list_regions() returns jsonb
 language sql stable security definer set search_path = '' as $$
-  select app_private.list_regions(auth.uid(), pg_catalog.now())
+  select app_private.list_regions(auth.uid(), app_private.server_now())
 $$;
 
 grant execute on function public.get_active_session() to authenticated;

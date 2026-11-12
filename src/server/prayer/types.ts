@@ -29,10 +29,7 @@ export interface PrayerTimeProvider {
 }
 
 export type PrayerErrorCode =
-  | "PROVIDER_NOT_CONFIGURED"
-  | "PROVIDER_NOT_IMPLEMENTED"
-  | "PROVIDER_FAILED"
-  | "SCHEDULE_UNAVAILABLE";
+  "PROVIDER_NOT_CONFIGURED" | "PROVIDER_NOT_IMPLEMENTED" | "PROVIDER_FAILED" | "SCHEDULE_UNAVAILABLE";
 
 export class PrayerError extends Error {
   readonly code: PrayerErrorCode;
