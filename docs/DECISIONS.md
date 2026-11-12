@@ -18,3 +18,14 @@ Keputusan teknis yang diambil agen. Format: tanggal, keputusan, alasan, alternat
 | D11 | Uji kontras otomatis membaca `globals.css` | Token tidak bisa diam-diam turun di bawah AA | Daftar warna terpisah di TS (bisa drift) |
 | D12 | `@playwright/test` 1.63.0 dipin | Cocok dengan Chromium terpasang di `/opt/pw-browsers` | Versi terbaru (browser tidak cocok) |
 | D13 | Ikon PWA placeholder: bulan sabit krem di atas Deep Forest (`scripts/generate-icons.mjs`) | Bukan logo NgajiGaes palsu; diganti saat owner kirim logo | - |
+
+## U1b (2026-11-12)
+| # | Keputusan | Alasan | Alternatif ditolak |
+|---|-----------|--------|--------------------|
+| U1b-1 | Repository teks `src/data/quran` memuat dataset lewat `import()` di chunk terpisah | Dataset 86 KB tidak ikut layar lain | Impor statis |
+| U1b-2 | `content/quran/basmalah.json` dari baris `1\|1\|` sumber, dijaga test byte-per-byte | Reader butuh 1:1 untuk aturan pemisahan; `uthmani.json` hanya 6 bacaan; guard melarang aksara Arab di `src/` | Konstanta di kode; mengubah `uthmani.json` |
+| U1b-3 | Hook `__TT_QURAN_FIXTURE__` dihapus | Teks asli sudah ada | Dipertahankan |
+| U1b-4 | Awalan ayat 1 yang tidak identik tidak dilepas | Aturan brief | Menebak potongan |
+| U1b-5 | `PrayerTime.verification` dan `attribution` opsional di kontrak | Tambahan, tidak mematahkan T3b | Hardcode di UI |
+| U1b-6 | "Terverifikasi" hanya jika `verification === "verified"`; atribusi tidak tampil untuk demo dan manual | Aturan brief dan CLAUDE.md | Atribusi Kemenag di data demo |
+

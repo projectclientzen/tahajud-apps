@@ -9,7 +9,7 @@ import { pushState } from "@/components/notifications/push-support";
 import { monthGrid, shiftMonth, monthEnd } from "@/components/reports/month";
 import { ReportBody } from "@/components/reports/report-view";
 import { ayahCount, readCount, SURAHS, surahByNumber } from "@/components/quran/surahs";
-import { loadSurahText } from "@/components/quran/text-source";
+import { quranText } from "@/data/quran";
 import { parsePlannerPrefs, defaultPlannerPrefs } from "@/components/settings/planner-prefs";
 import { buildPlannerPreview } from "@/components/settings/planner-preview";
 import { formatRelative } from "@/components/settings/relative-time";
@@ -79,8 +79,8 @@ describe("QURAN-01 (metadata): jumlah ayat dan rentang At-Talaq", () => {
     expect(readCount(surahByNumber(65)!, 3)).toBe(2);
     expect(readCount(surahByNumber(36)!, null)).toBe(0);
   });
-  it("tanpa dataset, sumber teks mengembalikan null", async () => {
-    expect(await loadSurahText(36)).toBeNull();
+  it("surah di luar enam bacaan tidak punya teks", async () => {
+    expect(await quranText.getSurah(1)).toBeNull();
   });
 });
 
