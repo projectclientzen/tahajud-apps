@@ -13,7 +13,7 @@ Dipakai jika sesi orchestrator berhenti (limit token, error) dan dilanjutkan ole
 2. Paralel segera: T4c (Agen C, koordinat Wikidata, `docs/briefs/T4c.md`) karena file terpisah.
 3. Sedang jalan paralel: U1a fase A (agen a lama session_01HkFB31nuh3ixhXSEc2U9by), U1b (sesi baru session_01HkFB2zxRfGDMijRrJho6k9; sesi T2 lama menolak tugas lewat pesan antar-sesi), T3b (agen b lama session_01HkFB32cEmv1CJ8uQzVTKou), T1b (session_01HkFB31AmZWqwfK4SsUgoiW), T4c (Agen C session_01HkFB2xqrE6x4NAZUwbMajW). Brief: `docs/briefs/U1.md`, `docs/briefs/T3b.md`.
 4. Setelah T1b merged: kabari U1a/U1b masuk fase B. Setelah T3b merged: T5 + T6 paralel, lalu T7, T8, lalu prompt audit Fable untuk owner.
-Catatan limit: owner menyebut limit token RESET pukul 16.00 WIB (bukan habis).
+Catatan limit: limit token RESET pukul 19.40 WIB (dikonfirmasi owner). Resume otomatis 19.45 WIB; supervisi 16.05 WIB dan seterusnya sampai limit habis.
 
 ## Keputusan owner yang berlaku (ringkas)
 Batas 3 perangkat (ke-4 ditolak), sesi 30 hari, label "Sedang berjalan", legenda syarat aplikasi, post-Fajr semua level, tilawah malam opsional, Al-Waqi'ah wajib, tanpa terjemahan Qur'an (default), EQuran.id dipakai (izin komersial dikirim owner setelah MVP, sebelum launch), nomor CS dan link Scalev diisi saat build produksi, logo/nama app belum final.
