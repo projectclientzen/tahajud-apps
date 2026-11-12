@@ -2,7 +2,7 @@
 
 Disiapkan oleh: orchestrator (sesi perencanaan, 12 Nov 2026)
 Untuk: agen implementasi di sesi chat terpisah
-Basis: `docs/PRD-v1.2.md` (hasil audit `docs/AUDIT-PRD-v1.1.md`). PRD v1.1 hanya arsip.
+Basis: `docs/PRD-v1.2.md` + konten `content/amalan.v1.json` (hasil audit `docs/AUDIT-PRD-v1.1.md`). PRD v1.1 hanya arsip.
 
 ---
 
@@ -34,7 +34,7 @@ Audit lengkap 60 temuan ada di `docs/AUDIT-PRD-v1.1.md` dan sudah dimasukkan ke 
 | # | Isu | Dampak | Penanganan wajib | Confidence |
 |---|-----|--------|------------------|------------|
 | R1 | Warna Primary Sage `#88A189` di atas Warm Cream `#FAF7ED` kontrasnya sekitar 2.6:1 | Gagal WCAG AA untuk teks (butuh 4.5:1) dan komponen UI (butuh 3:1) | Sage hanya untuk dekorasi, ilustrasi, background chip dengan teks Deep Forest. Teks & CTA pakai Deep Forest `#354F40` (sekitar 8.4:1 di atas cream). Di dark mode, cream di atas Dark Earth `#25372F` sekitar 11.8:1 | High: dihitung pakai rumus relative luminance WCAG. Agen tetap wajib verifikasi ulang dengan tool |
-| R2 | Teks Arab dzikir dan lafaz "Ya Khafi" belum diverifikasi (PRD §30.3 no. 1-2) | Risiko konten agama salah | `arabic_text = null` + badge review. Owner menyediakan teks final. Agen tidak menulis Arab dari ingatan | High: tertulis eksplisit di PRD |
+| R2 | Teks Arab dzikir sudah dikirim owner (`content/amalan.v1.json`) tetapi status `submitted`, ada usulan koreksi harakat yang belum diputuskan | Agen tergoda "merapikan" teks | Pakai file apa adanya. Jangan terapkan `proposed_corrections`. Lafaz final "Ya Kafi" | High |
 | R3 | API SIHAT Kemenag: ketersediaan endpoint publik, token, dan syarat izin belum jelas | Fitur jadwal Subuh bisa blocked | Buat `PrayerTimeProvider` interface. Implementasi: `MockProvider` (fixture berlabel) + `SihatProvider` (stub, aktif saat env tersedia). Jangan hardcode URL dari tebakan | Low: perlu verifikasi langsung ke Kemenag/dokumentasi resmi |
 | R4 | Detail webhook Scalev (nama header `X-Scalev-Hmac-Sha256`, nama event, struktur payload) diambil dari PRD, belum dicek ke dokumentasi Scalev | Signature verification bisa salah implementasi | Implementasi berdasarkan PRD + fixture test. Tandai `NEEDS_VERIFICATION` di kode dan STATUS sampai dicocokkan dengan dokumentasi resmi Scalev atau payload asli dari dashboard Scalev | Medium: PRD menyebutnya, agen belum melihat dokumentasi |
 | R5 | Web Push di iPhone hanya jalan jika PWA di-install ke Home Screen, iOS 16.4 ke atas | Reminder tahajud tidak sampai ke sebagian user iPhone | Onboarding wajib ada panduan install PWA per platform + fallback "pasang alarm manual" (PRD NOTIF-03) | High: perilaku Safari yang terdokumentasi Apple sejak 2023 |
@@ -122,37 +122,14 @@ Tipografi: Plus Jakarta Sans (Latin). Arab: lihat R9. Body 16px, Quran Arab defa
 
 Buffer persiapan default 10 menit (PROV). `wake = fajr - durasi - buffer`.
 
-### 4.3 Aktivitas per level (activity_key usulan, phase, target, required default PROV)
-
-Level 1, phase `night`:
-| key | Judul | Target | Required |
-|-----|-------|--------|----------|
-| salat_taubat | Salat Taubat | 2 rakaat (checklist) | ya |
-| salat_tahajud | Salat Tahajud | 2 rakaat | ya |
-| salat_witir | Salat Witir | 1 rakaat | ya |
-| dzikir_istighfar_panjang | Istighfar panjang | 100 | ya |
-| dzikir_shalawat | Shalawat | 100 | ya |
-| dzikir_tahlil | Tahlil | 100 | ya |
-| dzikir_asma_rangkaian | Ya Fattah, Ya Razzaq, Ya Khafi, Ya Mughni | 100 | ya |
-| dzikir_tahlil_tambahan | Tahlil tambahan | 200 | TIDAK (opsional) |
-| doa | Doa sesuai kebutuhan | checklist | ya |
-| tilawah | Tilawah menjelang Subuh | checklist (konfirmasi user) | ya |
-
-Level 2, phase `night`: salat_taubat 2, salat_tahajud 2, salat_hajat 2, salat_witir 3 (2+1); dzikir_istighfar 100, dzikir_asma_rangkaian 100, dzikir_shalawat 300, dzikir_hasbunallah 450, dzikir_hauqalah 100, dzikir_tahlil 500; doa; tilawah. Semua required.
-
-Level 3, phase `night`: seperti Level 2 tetapi salat_tahajud 4 rakaat, plus dzikir_doa_nabi_yunus 313 (sebelum tahlil). Semua required.
-
-Semua level, phase `fajr` (shared):
-| key | Judul | Target | Required |
-|-----|-------|--------|----------|
-| salat_qabliyah_subuh | Qabliyah Subuh (panduan: rakaat 1 Al-Insyirah, rakaat 2 Al-Fil setelah Al-Fatihah) | 2 rakaat | ya |
-| dzikir_setelah_qabliyah | Dzikir setelah salam sesuai materi program | 100 | ya |
-| salat_subuh | Salat Fardu Subuh | checklist | ya |
-| subuh_berjamaah | Berjamaah | checklist | TIDAK |
-
-Level 3 only, phase `post_fajr` (PROV, PRD §9.6): istighfar_panjang 3, tahlil_panjang 10, allahumma_antas_salam 1, subhanallah 33, alhamdulillah 33, allahu_akbar 33, allahu_akbar_kabira 1, astaghfirullahal_azhim 3, tahlil 100, surah_al_waqiah 1 (link Quran Reader), at_talaq_2_3 1 (link Reader), doa_hajat 1. Required: tunggu approval, default `ya` dengan flag provisional.
-
-Catatan: "Required" = syarat target aplikasi, bukan kewajiban fikih. Copy UI harus menyebut ini (PRD §10.3).
+### 4.3 Aktivitas per level
+Sumber tunggal: `content/amalan.v1.json` (urutan, target, satuan, required, teks Arab, panduan). Ringkasan di PRD v1.2 §9.
+- Level 1: Taubat 2, Tahajud 2, Witir 1; Istighfar 100, Shalawat 100, Tahlil 100 (+200 opsional), Ya Fattah Ya Razzaq Ya Kafi Ya Mughni 100 putaran; doa; tilawah.
+- Level 2: Taubat 2, Tahajud 2, Hajat 2, Witir 2, Witir 1; Istighfar 100, Asma 100 putaran, Shalawat 300, Hasbunallah 450, Hauqalah 100, Tahlil 500; doa; tilawah.
+- Level 3: seperti Level 2, Tahajud 4, tambah Doa Nabi Yunus 313 sebelum Tahlil; plus post-Fajr (PROV).
+- Fajr semua level: Qabliyah 2 (Al-Insyirah, Al-Fil), Tasbih malaikat 100, Salat Subuh, Berjamaah (opsional).
+- Test wajib: total dzikir malam required = 400 / 1.550 / 1.863 dan rakaat = 5 / 9 / 11 dihitung dari JSON.
+- "Required" = syarat target aplikasi, bukan kewajiban fikih. Copy UI harus menyebut ini.
 
 ### 4.4 Aturan sesi
 - Session key = tanggal Subuh lokal (`fajr_local_date`). Malam 12 Nov menuju Subuh 13 Nov → key `2026-11-13`.
@@ -188,7 +165,7 @@ Simpan di `src/domain/content/provisional.ts` (atau tabel config) dengan `provis
 - Estimasi durasi 60 / 120 / 150 menit; buffer 10 menit
 - Bank pesan bedtime minimal 30
 - Daftar aktivitas required
-- Semua teks Arab dzikir, lafaz "Ya Khafi", source_classification
+- Tanda tangan pembimbing atas teks dzikir + usulan koreksi (`docs/CONTENT-REVIEW.md`), source_classification, cakupan post-Fajr
 - Lisensi Qur'an & terjemahan; izin API jadwal salat
 
 ---
@@ -210,7 +187,7 @@ Zen menyebut skill: hallmark, ui-ux-pro-max, antislop, superpowers, ponytail. Ke
 - Nama user demo: "Pengguna Demo". Jangan pakai nama orang nyata.
 - Jadwal salat mock: fixture berlabel "Jadwal contoh, bukan dari Kemenag". Boleh pakai perhitungan lokal library `adhan` HANYA di mode mock dengan label yang sama.
 - Teks Qur'an: TIDAK ada di mock. Reader mode mock menampilkan state "Dataset Al-Qur'an belum diimport" sampai S4/S7 mengimport Tanzil.
-- Teks Arab dzikir: `null` + badge review. Tampilkan nama Latin + terjemahan Indonesia umum saja (mis. "Istighfar"), tanpa transliterasi lafaz penuh sampai owner memberi teks.
+- Teks Arab dzikir: dari `content/amalan.v1.json`, dibaca oleh mock repository dan seed DB (satu sumber). Transliterasi/terjemahan `null` sampai owner menyediakan.
 
 ---
 
@@ -351,7 +328,7 @@ Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S9 (QA menyeluruh, securit
 | Sebelum S3 (opsional) | Logo NgajiGaes SVG/PNG, aset ilustrasi | Branding final |
 | Sebelum S4 | Nomor WhatsApp CS untuk tombol bantuan login | Alur support |
 | Sebelum S4 | Pilih ejaan: "Istiqomah" atau "Istikamah" di seluruh UI | Konsistensi copy |
-| Setelah S4 | Teks Arab + transliterasi + terjemahan semua dzikir, sudah direview pembimbing (termasuk lafaz "Ya Khafi") | Konten dzikir real |
+| Setelah S4 | Konfirmasi tanda tangan pembimbing + keputusan koreksi harakat; transliterasi & terjemahan dzikir (opsional) | Status konten `published` |
 | Setelah S4 | Konfirmasi target level, aktivitas required, post-Fajr L3, cutoff, backfill | Hapus flag provisional |
 | S5 | Project Supabase (URL, anon key, service role key via secret env, bukan chat) | DB & auth real |
 | S5 | Provider SMTP (mis. Resend) + domain pengirim | Email OTP production |

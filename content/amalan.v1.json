@@ -1,0 +1,824 @@
+{
+  "_comment": "Konten amalan dari owner NgajiGaes. JANGAN diedit agen. Koreksi hanya lewat review pembimbing.",
+  "content_version": "1.0.0",
+  "source": "Owner NgajiGaes, dikirim 2026-11-12",
+  "review_status": "submitted",
+  "review_note": "Menunggu konfirmasi bahwa teks sudah ditandatangani pembimbing dan keputusan atas proposed_corrections.",
+  "provisional": true,
+  "dhikr": {
+    "istighfar": {
+      "key": "istighfar",
+      "title": "Istighfar",
+      "arabic_text": "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ وَأَتُوبُ إِلَيْهِ",
+      "arabic_text_submitted": "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ وَأَتُوبُ إِلَيْهِ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "shalawat": {
+      "key": "shalawat",
+      "title": "Shalawat",
+      "arabic_text": "صَلَّى اللهُ عَلَى مُحَمَّدِ",
+      "arabic_text_submitted": "صَلَّى اللهُ عَلَى مُحَمَّدِ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [
+        {
+          "issue": "Akhir kata مُحَمَّدِ memakai kasrah tunggal. Kaidah umum: مُحَمَّدٍ (kasratain/tanwin) karena isim munsharif. Saat waqaf dibaca sama.",
+          "suggested": "صَلَّى اللهُ عَلَى مُحَمَّدٍ",
+          "confidence": "medium"
+        }
+      ],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "tahlil": {
+      "key": "tahlil",
+      "title": "Tahlil",
+      "arabic_text": "لآ إِلٰهَ إِلاَّ اللهُ",
+      "arabic_text_submitted": "لآ إِلٰهَ إِلاَّ اللهُ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "asma_rangkaian": {
+      "key": "asma_rangkaian",
+      "title": "Ya Fattah, Ya Razzaq, Ya Kafi, Ya Mughni",
+      "arabic_text": "يا فَتَّاح يا رَزَّاق يا كافي يا مُغْنِي",
+      "arabic_text_submitted": "ﻳﺎ ﻓَﺘَّﺎﺡ ﻳﺎ ﺭَﺯَّﺍﻕ ﻳﺎ ﻛﺎﻓﻲ ﻳﺎ ﻣُﻐْﻨِﻲ",
+      "normalized_differs": true,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": "Teks asli memakai karakter Arabic Presentation Forms (U+FExx); disimpan versi NFKC agar font dan screen reader bekerja benar. Lafaz final: Ya Kafi (كافي), bukan Ya Khafi (خافي). Satu hitungan = satu putaran keempat asma (dibuktikan total dzikir Level 1 = 400).",
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "hasbunallah": {
+      "key": "hasbunallah",
+      "title": "Hasbunallah wa ni'mal wakil",
+      "arabic_text": "حَسْبُنَا اللهُ وَنِعْمَ الوَكِيلُ",
+      "arabic_text_submitted": "حَسْبُنَا اللهُ وَنِعْمَ الوَكِيلُ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "hauqalah": {
+      "key": "hauqalah",
+      "title": "La hawla wa la quwwata illa billah",
+      "arabic_text": "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ",
+      "arabic_text_submitted": "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "doa_nabi_yunus": {
+      "key": "doa_nabi_yunus",
+      "title": "Doa Nabi Yunus",
+      "arabic_text": "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
+      "arabic_text_submitted": "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "tasbih_malaikat": {
+      "key": "tasbih_malaikat",
+      "title": "Tasbih malaikat",
+      "arabic_text": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ العَظِيْمِ أَسْتَغْفِرُ اللَّهَ",
+      "arabic_text_submitted": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ العَظِيْمِ أَسْتَغْفِرُ اللَّهَ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "pf_istighfar_panjang": {
+      "key": "pf_istighfar_panjang",
+      "title": "Istighfar panjang",
+      "arabic_text": "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيَّ الْقَيُّومَ وَأَتُوبُ إِلَيْه",
+      "arabic_text_submitted": "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيَّ الْقَيُّومَ وَأَتُوبُ إِلَيْه",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "pf_tahlil_panjang": {
+      "key": "pf_tahlil_panjang",
+      "title": "Tahlil panjang",
+      "arabic_text": "لَاَ إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، لَهُ المُلْكُ وَلَهُ الْحَمْدُ يُحْيِيْ وَيُمِيْتُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْرٌ",
+      "arabic_text_submitted": "لَاَ إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، لَهُ المُلْكُ وَلَهُ الْحَمْدُ يُحْيِيْ وَيُمِيْتُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْرٌ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [
+        {
+          "issue": "Kata pertama لَاَ memiliki dua fathah (pada lam dan alif), kemungkinan salah ketik.",
+          "suggested_fragment": "لَا إِلَهَ",
+          "confidence": "high"
+        }
+      ],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "pf_antas_salam": {
+      "key": "pf_antas_salam",
+      "title": "Allahumma antas salam",
+      "arabic_text": "اللَّهُمَّ أَنْتَ السَّلاَمُ، وَمِنْكَ السَّلَامُ، وَإِلَيْكَ يَعُوْدُ السَّلَامُ فَحَيِّنَا رَبَّنَا بِالسَّلَامِ وَاَدْخِلْنَا الْـجَنَّةَ دَارَ السَّلَامِ تَبَارَكْتَ رَبَّنَا وَتَعَالَيْتَ يَا ذَاالْـجَلَالِ وَاْلإِكْرَامِ",
+      "arabic_text_submitted": "اللَّهُمَّ أَنْتَ السَّلاَمُ، وَمِنْكَ السَّلَامُ، وَإِلَيْكَ يَعُوْدُ السَّلَامُ فَحَيِّنَا رَبَّنَا بِالسَّلَامِ وَاَدْخِلْنَا الْـجَنَّةَ دَارَ السَّلَامِ تَبَارَكْتَ رَبَّنَا وَتَعَالَيْتَ يَا ذَاالْـجَلَالِ وَاْلإِكْرَامِ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [
+        {
+          "issue": "وَاَدْخِلْنَا: fi'il bab af'ala, alif seharusnya hamzah qath'.",
+          "suggested_fragment": "وَأَدْخِلْنَا",
+          "confidence": "high"
+        },
+        {
+          "issue": "ذَاالْـجَلَالِ: tidak ada spasi antara ذَا dan الْجَلَالِ.",
+          "suggested_fragment": "ذَا الْجَلَالِ",
+          "confidence": "high"
+        },
+        {
+          "issue": "وَاْلإِكْرَامِ: tanda sukun di atas alif tidak lazim.",
+          "suggested_fragment": "وَالْإِكْرَامِ",
+          "confidence": "medium"
+        },
+        {
+          "issue": "Tatweel (ـ) di الْـجَنَّةَ dan الْـجَلَالِ hanya hiasan; bisa mengganggu pencarian dan pembaca layar.",
+          "suggested_fragment": "الْجَنَّةَ / الْجَلَالِ",
+          "confidence": "medium"
+        }
+      ],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "pf_subhanallah": {
+      "key": "pf_subhanallah",
+      "title": "Subhanallah",
+      "arabic_text": "سُبْحَانَ ٱللَّٰهِ",
+      "arabic_text_submitted": "سُبْحَانَ ٱللَّٰهِ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "pf_alhamdulillah": {
+      "key": "pf_alhamdulillah",
+      "title": "Alhamdulillah",
+      "arabic_text": "اَلْحَمْدُ لِلَّهِ",
+      "arabic_text_submitted": "اَلْحَمْدُ لِلَّهِ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "pf_allahu_akbar": {
+      "key": "pf_allahu_akbar",
+      "title": "Allahu Akbar",
+      "arabic_text": "ٱللَّٰهُ أَكْبَرُ",
+      "arabic_text_submitted": "ٱللَّٰهُ أَكْبَرُ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "pf_allahu_akbar_kabira": {
+      "key": "pf_allahu_akbar_kabira",
+      "title": "Allahu Akbar kabira dan rangkaiannya",
+      "arabic_text": "اللهُ أَكْبَرُ كَبِيرًا، وَالْحَمْدُ لِلَّهِ كَثِيرًا، وَسُبْحَانَ اللهِ بُكْرَةً وَأَصِيلًا, اللهُ أَكْبَرُ كَبِيرًا، لَاَ إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، لَهُ المُلْكُ وَلَهُ الْحَمْدُ يُحْيِيْ وَيُمِيْتُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْرٌ, لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ العَلِيِّ العَظِيْمِ",
+      "arabic_text_submitted": "اللهُ أَكْبَرُ كَبِيرًا، وَالْحَمْدُ لِلَّهِ كَثِيرًا، وَسُبْحَانَ اللهِ بُكْرَةً وَأَصِيلًا, اللهُ أَكْبَرُ كَبِيرًا، لَاَ إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، لَهُ المُلْكُ وَلَهُ الْحَمْدُ يُحْيِيْ وَيُمِيْتُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْرٌ, لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ العَلِيِّ العَظِيْمِ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [
+        {
+          "issue": "لَاَ dengan dua fathah, kemungkinan salah ketik.",
+          "suggested_fragment": "لَا إِلَهَ",
+          "confidence": "high"
+        },
+        {
+          "issue": "Campuran koma Latin (,) dan koma Arab (،).",
+          "suggested": "seragamkan ke ،",
+          "confidence": "high"
+        }
+      ],
+      "note": "Jumlah bacaan tidak disebut owner; default 1 (PROV).",
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    },
+    "pf_istighfar_pendek": {
+      "key": "pf_istighfar_pendek",
+      "title": "Astaghfirullahal 'azhim",
+      "arabic_text": "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ",
+      "arabic_text_submitted": "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ",
+      "normalized_differs": false,
+      "transliteration": null,
+      "meaning_id": null,
+      "proposed_corrections": [],
+      "note": null,
+      "source_classification": "unverified",
+      "review_status": "submitted"
+    }
+  },
+  "levels": [
+    {
+      "level": 1,
+      "title": "Fondasi",
+      "night": [
+        {
+          "activity_key": "salat_taubat",
+          "type": "prayer",
+          "title": "Salat Taubat",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "salat_tahajud",
+          "type": "prayer",
+          "title": "Salat Tahajud",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "salat_witir_1",
+          "type": "prayer",
+          "title": "Salat Witir",
+          "target": 1,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "istighfar",
+          "type": "dhikr",
+          "dhikr_ref": "istighfar",
+          "title": "Istighfar",
+          "target": 100,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "shalawat",
+          "type": "dhikr",
+          "dhikr_ref": "shalawat",
+          "title": "Shalawat",
+          "target": 100,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "tahlil",
+          "type": "dhikr",
+          "dhikr_ref": "tahlil",
+          "title": "Tahlil",
+          "target": 100,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "tahlil_tambahan",
+          "type": "dhikr",
+          "dhikr_ref": "tahlil",
+          "title": "Tahlil tambahan (opsional, total 300)",
+          "target": 200,
+          "unit": "kali",
+          "required": false
+        },
+        {
+          "activity_key": "asma_rangkaian",
+          "type": "dhikr",
+          "dhikr_ref": "asma_rangkaian",
+          "title": "Ya Fattah, Ya Razzaq, Ya Kafi, Ya Mughni",
+          "target": 100,
+          "unit": "putaran",
+          "required": true
+        },
+        {
+          "activity_key": "doa",
+          "type": "checklist",
+          "title": "Berdoa sesuai kebutuhan",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "tilawah",
+          "type": "checklist",
+          "title": "Membaca Al-Qur'an sampai Subuh",
+          "required": true,
+          "guidance": "Sekitar 30 sampai 40 menit sebelum Subuh."
+        }
+      ],
+      "fajr": [
+        {
+          "activity_key": "salat_qabliyah_subuh",
+          "type": "prayer",
+          "title": "Salat sunnah Qabliyah Subuh",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": "Rakaat pertama setelah Al-Fatihah membaca Al-Insyirah, rakaat kedua membaca Al-Fil."
+        },
+        {
+          "activity_key": "tasbih_malaikat",
+          "type": "dhikr",
+          "dhikr_ref": "tasbih_malaikat",
+          "title": "Tasbih malaikat",
+          "target": 100,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "salat_subuh",
+          "type": "checklist",
+          "title": "Salat Subuh",
+          "required": true,
+          "guidance": "Usahakan berjamaah walaupun tidak di masjid."
+        },
+        {
+          "activity_key": "subuh_berjamaah",
+          "type": "checklist",
+          "title": "Salat Subuh berjamaah",
+          "required": false,
+          "guidance": null
+        }
+      ],
+      "post_fajr": [],
+      "night_dhikr_total_required": 400,
+      "night_rakaat_total": 5
+    },
+    {
+      "level": 2,
+      "title": "Bertumbuh",
+      "night": [
+        {
+          "activity_key": "salat_taubat",
+          "type": "prayer",
+          "title": "Salat Taubat",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "salat_tahajud",
+          "type": "prayer",
+          "title": "Salat Tahajud",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "salat_hajat",
+          "type": "prayer",
+          "title": "Salat Hajat",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "salat_witir_2",
+          "type": "prayer",
+          "title": "Salat Witir (2 rakaat)",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "salat_witir_1",
+          "type": "prayer",
+          "title": "Salat Witir (1 rakaat)",
+          "target": 1,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "istighfar",
+          "type": "dhikr",
+          "dhikr_ref": "istighfar",
+          "title": "Istighfar",
+          "target": 100,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "asma_rangkaian",
+          "type": "dhikr",
+          "dhikr_ref": "asma_rangkaian",
+          "title": "Ya Fattah, Ya Razzaq, Ya Kafi, Ya Mughni",
+          "target": 100,
+          "unit": "putaran",
+          "required": true
+        },
+        {
+          "activity_key": "shalawat",
+          "type": "dhikr",
+          "dhikr_ref": "shalawat",
+          "title": "Shalawat",
+          "target": 300,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "hasbunallah",
+          "type": "dhikr",
+          "dhikr_ref": "hasbunallah",
+          "title": "Hasbunallah wa ni'mal wakil",
+          "target": 450,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "hauqalah",
+          "type": "dhikr",
+          "dhikr_ref": "hauqalah",
+          "title": "La hawla wa la quwwata illa billah",
+          "target": 100,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "tahlil",
+          "type": "dhikr",
+          "dhikr_ref": "tahlil",
+          "title": "Tahlil",
+          "target": 500,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "doa",
+          "type": "checklist",
+          "title": "Berdoa sesuai kebutuhan",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "tilawah",
+          "type": "checklist",
+          "title": "Membaca Al-Qur'an sampai Subuh",
+          "required": true,
+          "guidance": "Sekitar 30 sampai 60 menit sebelum Subuh (owner menulis 'setengah jam atau 60 menit', perlu konfirmasi)."
+        }
+      ],
+      "fajr": [
+        {
+          "activity_key": "salat_qabliyah_subuh",
+          "type": "prayer",
+          "title": "Salat sunnah Qabliyah Subuh",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": "Rakaat pertama setelah Al-Fatihah membaca Al-Insyirah, rakaat kedua membaca Al-Fil."
+        },
+        {
+          "activity_key": "tasbih_malaikat",
+          "type": "dhikr",
+          "dhikr_ref": "tasbih_malaikat",
+          "title": "Tasbih malaikat",
+          "target": 100,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "salat_subuh",
+          "type": "checklist",
+          "title": "Salat Subuh",
+          "required": true,
+          "guidance": "Usahakan berjamaah walaupun tidak di masjid."
+        },
+        {
+          "activity_key": "subuh_berjamaah",
+          "type": "checklist",
+          "title": "Salat Subuh berjamaah",
+          "required": false,
+          "guidance": null
+        }
+      ],
+      "post_fajr": [],
+      "night_dhikr_total_required": 1550,
+      "night_rakaat_total": 9
+    },
+    {
+      "level": 3,
+      "title": "Istikamah",
+      "night": [
+        {
+          "activity_key": "salat_taubat",
+          "type": "prayer",
+          "title": "Salat Taubat",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "salat_tahajud",
+          "type": "prayer",
+          "title": "Salat Tahajud",
+          "target": 4,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "salat_hajat",
+          "type": "prayer",
+          "title": "Salat Hajat",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "salat_witir_2",
+          "type": "prayer",
+          "title": "Salat Witir (2 rakaat)",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "salat_witir_1",
+          "type": "prayer",
+          "title": "Salat Witir (1 rakaat)",
+          "target": 1,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "istighfar",
+          "type": "dhikr",
+          "dhikr_ref": "istighfar",
+          "title": "Istighfar",
+          "target": 100,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "asma_rangkaian",
+          "type": "dhikr",
+          "dhikr_ref": "asma_rangkaian",
+          "title": "Ya Fattah, Ya Razzaq, Ya Kafi, Ya Mughni",
+          "target": 100,
+          "unit": "putaran",
+          "required": true
+        },
+        {
+          "activity_key": "shalawat",
+          "type": "dhikr",
+          "dhikr_ref": "shalawat",
+          "title": "Shalawat",
+          "target": 300,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "hasbunallah",
+          "type": "dhikr",
+          "dhikr_ref": "hasbunallah",
+          "title": "Hasbunallah wa ni'mal wakil",
+          "target": 450,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "hauqalah",
+          "type": "dhikr",
+          "dhikr_ref": "hauqalah",
+          "title": "La hawla wa la quwwata illa billah",
+          "target": 100,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "doa_nabi_yunus",
+          "type": "dhikr",
+          "dhikr_ref": "doa_nabi_yunus",
+          "title": "Doa Nabi Yunus",
+          "target": 313,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "tahlil",
+          "type": "dhikr",
+          "dhikr_ref": "tahlil",
+          "title": "Tahlil",
+          "target": 500,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "doa",
+          "type": "checklist",
+          "title": "Berdoa sesuai kebutuhan",
+          "required": true,
+          "guidance": null
+        },
+        {
+          "activity_key": "tilawah",
+          "type": "checklist",
+          "title": "Membaca Al-Qur'an sampai Subuh",
+          "required": true,
+          "guidance": null
+        }
+      ],
+      "fajr": [
+        {
+          "activity_key": "salat_qabliyah_subuh",
+          "type": "prayer",
+          "title": "Salat sunnah Qabliyah Subuh",
+          "target": 2,
+          "unit": "rakaat",
+          "required": true,
+          "guidance": "Rakaat pertama setelah Al-Fatihah membaca Al-Insyirah, rakaat kedua membaca Al-Fil."
+        },
+        {
+          "activity_key": "tasbih_malaikat",
+          "type": "dhikr",
+          "dhikr_ref": "tasbih_malaikat",
+          "title": "Tasbih malaikat",
+          "target": 100,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "salat_subuh",
+          "type": "checklist",
+          "title": "Salat Subuh",
+          "required": true,
+          "guidance": "Usahakan berjamaah walaupun tidak di masjid."
+        },
+        {
+          "activity_key": "subuh_berjamaah",
+          "type": "checklist",
+          "title": "Salat Subuh berjamaah",
+          "required": false,
+          "guidance": null
+        }
+      ],
+      "post_fajr": [
+        {
+          "activity_key": "pf_istighfar_panjang",
+          "type": "dhikr",
+          "dhikr_ref": "pf_istighfar_panjang",
+          "title": "Istighfar panjang",
+          "target": 3,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "pf_tahlil_panjang",
+          "type": "dhikr",
+          "dhikr_ref": "pf_tahlil_panjang",
+          "title": "Tahlil panjang",
+          "target": 10,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "pf_antas_salam",
+          "type": "dhikr",
+          "dhikr_ref": "pf_antas_salam",
+          "title": "Allahumma antas salam",
+          "target": 1,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "pf_subhanallah",
+          "type": "dhikr",
+          "dhikr_ref": "pf_subhanallah",
+          "title": "Subhanallah",
+          "target": 33,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "pf_alhamdulillah",
+          "type": "dhikr",
+          "dhikr_ref": "pf_alhamdulillah",
+          "title": "Alhamdulillah",
+          "target": 33,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "pf_allahu_akbar",
+          "type": "dhikr",
+          "dhikr_ref": "pf_allahu_akbar",
+          "title": "Allahu Akbar",
+          "target": 33,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "pf_allahu_akbar_kabira",
+          "type": "dhikr",
+          "dhikr_ref": "pf_allahu_akbar_kabira",
+          "title": "Allahu Akbar kabira dan rangkaiannya",
+          "target": 1,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "pf_istighfar_pendek",
+          "type": "dhikr",
+          "dhikr_ref": "pf_istighfar_pendek",
+          "title": "Astaghfirullahal 'azhim",
+          "target": 3,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "tahlil",
+          "type": "dhikr",
+          "dhikr_ref": "tahlil",
+          "title": "Tahlil",
+          "target": 100,
+          "unit": "kali",
+          "required": true
+        },
+        {
+          "activity_key": "pf_al_waqiah",
+          "type": "quran",
+          "title": "Surah Al-Waqi'ah",
+          "quran_ref": {
+            "surah": 56
+          },
+          "required": true
+        },
+        {
+          "activity_key": "pf_ayat_seribu_dinar",
+          "type": "quran",
+          "title": "Ayat Seribu Dinar (QS. At-Talaq 65:2-3)",
+          "quran_ref": {
+            "surah": 65,
+            "from": 2,
+            "to": 3
+          },
+          "required": true
+        },
+        {
+          "activity_key": "pf_doa_hajat",
+          "type": "checklist",
+          "title": "Doa sesuai hajat",
+          "required": true,
+          "guidance": null
+        }
+      ],
+      "post_fajr_scope": "PROV: owner menulis dzikir setelah Subuh di bawah Level 3; belum dikonfirmasi apakah juga untuk Level 1-2",
+      "night_dhikr_total_required": 1863,
+      "night_rakaat_total": 11
+    }
+  ]
+}

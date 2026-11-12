@@ -2,7 +2,7 @@
 
 Update di akhir setiap sesi. Legend: REAL = jalan dengan logic/data sungguhan · SIMULATED = mock berlabel DEMO · BLOCKED = butuh kredensial/approval · TODO = belum dikerjakan.
 
-Sesi terakhir: S0b (audit PRD + PRD v1.2) · 2026-11-12
+Sesi terakhir: S0c (konten amalan owner) · 2026-11-12
 Spesifikasi berlaku: `docs/PRD-v1.2.md`
 
 | Area | Fitur | Status | Catatan / blocker |
@@ -31,10 +31,11 @@ Spesifikasi berlaku: `docs/PRD-v1.2.md`
 ## Konten agama
 | Item | Status |
 |------|--------|
-| Teks Arab dzikir | BLOCKED: menunggu teks dari owner yang sudah direview pembimbing |
-| Lafaz "Ya Khafi" | BLOCKED: verifikasi |
+| Teks Arab dzikir | SUBMITTED: ada di `content/amalan.v1.json`, menunggu tanda tangan pembimbing + keputusan koreksi (`docs/CONTENT-REVIEW.md`) |
+| Lafaz asma | SELESAI: Ya Kafi (كافي) |
 | source_classification | BLOCKED: tidak boleh diisi tebakan |
 | Nilai provisional (PRD v1.2 §30.2) | PROVISIONAL |
-| Satuan counter rangkaian asma | PROVISIONAL: default putaran |
-| Teks dzikir setelah Qabliyah | BLOCKED: belum ada isi |
+| Satuan counter rangkaian asma | SELESAI: putaran |
+| Teks dzikir setelah Qabliyah | SELESAI: tasbih malaikat 100 |
+| Cakupan post-Fajr (L3 saja / semua) | PROVISIONAL: default L3 saja |
 | Aturan mode berhalangan | PROVISIONAL: perlu pembimbing |
