@@ -106,3 +106,11 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Pertanyaan untuk owner: (1) mohon baca satu atau dua surah di perangkat nyata untuk memeriksa tampilan huruf dan tanda baca (agen hanya memeriksa cakupan glyph dan screenshot); (2) setuju basmalah terpisah sebagai baris pembuka (PROV, sesuai keputusan T4).
 - Permintaan perubahan di luar scope: `content/quran/basmalah.json` dan catatan di `SOURCE.md` ditambahkan (tambahan konten, tidak mengubah `uthmani.json`); `scripts/import-quran.ts` perlu ikut membuat ulang file ini saat `--refresh`; `PrayerTime.verification` dan `attribution` opsional ditambahkan di `src/data/contracts.ts` (T3b: isi dari `PrayerDay.verification` dan `attribution`).
 
+
+## Merge U1b oleh orchestrator (2026-11-12 20.25 WIB)
+- Merge `claude/u1b-quran-reports-settings` (`c3ffdfd`). Reader menampilkan teks ayat asli Tanzil (test byte-per-byte vs sumber), basmalah baris terpisah (PROV), At-Talaq 65:2-3 tanpa basmalah, tanpa terjemahan, atribusi Tanzil. `content/quran/basmalah.json` diverifikasi orchestrator identik dengan sumber 1:1. Tidak ada aksara Arab di `src/`.
+- Label jadwal "Terverifikasi" hanya jika `verification === "verified"`; atribusi EQuran untuk jadwal provider non-demo.
+- Audit + perbaikan UI/UX 8 layar (laporan `docs/sessions/U1b.md`).
+- Gerbang: typecheck 0, lint 0, unit 593 + 3 skip, audit bersih, e2e 245 passed / 1 failed pada run penuh: `r3b-quran.spec.ts:76` (badge Bacaan Jumat, `setDemoTime`). Diulang terpisah 10/10 lolos, jadi dicatat FLAKY untuk diperkuat di T8.
+- Untuk T3b: isi `PrayerTime.verification/attribution` dari `PrayerDay`. Untuk U1a: dashboard dapat memakai `ScheduleNote`.
+- Pertanyaan owner: baca 1-2 surah di HP nyata untuk cek tampilan; konfirmasi basmalah terpisah.
