@@ -1,5 +1,5 @@
 import { UUID_RE } from "@/server/db";
-import { dispatchDue } from "@/server/notifications/dispatcher";
+import { dispatchDue, PushNotConfiguredError } from "@/server/notifications/dispatcher";
 import { scheduleAll, scheduleUser, type SchedulerDeps } from "@/server/notifications/scheduler";
 import { queue } from "./queue";
 import { syncPrayerTimes } from "./prayer-sync";
@@ -36,16 +36,22 @@ export function buildHandlers(svc: Services): JobHandlers {
     },
 
     [JOB_TYPES.notificationDispatch]: async (_job, ctx) => {
-      const r = await dispatchDue({
-        db: svc.db,
-        now: svc.now,
-        log: svc.log,
-        sender: svc.sender,
-        senderProblem: svc.senderProblem,
-        workerId: ctx.workerId,
-        allowDemoBank: svc.config.allowDemoBank,
-      });
-      return { ...r };
+      try {
+        const r = await dispatchDue({
+          db: svc.db,
+          now: svc.now,
+          log: svc.log,
+          sender: svc.sender,
+          senderProblem: svc.senderProblem,
+          workerId: ctx.workerId,
+          allowDemoBank: svc.config.allowDemoBank,
+        });
+        return { ...r };
+      } catch (e) {
+        // Missing VAPID keys do not appear by trying again. Fail now, with the reason, so the admin sees it.
+        if (e instanceof PushNotConfiguredError) throw new JobError(e.message, false);
+        throw e;
+      }
     },
 
     [JOB_TYPES.prayerSync]: async () => {
