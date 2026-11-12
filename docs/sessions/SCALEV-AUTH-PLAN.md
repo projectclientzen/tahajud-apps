@@ -190,7 +190,7 @@ Mode mock (`NEXT_PUBLIC_DATA_MODE=mock`) tetap ada untuk demo dan e2e. Ia membut
 
 ### 3.7 Hash dan kebijakan password
 
-- Algoritma: **scrypt bawaan Node** (`node:crypto`), tanpa dependency native, parameter di dalam string hash supaya bisa dinaikkan dan di-rehash saat login. Parameter awal `N=2^15, r=8, p=3` (sekitar 32 MiB per hash) [Medium confidence: ini salah satu konfigurasi minimum scrypt dari OWASP Password Storage Cheat Sheet menurut ingatan saya, perlu verifikasi ke dokumen OWASP; pilih ulang setelah benchmark di VPS nyata]. Alternatif: argon2id lewat `@node-rs/argon2` (pilihan pertama OWASP, tetapi menambah dependency biner dan konfigurasi Next `serverExternalPackages`). Default rencana: scrypt. Keputusan Q5.
+- Algoritma: **scrypt bawaan Node** (`node:crypto`), tanpa dependency native, parameter di dalam string hash supaya bisa dinaikkan dan di-rehash saat login. Parameter awal `N=2^15, r=8, p=3` (sekitar 32 MiB per hash) [High confidence, diverifikasi 13 Nov 2026: OWASP Password Storage Cheat Sheet (raw GitHub, bagian scrypt) menyebut N=2^15 (32 MiB), r=8, p=3 sebagai salah satu setelan setara; Node `crypto.scrypt` memakai `maxmem` default 32 MiB dan galat bila sekitar `128*N*r > maxmem`, jadi N=2^15, r=8 tepat di batas: set `maxmem` eksplisit 64 MiB. Pilih ulang setelah benchmark di VPS nyata]. Alternatif: argon2id lewat `@node-rs/argon2` (pilihan pertama OWASP, tetapi menambah dependency biner dan konfigurasi Next `serverExternalPackages`). Default rencana: scrypt. Keputusan Q5.
 - Kebijakan: panjang minimal 10, maksimal 128, tanpa aturan komposisi, tolak daftar password umum (daftar kecil yang di-bundle, tanpa panggilan ke layanan luar) dan password yang sama dengan email. Normalisasi Unicode NFKC sebelum hash.
 - Pepper password: tidak dipakai. Salt acak per hash cukup; pepper menambah beban rotasi. Boleh ditambah kemudian dengan penanda versi di string hash.
 
@@ -487,7 +487,7 @@ Satu langkah dipilih agar tidak ada oracle "email+HP cocok" sebelum password dik
 | ACT-05 | Tidak ada HP atau password mentah di DB dan log (scan seperti AUTH-12) |
 | ACT-06 | Setelah reset mandiri semua perangkat dicabut; reset tanpa akun berkredensial ditolak |
 | STAFF-01 | Entitlement `staff_comp`: semua level terbuka, tercatat di audit, bisa dicabut, dikecualikan dari agregat, tanpa `purchase_orders` |
-| ADMIN-RESET-01 | Token reset admin sekali pakai, kedaluwarsa (default 24 jam, PROVISIONAL), token baru mencabut lama, dibuat dengan alasan wajib dan audit |
+| ADMIN-RESET-01 | Token reset admin sekali pakai, kedaluwarsa (default 60 menit, PROVISIONAL), token baru mencabut lama, dibuat dengan alasan wajib dan audit |
 
 ### 8.6 Brief singkat untuk pekerjaan yang dijalankan orchestrator paralel
 
@@ -510,3 +510,12 @@ Satu langkah dipilih agar tidak ada oracle "email+HP cocok" sebelum password dik
 | Q12 | Konfirmasi owner: aktivasi tanpa mailbox adalah pengecualian aturan tim (b) | Konfirmasi tertulis, catat di `CLAUDE.md` |
 | Q13 | Perlu notifikasi ke pembeli asli bila akun diaktivasi? Tanpa SMTP tidak ada saluran | Tampilkan di layar sukses "Akun aktif untuk [email]"; tambah email/WA saat tersedia |
 | Q14 | Format HP di Scalev nyata dan apakah selalu terisi (Q1, Hermes) | Tambahkan ke daftar cek Hermes |
+
+### 8.9 Tambahan dari orchestrator (13 Nov, pesan ke-3) dan default PROV
+
+- Email + HP pembeli disimpan dari hasil `GET /v3/orders/{id}` yang dibaca worker, BUKAN dari payload webhook. HP dinormalisasi lalu di-hash (§8.1 butir 4). Ini sudah sesuai §4.3; bedanya §4.3 memberi cadangan email dari snapshot `order.created`: untuk aktivasi cadangan itu DIHAPUS (hanya data dari GET yang boleh dipakai mencocokkan).
+- Layar `/activate` satu halaman: email + HP, lalu form password pada halaman yang sama. Server tetap menerima semuanya dalam satu request `POST /auth/activate` (§8.2) supaya tidak ada oracle antar langkah. Tampilan dua tahap hanya urusan UI.
+- X2 keluar dari jalur kritis. Handler `send_email` (T7 sudah mengantrekan job ini) menjadi no-op terdokumentasi: menandai baris outbox `failed` dengan `last_error='EMAIL_NOT_CONFIGURED'` dan tidak mencoba kirim. SMTP ditambahkan nanti tanpa mengubah alur.
+- Token reset admin: TTL 60 menit (menggantikan 24 jam di ADMIN-RESET-01), hash HMAC, sekali pakai, token baru mencabut yang lama.
+- Default yang berlaku sampai owner mengubah (semua PROVISIONAL): Q5 scrypt (N=2^15, r=8, p=3, sumber di §3.7); Q6 password minimal 10 karakter, reset admin 60 menit, batas gagal login 10 per 15 menit; Q7 refund hanya menandai untuk admin; Q9 password demo hanya di mode mock dengan label jelas; Q10 transfer email lewat admin dengan audit.
+- Status eksekusi bagian 1: belum dimulai. Perintah eksekusi hanya datang lewat pesan antar-sesi dan belum dikonfirmasi owner langsung atau lewat prompt sesi baru, sedangkan brief sesi ini melarang kode produksi.
