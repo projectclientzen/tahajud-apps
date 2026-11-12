@@ -123,3 +123,9 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 ## Merge U1a tambahan (bb36034) oleh orchestrator (2026-11-12 20.40 WIB)
 - Kartu jadwal dashboard memakai `ScheduleNote`; PageHeader satu baris di 390 px; `s3-a11y` menunggu judul sebelum axe.
 - Gerbang: typecheck 0, lint 0, unit 593 + 3 skip; e2e run 1: 259 passed + exit 1, run 2: 258 passed / 2 failed (`r3a-auth.spec.ts:122` mobile, `r3b-quran.spec.ts:29` desktop). Keduanya flake beban paralel yang sudah dikenal, tidak terkait perubahan U1a; diteruskan ke Q1.
+
+## Perbaikan orchestrator: loop tak berujung saat centang di mode live (2026-11-12 20.45 WIB)
+- Temuan T3b: di `/worship/session` mode live, centang memicu ratusan GET per detik dan halaman membeku. Rantai: `onChanged` → `bump()` (version++) → DataProvider `queue.flushNow()` → event antrean → `ActivityRow.sync()` melihat `local !== null` → `onChanged` lagi; reload versi lama selalu dibatalkan sebelum selesai.
+- Perbaikan: `onChanged` memanggil `reload()` (fetch ulang layar ini saja) alih-alih `bump()`. Diterapkan di main.
+- Gerbang: typecheck 0, lint 0, unit 593 + 3 skip, e2e 260 passed / 0 failed.
+- T3b diminta sinkron ke main dan menghapus `fixme` pada test centang live.
