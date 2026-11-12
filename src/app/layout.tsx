@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Amiri_Quran, Plus_Jakarta_Sans } from "next/font/google";
+import { AuthProvider } from "@/components/providers/auth-provider";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
@@ -47,7 +48,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
         <ServiceWorkerRegister />
       </body>
     </html>
