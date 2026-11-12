@@ -38,6 +38,11 @@ const PRIVATE: [method: string, path: string, body?: unknown][] = [
   ["GET", "/me/quran-progress"],
   ["PUT", "/me/quran-progress/18", { ayah: 3 }],
   ["GET", "/me/notification-preferences"],
+  ["GET", "/me/notifications"],
+  ["POST", "/me/push-subscriptions", { endpoint: "https://push.example.test/x", keys: { p256dh: "k", auth: "s" } }],
+  ["GET", "/prayer-times"],
+  ["GET", "/quran/surahs"],
+  ["GET", "/quran/surahs/18"],
 ];
 // Reachable without paid access: sign-in itself, /me, /me/access, devices, logout.
 const NO_ENTITLEMENT_NEEDED = new Set(["GET /me/access", "GET /me/devices"]);

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * Live-mode e2e (T3b): the real screens talk to the real /api/v1 routes, backed by PostgreSQL in the server process
+ * Live-mode e2e (T3b, T3c): the real screens talk to the real /api/v1 routes, backed by PostgreSQL in the server process
  * (PGlite). Docker is not available here, so this stands in for Supabase. Run: `pnpm test:e2e:live`.
  * It builds the app with NEXT_PUBLIC_DATA_MODE=live into .next, so do not run it at the same time as `pnpm test:e2e`.
  */
@@ -12,7 +12,7 @@ export const MAIL_DIR = join(tmpdir(), "tt-e2e-mail");
 
 export default defineConfig({
   testDir: "tests/e2e",
-  testMatch: "t3b-*.live.ts",
+  testMatch: "t3[bc]-*.live.ts",
   fullyParallel: false,
   workers: 1,
   reporter: [["list"]],
@@ -36,7 +36,7 @@ export default defineConfig({
       AUTH_PROVIDER: "local",
       TAHAJUD_ALLOW_LOCAL_AUTH: "true",
       TAHAJUD_MAIL_DIR: MAIL_DIR,
-      TAHAJUD_TEST_DB_SQL: "tests/e2e/t3b-fixtures.sql",
+      TAHAJUD_TEST_DB_SQL: "tests/e2e/t3b-fixtures.sql,tests/e2e/t3c-fixtures.sql",
       SESSION_PEPPER: "e2e-pepper-e2e-pepper-e2e-pepper-123456",
     },
   },

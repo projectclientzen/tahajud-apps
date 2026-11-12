@@ -108,12 +108,14 @@ test("live: the API answers privately and refuses what it should", async ({ page
   expect(await me.json()).toMatchObject({ authenticated: false, reason: "none" });
   // no Origin on a mutation: refused
   const noOrigin = await request.post("/api/v1/auth/request-otp", { data: { email: "someone@ngajigaes.test" } });
-  expect(noOrigin.status()).toBe(401);
+  expect(noOrigin.status()).toBe(403);
+  expect((await noOrigin.json()).error.code).toBe("FORBIDDEN_ORIGIN");
   const foreign = await request.post("/api/v1/auth/request-otp", {
     data: { email: "someone@ngajigaes.test" },
     headers: { origin: "https://evil.example" },
   });
-  expect(foreign.status()).toBe(401);
+  expect(foreign.status()).toBe(403);
+  expect((await foreign.json()).error.code).toBe("FORBIDDEN_ORIGIN");
   // an unknown path is JSON, not a web page
   const nope = await request.get("/api/v1/nothing");
   expect(nope.status()).toBe(404);
