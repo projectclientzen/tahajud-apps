@@ -2,6 +2,8 @@
 
 Sesi perencanaan, tanggal brief 13 Nov 2026. Branch `claude/scalev-email-pass` dari `main` @ `55187ad`. Tidak ada kode produksi yang ditulis. Branch T6 (`claude/t6-job-runner` @ df299d9) dan T7 (`claude/t7-admin` @ 072a34b) dibaca, tidak di-merge.
 
+> REVISI 13 Nov 2026 (keputusan owner via orchestrator, lihat §8): aktivasi akun memakai email + nomor HP order, bukan email undangan SMTP. Di mana §0, §3, §4.5 dan §5 menyebut "email undangan" atau SMTP wajib, §8 yang berlaku. Bagian yang tidak disebut di §8 tetap.
+
 Label bukti yang dipakai:
 - **terverifikasi dokumen**: saya baca sendiri di dev.scalev.com (13 Nov 2026) atau di kode repo.
 - **dari temuan Hermes**: hasil panggilan API live Hermes. Sesi ini tidak punya kredensial Scalev, jadi tidak saya ulang.
@@ -432,3 +434,79 @@ Saya tidak mengubah berkas ini (hak orchestrator menurut PLAN.md dan CLAUDE.md).
 | `docs/STATUS.md` | Baris Integrasi Scalev diperbarui di sesi ini; baris Auth, Admin, Backend diperbarui oleh task masing-masing |
 
 Catatan keamanan untuk reviewer akhir (Fable): webhook tidak punya perlindungan replay selain `unique_id` dan verifikasi GET (tanda tangan hanya menutup body, tidak ada header waktu terpisah di dokumen); pemblokiran login per email bisa dipakai penyerang untuk mengunci email target maksimal 15 menit; keamanan bergantung pada `TRUSTED_PROXY_HOPS` yang benar (G12); `SCALEV_PAYLOAD_KEY` tidak punya mekanisme rotasi di iterasi pertama.
+
+## 8. Revisi keputusan owner: aktivasi email + nomor HP, tanpa SMTP
+
+Sumber: pesan orchestrator (session_01HkFB32yhrjHP63xkJdKYto) yang meneruskan keputusan owner. Saya mencatatnya apa adanya; belum saya konfirmasi langsung ke owner.
+
+### 8.1 Peringatan sebelum dikerjakan
+
+1. **Bertentangan dengan aturan tim (b)** ("pemilik email harus terverifikasi minimal sekali"). Bukti kepemilikan berubah dari "bisa membuka mailbox" menjadi "tahu email + nomor HP order". Itu bukti pengetahuan, bukan kepemilikan. Perlu konfirmasi eksplisit owner bahwa ini pengecualian aturan (b), dan `CLAUDE.md` perlu menuliskannya.
+2. **Nomor HP semi-rahasia** (diketahui keluarga, teman, admin iklan, kurir, bahkan tampil di bukti transfer). Email pembeli juga sering tahu orang dekat. Penyerang yang tahu keduanya sebelum pembeli asli mengaktivasi mengambil akun. Mitigasi dalam desain: wajib cocok keduanya, rate limit per email, per HP, per IP, respons gagal generik, aktivasi hanya sekali per entitlement, dan notifikasi tidak ada (tanpa email, pembeli asli tidak tahu akunnya diambil). Risiko sisa dicatat; satu-satunya penutup yang kuat adalah SMTP atau WhatsApp OTP nanti.
+3. **Nomor HP order dari Scalev**: tersedia di `customer.phone` dan `destination_address.phone` pada GET order (terverifikasi dokumen: kunci `phone` ada di kedua objek). Apakah terisi dan formatnya apa pada order nyata: belum dicek (tambah ke Q1 untuk Hermes). Order tanpa email atau tanpa HP tidak bisa diaktivasi mandiri, jalur CS.
+4. Penyimpanan HP: simpan HMAC (pepper, `phone:`) dari nomor ternormalisasi untuk pencocokan, bukan teks asli. Teks asli hanya di payload webhook terenkripsi. Admin butuh melihat HP untuk menghubungi pembeli: tampilkan sebagian (4 digit terakhir) kecuali `support_admin`/`super_admin` dengan audit.
+
+### 8.2 Alur baru
+
+**Aktivasi** `POST /auth/activate {email, phone, password, device_label?}`: satu langkah, atomik. Server menormalisasi email (aturan PRD) dan HP (`08...`, `62...`, `+62...` menjadi `62...`; buang spasi, tanda hubung, tanda kurung), lalu dalam satu transaksi mencari entitlement `active` untuk email itu dengan order terverifikasi yang `customer_phone_hash` cocok, `user_id` NULL, dan belum ada kredensial. Cocok: buat `auth.users` + `profiles` + `auth_credentials`, tautkan entitlement, mulai sesi di perangkat ini (aturan 3 perangkat sama). Tidak cocok, sudah diaktivasi, order belum lunas, atau order belum diverifikasi: SATU respons `ACTIVATION_FAILED` ("Data tidak cocok atau akun sudah aktif. Coba masuk, atau hubungi CS"). Tidak ada respons berbeda yang membedakan "email tak dikenal" dari "HP salah" dari "sudah aktif". Setelah punya password, aktivasi ulang ditolak dengan pesan yang sama; layar login selalu menawarkan "Lupa password".
+
+Satu langkah dipilih agar tidak ada oracle "email+HP cocok" sebelum password diketik. Hash tiruan dijalankan saat gagal agar waktu seragam.
+
+**Lupa password** `POST /auth/reset-password {email, phone, new_password}`: pembuktian sama (email + HP cocok dengan order milik akun itu), tetapi untuk akun yang sudah punya kredensial. Berhasil: ganti hash, cabut semua perangkat, tanpa sesi (login manual). Atau **tautan reset dari CS**: admin membuat token sekali pakai dari halaman admin (§8.6), CS mengirim manual via WhatsApp; pembeli membuka `/reset?...#t=<token>` lalu memanggil `POST /auth/set-password {token, password}` (endpoint dari §3 dipertahankan, hanya untuk token admin).
+
+**Login** `POST /auth/login`, ganti password `POST /me/password`, perangkat, logout: seperti §3.
+
+### 8.3 Dampak ke rencana awal
+
+| Bagian | Perubahan |
+|--------|-----------|
+| §3.2 tabel | `auth_tokens` tetap, hanya untuk `reset` buatan admin (tanpa `setup`; kolom `email_normalized`, `created_by`). `password_token_*` dipakai admin saja. `provision_user` tetap dihapus |
+| §3.3 endpoint | Hapus `/auth/password-link` dan `/auth/password-token/check` sebagai jalur publik pembeli. Tambah `/auth/activate`, `/auth/reset-password`. `/auth/set-password` tetap tetapi hanya menerima token admin; sekarang boleh membuat sesi (pembeli datang dari tautan WA di perangkatnya, bukan dari email di Safari) |
+| §3.5 UI | Tambah `/activate` (email, HP, password dua kali, aturan password), `/forgot-password` meminta email + HP + password baru (bukan kirim tautan), `/reset` (tautan CS). `/set-password` diganti `/reset`. `/payment/success` memakai salinan baru: "Pembayaran diterima. Buka aplikasi lalu pilih Aktivasi akun. Pakai email dan nomor HP yang sama dengan saat order." |
+| §4.4 provisioning | Tidak lagi mengantrekan email undangan. `scalev_apply_order` menyimpan `customer_phone_hash` di `purchase_orders` dan mengubah entitlement jadi `active` (user_id NULL). Email outbox tidak dipakai alur ini |
+| §4.5, X2 | SMTP menjadi OPSIONAL dan bukan prasyarat apa pun. X2 turun prioritas ke "nanti"; X0 tetap membuat kerangka supaya `email_enqueue` bisa ditambahkan tanpa mengubah alur. Hapus B2 sebagai blocker peluncuran |
+| §5.3 env | `SMTP_*`, `EMAIL_*`, `APP_BASE_URL` tidak wajib. Tambah `ACTIVATION_PHONE_REQUIRED=true` (default, tidak boleh dimatikan di produksi) |
+| Rate limit (§3.8) | Tambah: `activate` dan `reset-password`: 5 gagal per 15 menit per email, 5 per 15 menit per hash HP, 20 per jam per IP, 3 per jam per (email, HP). Respons 429 `RATE_LIMITED` tidak membedakan sebab |
+
+### 8.4 Model data tambahan (migration `auth_password`, X4)
+
+- `public.purchase_orders`: kolom `customer_phone_hash text` (nullable), `activation_blocked bool default false` (CS bisa memblokir).
+- `public.access_entitlements.entitlement_type` check: `('lifetime','staff_comp')`. `staff_comp` tidak punya `purchase_order_id`, punya `granted_by uuid`, `revoked_at/reason` (sudah ada). Dibuat hanya oleh admin (§8.6).
+- Kebijakan level: untuk entitlement `staff_comp`, `has_all_levels(p_uid)` bernilai benar dan fungsi level (`get_current_level`, `get_level_progress`, unlock) menganggap semua level terbuka tanpa menulis `user_level_state` palsu; progres tetap tercatat apa adanya. Aturan "tidak reset progress dan tidak kunci ulang" tidak berubah. Ini mengubah fungsi SQL level T3b (`20261114000100_api_reads.sql`): masuk lingkup X4 atau task staff (§8.6), diputuskan orchestrator.
+- Pengecualian laporan: agregat admin (`admin_aggregates`, T7) dan hitungan pembeli harus mengecualikan user dengan entitlement `staff_comp` (kolom turunan `is_staff`). Tidak menyentuh data per user.
+- Audit: `admin_audit_logs` dipakai untuk pembuatan, pencabutan, tautan reset, blokir aktivasi. Aktivasi mandiri dan reset mandiri tidak di-audit per baris admin tetapi dicatat di tabel baru `auth_events (id, user_id, kind in ('activated','reset_self','reset_admin'), at, ip_hash)` tanpa email/HP mentah.
+
+### 8.5 Test baru (tambahan §5.4)
+
+| ID | Isi |
+|----|-----|
+| ACT-01 | Aktivasi berhasil hanya jika email + HP cocok order lunas/terverifikasi varian Tahajud; normalisasi 08/62/+62 setara |
+| ACT-02 | Semua kegagalan (email asing, HP salah, order belum lunas, order tanpa HP, sudah diaktivasi) menghasilkan respons dan status identik |
+| ACT-03 | Aktivasi kedua untuk entitlement yang sama ditolak; akun tidak ganda; dua aktivasi serentak hanya satu berhasil |
+| ACT-04 | Rate limit per email, per HP, per IP; 429 tidak membedakan sebab |
+| ACT-05 | Tidak ada HP atau password mentah di DB dan log (scan seperti AUTH-12) |
+| ACT-06 | Setelah reset mandiri semua perangkat dicabut; reset tanpa akun berkredensial ditolak |
+| STAFF-01 | Entitlement `staff_comp`: semua level terbuka, tercatat di audit, bisa dicabut, dikecualikan dari agregat, tanpa `purchase_orders` |
+| ADMIN-RESET-01 | Token reset admin sekali pakai, kedaluwarsa (default 24 jam, PROVISIONAL), token baru mencabut lama, dibuat dengan alasan wajib dan audit |
+
+### 8.6 Brief singkat untuk pekerjaan yang dijalankan orchestrator paralel
+
+| ID | Isi | File yang dimiliki | Bergantung |
+|----|-----|--------------------|------------|
+| X3 + X6 (Scalev) | Seperti §4 dengan perubahan: simpan `customer_phone_hash` dari `customer.phone` (cadangan `destination_address.phone`) saat `scalev_apply_order`; karantina `missing_phone` selain `missing_email`; tanpa email undangan. Baca ulang Q1 untuk bentuk `phone` | `supabase/migrations/*_scalev_*.sql`, `src/server/scalev/**`, `src/app/api/v1/webhooks/scalev/route.ts`, `tests/unit/server/scalev-*`, `tests/db/scalev-*` | Migration `auth_password` (kolom HP); T6 |
+| X8 (admin: staff + tautan reset) | Setelah T7 merge: endpoint dan UI admin untuk (1) membuat akun staff tanpa pembelian: membuat `auth.users` + profil + entitlement `staff_comp`, password awal TIDAK dibuat admin, staf diberi tautan reset sekali pakai; (2) mencabut `staff_comp`; (3) membuat tautan reset untuk pembeli (alasan wajib, ditampilkan sekali, tidak disimpan teks asli); (4) blokir aktivasi sebuah order; (5) menyembunyikan HP kecuali dua peran dengan audit. Perubahan `get_*level*` untuk bypass staff bila belum di X4 | `supabase/migrations/*_admin_staff.sql`, `src/server/admin/**`, `src/components/admin/**`, `src/app/admin/**`, `tests/unit/server/admin-*`, `tests/e2e/admin-*` | T7 merge, X4 |
+
+### 8.7 Task bagian 1 (X0, X4, X5 yang berubah)
+
+- **X0**: kontrak baru (`activate`, `reset-password`, `ACTIVATION_FAILED`, `WEAK_PASSWORD`, `INVALID_CREDENTIALS`, `INVALID_TOKEN`), hapus `password-link`.
+- **X4**: migration `auth_password` (kredensial, token reset admin, kolom HP, `staff_comp`, `auth_events`), servis `activate/reset/login/changePassword`, hapus OTP.
+- **X5**: layar `/login`, `/activate`, `/forgot-password`, `/reset`, `/payment/success`, `/settings/account`; mock repository dengan order demo (email + HP demo, bukan password nyata); e2e.
+- Urutan bagian 1 saat dieksekusi: X0, X4 (butuh bootstrap DB: bisa ikut di task yang sama bila X1 belum ada), X5, lalu hapus jalur OTP setelah alur baru hijau.
+
+### 8.8 Pertanyaan tambahan
+
+| # | Pertanyaan | Rekomendasi |
+|---|------------|-------------|
+| Q12 | Konfirmasi owner: aktivasi tanpa mailbox adalah pengecualian aturan tim (b) | Konfirmasi tertulis, catat di `CLAUDE.md` |
+| Q13 | Perlu notifikasi ke pembeli asli bila akun diaktivasi? Tanpa SMTP tidak ada saluran | Tampilkan di layar sukses "Akun aktif untuk [email]"; tambah email/WA saat tersedia |
+| Q14 | Format HP di Scalev nyata dan apakah selalu terisi (Q1, Hermes) | Tambahkan ke daftar cek Hermes |
