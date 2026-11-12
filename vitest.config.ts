@@ -10,7 +10,10 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["tests/unit/**/*.test.ts", "src/**/*.test.ts"],
+    include: ["tests/unit/**/*.test.ts", "tests/db/**/*.test.ts", "src/**/*.test.ts"],
+    // In-process PostgreSQL (PGlite) needs a moment to start.
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
     coverage: {
       provider: "v8",
       include: ["src/domain/**/*.ts", "src/offline/**/*.ts", "src/data/mock/auth.ts"],
