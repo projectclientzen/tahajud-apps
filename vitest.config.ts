@@ -11,5 +11,12 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/unit/**/*.test.ts", "src/**/*.test.ts"],
+    coverage: {
+      provider: "v8",
+      include: ["src/domain/**/*.ts"],
+      exclude: ["src/domain/**/index.ts"],
+      reporter: ["text-summary", "text"],
+      thresholds: { lines: 90 },
+    },
   },
 });
