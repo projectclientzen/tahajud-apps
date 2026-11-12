@@ -1,8 +1,8 @@
-# AGENT BRIEF — Tahajud Tracker by NgajiGaes
+# AGENT BRIEF: Tahajud Tracker by NgajiGaes
 
 Disiapkan oleh: orchestrator (sesi perencanaan, 12 Nov 2026)
 Untuk: agen implementasi di sesi chat terpisah
-Basis: `docs/PRD-v1.1.md`
+Basis: `docs/PRD-v1.2.md` (hasil audit `docs/AUDIT-PRD-v1.1.md`). PRD v1.1 hanya arsip.
 
 ---
 
@@ -27,7 +27,9 @@ Output akhir tiap sesi wajib menyebut dengan jujur: fitur mana REAL (jalan denga
 
 ---
 
-## 2. Risiko & celah PRD yang harus agen tangani (urut dari paling penting)
+## 2. Risiko & celah yang harus agen tangani (urut dari paling penting)
+
+Audit lengkap 60 temuan ada di `docs/AUDIT-PRD-v1.1.md` dan sudah dimasukkan ke PRD v1.2. Tabel di bawah = risiko implementasi yang paling sering membuat agen salah langkah.
 
 | # | Isu | Dampak | Penanganan wajib | Confidence |
 |---|-----|--------|------------------|------------|
@@ -95,7 +97,7 @@ docs/
 
 ---
 
-## 4. Data referensi bersih (tabel PRD yang rusak format)
+## 4. Data referensi ringkas (detail lengkap: PRD v1.2 §7, §9, §10, §11)
 
 ### 4.1 Design tokens
 | Token | HEX | Pakai untuk |
@@ -154,10 +156,15 @@ Catatan: "Required" = syarat target aplikasi, bukan kewajiban fikih. Copy UI har
 
 ### 4.4 Aturan sesi
 - Session key = tanggal Subuh lokal (`fajr_local_date`). Malam 12 Nov menuju Subuh 13 Nov → key `2026-11-13`.
+- `activeSessionKey(now)` = `localDate(now)` jika `now < 12.00 lokal`, selain itu `localDate(now) + 1`. `now` = waktu server.
+- Missed = derived dari kalender sejak `program_start_date` (tidak perlu baris sesi). Partial butuh minimal 1 progres > 0.
+- Level monoton: sekali terbuka tidak terkunci lagi.
+- Status sesi dihitung otomatis dari aktivitas; tombol selesai hanya membuka ringkasan.
+- Counter: tap di-coalesce, flush tiap 2 detik / target tercapai / tab hidden. UNIQUE (user_id, client_operation_id).
 - Cutoff otomatis 12.00 lokal di tanggal Subuh (PROV). Koreksi s.d. 48 jam setelah cutoff (PROV).
 - State: `scheduled → in_progress → completed`; `scheduled → missed`; `in_progress → partial`; `scheduled|in_progress → excused`. Koreksi lewat audit log.
 - Completion rate = completed / (completed + partial + missed) × 100. Excused & upcoming tidak dihitung. Penyebut 0 → "Belum ada data".
-- Unlock level berlaku mulai sesi berikutnya. Sesi menyimpan snapshot config.
+- Unlock level berlaku mulai sesi berikutnya. Sesi menyimpan snapshot config (level, timezone, region dibekukan).
 - Level 3 selesai → milestone "Istikamah Journey Completed", tetap di Level 3.
 
 ### 4.5 Routes
@@ -199,7 +206,7 @@ Zen menyebut skill: hallmark, ui-ux-pro-max, antislop, superpowers, ponytail. Ke
 ---
 
 ## 7. Aturan mock data
-- Semua fixture di `src/data/mock/fixtures/**`, setiap file diawali komentar `// DEMO DATA — bukan data asli`.
+- Semua fixture di `src/data/mock/fixtures/**`, setiap file diawali komentar `// DEMO DATA: bukan data asli`.
 - Nama user demo: "Pengguna Demo". Jangan pakai nama orang nyata.
 - Jadwal salat mock: fixture berlabel "Jadwal contoh, bukan dari Kemenag". Boleh pakai perhitungan lokal library `adhan` HANYA di mode mock dengan label yang sama.
 - Teks Qur'an: TIDAK ada di mock. Reader mode mock menampilkan state "Dataset Al-Qur'an belum diimport" sampai S4/S7 mengimport Tanzil.
@@ -211,7 +218,21 @@ Zen menyebut skill: hallmark, ui-ux-pro-max, antislop, superpowers, ponytail. Ke
 
 Tiap sesi: baca `CLAUDE.md` → brief ini → STATUS → SESSION_LOG terakhir. Kerjakan scope saja. Akhiri dengan update STATUS + SESSION_LOG + push.
 
-### S1 — Foundation, design system, app shell
+### 8.0 Tambahan scope dari PRD v1.2 (wajib, melengkapi scope tiap sesi di bawah)
+
+| Sesi | Tambahan | Acceptance test baru |
+|------|----------|----------------------|
+| S1 | Token theme "otomatis gelap Maghrib-Subuh"; label status Tuntas/Sebagian/Terlewat/Berhalangan/Akan datang (PRD §7.7) | - |
+| S2 | `activeSessionKey`, missed derived, level monoton (`user_level_state`), status otomatis, counter coalescing buffer, `set_zero`, clamp jam client, rentang berhalangan, completion rate mulai `program_start_date`, kedaluwarsa notifikasi, ambang tidur 5 jam | SESSION-03, -04, -05, -06, DZIKIR-04 (unit), DZIKIR-05 (unit), NOTIF-04, NOTIF-05 |
+| S3 | Tombol tap ≥160px, Wake Lock toggle, "+N lebih", mode berhalangan rentang, kartu setup di dashboard, label sumber jadwal | DZIKIR-04 (e2e) |
+| S4 | Login OTP-first + "Tidak menerima kode?" + tombol WhatsApp CS; onboarding jalur minimum; jadwal manual; `/settings/devices`; `/settings/account` (hapus akun, unduh data); dialog logout dengan antrean belum sinkron; `navigator.storage.persist()`; IndexedDB per user | DZIKIR-06, PRAYER-03, SECURITY-06 |
+| S5 | REVOKE privilege tabel tracking dari `authenticated`; RPC/API saja; tabel `user_roles`, `user_devices`, `jobs`, `email_outbox`, `rate_limits`, `app_settings`, `data_deletion_requests`, `admin_audit_logs`; rate limit OTP; Origin check; `Cache-Control: private, no-store`; redirect allowlist; hapus akun + anonimisasi order | AUTH-06, AUTH-07 (manual + e2e webkit jika bisa), SECURITY-03, SECURITY-04 |
+| S6 | Verifikasi order ke API Scalev sebelum `active`; `pending_verification` + approve manual jika API belum ada; rotasi secret; limit body 256 KB; payload minimal + retensi 90 hari | AUTH-08 |
+| S7 | Job runner tunggal (`jobs` + pg_cron); notifikasi kedaluwarsa; quiet hours; jadwal manual di planner | NOTIF-04, NOTIF-05, PRAYER-03 (server) |
+| S8 | MFA admin wajib; matriks role PRD §18.2; support tools (resend, approve manual, transfer entitlement); agregat min 20 user | SECURITY-05, PRIV-01 |
+| S9 | Checklist legal (UU PDP, S&K, refund, PSE: VERIFY), custom SMTP + SPF/DKIM/DMARC, budget JS ≤200 KB, backup berbayar, 16 item §30.3 PRD | Semua §27 |
+
+### S1: Foundation, design system, app shell
 Scope:
 - Init Next.js + TS strict + Tailwind + shadcn + ESLint + Prettier + Vitest + Playwright. Script: `dev`, `build`, `typecheck`, `lint`, `test`, `test:e2e`.
 - `docs/SITEMAP.md`: sitemap + user flow (purchase→activation, onboarding, daily worship, Subuh transition) dalam Mermaid.
@@ -227,7 +248,7 @@ Prompt:
 Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S1 (Foundation, design system, app shell) sesuai §8 brief. Mulai dari main terbaru. Pakai skill desain/UI yang tersedia di sesi ini. Jangan kerjakan scope sesi lain. Di akhir: jalankan typecheck, lint, test, e2e; update docs/STATUS.md dan docs/SESSION_LOG.md; commit dan push. Laporkan apa yang REAL vs SIMULATED.
 ```
 
-### S2 — Domain engines + data contracts + mock repository (TDD)
+### S2: Domain engines + data contracts + mock repository (TDD)
 Scope:
 - `src/domain/**` pure functions: `getSessionKey`, session state machine + cutoff, `computeSessionStatus(activities)`, `computeLevelProgress`, `checkUnlock` (efektif sesi berikutnya), `completionRate`, calendar builder, insight template picker (first completion, milestone, improvement, stable, return after inactivity), dhikr counter reducer + dedupe by `operation_id`, wake planner, Al-Kahfi window, bedtime rotation (hindari 14 terakhir).
 - `src/data/contracts.ts`: tipe request/response sesuai PRD §19 (dashboard, session, counter op, completion, reports, quran progress, notif prefs).
@@ -240,7 +261,7 @@ Prompt:
 Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S2 (domain engines, data contracts, mock repository) dengan TDD sesuai §8. Semua nilai PROVISIONAL dari §5 masuk config dengan flag provisional. Test diberi prefix ID acceptance PRD. Akhiri dengan update STATUS dan SESSION_LOG, commit, push.
 ```
 
-### S3 — Screens inti: Dashboard, Amalan, Sesi, Dzikir Counter, Level Journey
+### S3: Screens inti: Dashboard, Amalan, Sesi, Dzikir Counter, Level Journey
 Scope:
 - `/dashboard` section A-H PRD §8.2 + semua state §8.3 (skeleton, akun baru, offline, prayer unavailable, belum ada sesi, sesi berjalan, sesi selesai). Filter 7/30/90 hari. Kalender klik → detail sesi.
 - `/worship` + `/worship/session`: alur malam → transisi Subuh (tanpa countdown negatif, tanpa auto-centang, aktivitas tidak dihapus) → post-Fajr (L3) → ringkasan sesi. User bebas mencatat sesuai urutan aktual.
@@ -255,7 +276,7 @@ Prompt:
 Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S3 (Dashboard Istiqomah, Amalan, Sesi Ibadah, Dzikir Counter, Level Journey) sesuai §8, memakai komponen S1 dan domain/mock S2. Prioritas kualitas UX mobile 360px dan aksesibilitas. Akhiri dengan e2e, screenshot, update STATUS dan SESSION_LOG, commit, push.
 ```
 
-### S4 — Screens lanjutan + offline
+### S4: Screens lanjutan + offline
 Scope:
 - Auth screens (`/login`, `/auth/verify`, `/access-status`: purchase pending, no active access, session expired) dengan mock auth.
 - Onboarding 8 langkah PRD §6.2 (wilayah provinsi→kab/kota, konfirmasi Subuh, target tidur, notifikasi, panduan install PWA per Android/iOS/desktop).
@@ -272,7 +293,7 @@ Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S4 (auth & onboarding scre
 
 Checkpoint Zen setelah S4: review prototype, beri feedback UI, kirim teks Arab dzikir yang sudah direview pembimbing, logo/aset NgajiGaes.
 
-### S5 — Database, RLS, Auth, server services
+### S5: Database, RLS, Auth, server services
 Prasyarat: Zen menyediakan project Supabase (atau mengizinkan agen membuat project via Supabase MCP). Tanpa ini: agen jalankan Supabase lokal via CLI jika memungkinkan, jika tidak, tulis migration + test SQL saja dan tandai BLOCKED.
 Scope:
 - Migrations semua tabel PRD §17 (+ `purchase_order_items`, `admin_roles`), constraint unik (user_id+fajr_local_date, client_operation_id, provider+external_event_id, region_id+local_date+provider), index.
@@ -288,7 +309,7 @@ Prompt:
 Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S5 (Supabase schema, RLS, auth OTP, API v1, server-authoritative progression) sesuai §8. Jangan asumsikan kredensial tersedia; tanya dulu sebelum membuat project Supabase atau resource berbayar. Akhiri dengan test, update STATUS dan SESSION_LOG, commit, push.
 ```
 
-### S6 — Scalev integration + entitlement
+### S6: Scalev integration + entitlement
 Scope: `POST /api/v1/webhooks/scalev` (raw body, HMAC verify constant-time, simpan event idempotent, ack cepat, proses async), reconciliation (awaiting order verification + retry backoff), validasi product/variant ID dari env, dedupe fulfillment, refund hanya via data resmi/admin teraudit, email instruksi akses via queue.
 Test: AUTH-01..04 + out-of-order, paid→settled tidak dobel, missing order details. Fixture payload ditandai `NEEDS_VERIFICATION` sampai dicocokkan dengan payload asli Scalev.
 Prompt:
@@ -296,7 +317,7 @@ Prompt:
 Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S6 (Scalev webhook, entitlement, reconciliation, email akses) sesuai §8. Verifikasi format webhook Scalev ke dokumentasi resmi jika bisa diakses; jika tidak, implementasi sesuai PRD dan tandai NEEDS_VERIFICATION. Akhiri dengan test, update STATUS dan SESSION_LOG, commit, push.
 ```
 
-### S7 — Prayer time, Quran import, Web Push + scheduler
+### S7: Prayer time, Quran import, Web Push + scheduler
 Scope:
 - `SihatProvider` (backend adapter, token dari env, cache per region/bulan, label "Jadwal tersimpan" saat stale, refresh). Jika API resmi tidak bisa diverifikasi: BLOCKED, mock tetap berlabel.
 - Import Tanzil Uthmani untuk 6 bacaan: script `scripts/import-quran.ts`, simpan versi + checksum + atribusi + lisensi; test QURAN-01 membandingkan DB dengan file sumber.
@@ -307,14 +328,14 @@ Prompt:
 Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S7 (prayer time adapter SIHAT, import Qur'an Tanzil terverifikasi, Web Push + scheduler) sesuai §8. Jika host atau kredensial terblokir, berhenti di bagian itu, laporkan apa yang dibutuhkan, lanjut bagian lain. Akhiri dengan test, update STATUS dan SESSION_LOG, commit, push.
 ```
 
-### S8 — Admin dashboard & CMS
+### S8: Admin dashboard & CMS
 Scope: semua route admin PRD §5.3, role (super_admin, content_admin, support_admin, reporting_admin) dicek di server, amalan manager dengan workflow Draft→In Review→Approved→Published, content versioning (snapshot), notification CMS + preview mobile, integration health (webhook gagal, prayer sync, push delivery), audit log before/after. Konten Qur'an tidak bisa diedit via CMS.
 Prompt:
 ```
 Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S8 (admin dashboard, amalan manager dengan review workflow, versioning, notification CMS, audit log, RBAC) sesuai §8. Akhiri dengan test, update STATUS dan SESSION_LOG, commit, push.
 ```
 
-### S9 — QA, security review, deploy docs
+### S9: QA, security review, deploy docs
 Scope: jalankan seluruh acceptance PRD §27, Lighthouse mobile, audit a11y (axe), checklist QA PRD §28, security review (secret scan, RLS, rate limit), `docs/DEPLOYMENT.md` (env vars, Supabase, Vercel, SMTP, VAPID, Scalev webhook URL, backup), `docs/LAUNCH_CHECKLIST.md` (PRD §30.3 12 item approval), known limitations.
 Prompt:
 ```
@@ -328,6 +349,8 @@ Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S9 (QA menyeluruh, securit
 | Kapan | Item | Blocking untuk |
 |-------|------|----------------|
 | Sebelum S3 (opsional) | Logo NgajiGaes SVG/PNG, aset ilustrasi | Branding final |
+| Sebelum S4 | Nomor WhatsApp CS untuk tombol bantuan login | Alur support |
+| Sebelum S4 | Pilih ejaan: "Istiqomah" atau "Istikamah" di seluruh UI | Konsistensi copy |
 | Setelah S4 | Teks Arab + transliterasi + terjemahan semua dzikir, sudah direview pembimbing (termasuk lafaz "Ya Khafi") | Konten dzikir real |
 | Setelah S4 | Konfirmasi target level, aktivitas required, post-Fajr L3, cutoff, backfill | Hapus flag provisional |
 | S5 | Project Supabase (URL, anon key, service role key via secret env, bukan chat) | DB & auth real |
@@ -335,6 +358,7 @@ Baca CLAUDE.md dan docs/AGENT_BRIEF.md. Kerjakan sesi S9 (QA menyeluruh, securit
 | S6 | Scalev: product/variant ID Tahajud Tracker, webhook signing secret, API key, contoh payload asli | Paid access real |
 | S7 | Akses/izin API SIHAT Kemenag (atau keputusan provider alternatif) | Jadwal Subuh real |
 | S7 | Persetujuan lisensi Tanzil + sumber terjemahan Indonesia yang berizin | Quran Reader real |
-| S9 | Kebijakan privasi, retensi data, kebijakan lifetime access | Launch |
+| S9 | Kebijakan privasi, S&K, kebijakan refund, retensi data, kebijakan lifetime access + estimasi biaya per user; cek UU PDP & PSE dengan konsultan hukum | Launch |
+| Setelah S4 | Keputusan pembimbing: satuan counter rangkaian asma, teks dzikir setelah Qabliyah, aturan mode berhalangan | Konten final |
 
 Kredensial dimasukkan lewat environment settings/secret, jangan ditempel di chat.

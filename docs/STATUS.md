@@ -1,8 +1,9 @@
-# STATUS — Tahajud Tracker
+# STATUS: Tahajud Tracker
 
 Update di akhir setiap sesi. Legend: REAL = jalan dengan logic/data sungguhan · SIMULATED = mock berlabel DEMO · BLOCKED = butuh kredensial/approval · TODO = belum dikerjakan.
 
-Sesi terakhir: S0 (orchestration brief) · 2026-11-12
+Sesi terakhir: S0b (audit PRD + PRD v1.2) · 2026-11-12
+Spesifikasi berlaku: `docs/PRD-v1.2.md`
 
 | Area | Fitur | Status | Catatan / blocker |
 |------|-------|--------|-------------------|
@@ -33,4 +34,7 @@ Sesi terakhir: S0 (orchestration brief) · 2026-11-12
 | Teks Arab dzikir | BLOCKED: menunggu teks dari owner yang sudah direview pembimbing |
 | Lafaz "Ya Khafi" | BLOCKED: verifikasi |
 | source_classification | BLOCKED: tidak boleh diisi tebakan |
-| Nilai provisional (brief §5) | PROVISIONAL |
+| Nilai provisional (PRD v1.2 §30.2) | PROVISIONAL |
+| Satuan counter rangkaian asma | PROVISIONAL: default putaran |
+| Teks dzikir setelah Qabliyah | BLOCKED: belum ada isi |
+| Aturan mode berhalangan | PROVISIONAL: perlu pembimbing |
