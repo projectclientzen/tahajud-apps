@@ -73,7 +73,7 @@ test.describe("tanpa sesi login", () => {
   });
 });
 
-test("/settings/account: unduh JSON dan hapus akun dengan ketik ulang email", async ({ page }) => {
+test("/settings/account: unduh JSON tetap ada, hapus akun mandiri tidak ada dan diganti catatan CS", async ({ page }) => {
   await seedSignedIn(page);
   await page.goto("/settings/account");
   await expect(page.getByText("Masuk sebagai demo@ngajigaes.test")).toBeVisible();
@@ -88,13 +88,11 @@ test("/settings/account: unduh JSON dan hapus akun dengan ketik ulang email", as
   expect(json).toHaveProperty("notification_preferences");
   expect(json.demo).toBe(true);
 
-  await page.getByRole("button", { name: "Hapus akun", exact: true }).click();
-  const confirm = page.getByRole("button", { name: "Hapus akun saya" });
-  await expect(confirm).toBeDisabled();
-  await page.getByLabel("Email akun").fill("salah@ngajigaes.test");
-  await expect(confirm).toBeDisabled();
-  await page.getByLabel("Email akun").fill("Demo@ngajigaes.test");
-  await expect(confirm).toBeEnabled();
-  await confirm.click();
-  await expect(page.getByText("Permintaan hapus akun dicatat")).toBeVisible();
+  // No self-service deletion for now: access follows the purchase email. The note points to CS instead.
+  await expect(page.getByRole("button", { name: /Hapus akun/ })).toHaveCount(0);
+  await expect(page.getByLabel("Email akun")).toHaveCount(0);
+  await expect(page.getByText("Akses mengikuti email pembelianmu")).toBeVisible();
+  await expect(page.getByText("Kirim permintaan ke CS")).toBeVisible();
+  // The build has no NEXT_PUBLIC_CS_WHATSAPP, so no WhatsApp button either.
+  await expect(page.getByRole("link", { name: "Chat CS di WhatsApp" })).toHaveCount(0);
 });
