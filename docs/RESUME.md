@@ -1,4 +1,7 @@
-# RESUME: titik lanjut orchestrator (diperbarui 12 Nov 2026 19.50 WIB)
+# RESUME: titik lanjut orchestrator
+
+> MODE HEMAT (owner, 13 Nov 2026 00.46 WIB): semua otomasi DIJEDA. Jangan membuat sesi agen baru atau jadwal otomatis sampai owner bilang lanjut. Sisa: merge T3b (branch claude/t3b-api-v1 @ fbafd61, sudah hijau di branch-nya), Q1 terhenti karena limit (branch claude/q1-e2e-flaky, WIP), lalu T5, T6, T7, T8, audit Fable.
+ (diperbarui 12 Nov 2026 19.50 WIB)
 
 Dipakai jika sesi orchestrator berhenti (limit token, error) dan dilanjutkan oleh jadwal otomatis atau sesi baru.
 
