@@ -22,9 +22,9 @@ Spesifikasi berlaku: `docs/PRD-v1.2.md`
 | Backend | Auth OTP + entitlement guard | TODO | S5 |
 | Backend | API v1 + server progression | TODO | S5 |
 | Integrasi | Scalev webhook + reconciliation | TODO | S6, butuh secret + payload asli |
-| Integrasi | SIHAT prayer times | TODO | S7, izin API belum jelas |
-| Integrasi | Quran Tanzil import | TODO | S7, lisensi + akses host |
-| Integrasi | Web Push + scheduler | TODO | S7, VAPID keys |
+| Integrasi | SIHAT prayer times | BLOCKED | T4: `PrayerTimeProvider`, `PrayerService` (cache per region per bulan, label provider/cached/manual, jadwal manual) REAL dan teruji dengan provider palsu. `SihatProvider` = stub: tanpa `SIHAT_API_TOKEN` gagal `PROVIDER_NOT_CONFIGURED`, dengan token gagal `PROVIDER_NOT_IMPLEMENTED`. Blocker: izin, URL, format API SIHAT belum diverifikasi |
+| Integrasi | Quran Tanzil import | REAL | T4: `content/quran/uthmani.json` (399 ayat) diimpor dari tanzil.net, byte-per-byte, SHA-256 `6933e133...ec5f` diverifikasi test (QURAN-01). Lisensi + atribusi di `content/quran/SOURCE.md`. Belum tersambung ke Reader UI. Terjemahan tetap BLOCKED. Perhatian: ayat 1 tiap surah di sumber diawali basmalah (lihat `docs/sessions/T4.md`) |
+| Integrasi | Web Push + scheduler | BLOCKED | T4 (sender saja): `WebPushSender` REAL, teruji dengan server HTTPS palsu dan kunci VAPID dev (404/410 nonaktif, 429/5xx retry). Scheduler = T6. VAPID produksi belum ada (`VAPID_SUBJECT/PUBLIC_KEY/PRIVATE_KEY`) |
 | Admin | CMS, RBAC, audit | TODO | S8 |
 | QA | Acceptance PRD §27, a11y, security, deploy docs | TODO | S9 |
 
