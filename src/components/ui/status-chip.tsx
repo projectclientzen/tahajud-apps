@@ -26,3 +26,9 @@ export function StatusChip({ status, className }: { status: SessionStatus; class
     </span>
   );
 }
+
+/** Icon-only form for dense grids such as the calendar. Pair it with an accessible name on the parent. */
+export function StatusGlyph({ status, className }: { status: SessionStatus; className?: string }) {
+  const { icon: Icon } = STYLE[status];
+  return <Icon aria-hidden className={cn("size-4", className)} strokeWidth={2.25} />;
+}

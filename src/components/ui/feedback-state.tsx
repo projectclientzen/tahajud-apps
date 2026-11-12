@@ -1,4 +1,13 @@
-import { BellOff, CircleAlert, Inbox, LockKeyhole, TimerReset, type LucideIcon } from "lucide-react";
+import {
+  BellOff,
+  CircleAlert,
+  Hourglass,
+  Inbox,
+  LockKeyhole,
+  TimerReset,
+  WifiOff,
+  type LucideIcon,
+} from "lucide-react";
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
@@ -93,6 +102,42 @@ export function PermissionDeniedState({
       title={title}
       description={description}
       tone="bg-warning-soft text-text"
+      {...rest}
+    />
+  );
+}
+
+/** Payment not verified yet (PRD §26). Calm wording: nothing is wrong with the user. */
+export function PurchasePendingState({
+  title = "Pembelianmu sedang diverifikasi",
+  description = "Akses aktif setelah pembayaran terverifikasi. Biasanya tidak lama. Hubungi CS jika lebih dari satu hari.",
+  ...rest
+}: PresetProps) {
+  return (
+    <StateBlock
+      icon={Hourglass}
+      role="status"
+      title={title}
+      description={description}
+      tone="bg-highlight-soft text-text"
+      {...rest}
+    />
+  );
+}
+
+/** The data layer cannot be reached. New notes stay on the device. */
+export function OfflineState({
+  title = "Kamu sedang offline",
+  description = "Catatan baru tersimpan di perangkat dan dikirim saat sinyal kembali.",
+  ...rest
+}: PresetProps) {
+  return (
+    <StateBlock
+      icon={WifiOff}
+      role="status"
+      title={title}
+      description={description}
+      tone="bg-info-soft text-text"
       {...rest}
     />
   );

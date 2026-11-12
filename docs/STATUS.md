@@ -10,10 +10,10 @@ Spesifikasi berlaku: `docs/PRD-v1.2.md`
 | Foundation | Project setup, tooling | REAL | Next 15.5.29, TS strict, Tailwind v4, Vitest, Playwright, audit bersih. Typecheck, lint, 60 unit, 38 e2e (mobile 320px + desktop 1280px) lolos per S1 lanjutan |
 | Design | Tokens, komponen, app shell | REAL | Token light/dark lolos AA (49 unit test + axe 0 serious/critical). Shell, komponen dasar + 3 state baru di `/dev/components`. `docs/SITEMAP.md`, `docs/DESIGN_SYSTEM.md`, screenshot di `docs/screenshots/s1/`, Hallmark Floor 16/16 (manual). Wordmark dan ikon PWA masih placeholder |
 | Domain | Session key, state machine, progression, reporting, counter, wake planner, rotasi | REAL | S2 merged ke main. 210 test lulus, coverage domain 100% lines. Mock repository + skenario SIMULATED (DEMO DATA). Mode live = stub sampai S5. Insight: ambang dari agen, perlu persetujuan owner. Detail: `docs/sessions/S2.md` |
-| UI | Dashboard Istiqomah | TODO | S3 |
-| UI | Worship session + transisi Subuh | TODO | S3 |
-| UI | Dzikir counter | TODO | S3 |
-| UI | Level journey | TODO | S3 |
+| UI | Dashboard Istiqomah | SIMULATED | S3: section A-I, filter 7/30/90, kalender, mode berhalangan. Data dari mock layer (badge Data demo). Tanpa ikon notifikasi dan pengaturan (ronde 3) |
+| UI | Worship session + transisi Subuh | SIMULATED | S3: `/worship`, `/worship/session`, banner Subuh, ringkasan inline. Al-Waqi'ah dan Ayat Seribu Dinar berupa centang, Reader menyusul |
+| UI | Dzikir counter | SIMULATED | S3: tap 176px, coalescing domain S2, reset `set_zero`, Wake Lock. Antrean di memori, IndexedDB queue di S4a. Wake Lock dan getar belum diuji di perangkat nyata |
+| UI | Level journey | SIMULATED | S3: `/levels`, state terkunci, milestone Level 3. Syarat level PROVISIONAL |
 | UI | Auth, onboarding, access status | TODO | S4 |
 | UI | Quran Reader | TODO | S4 (UI) / S7 (dataset) |
 | UI | Reports, calendar, settings, notifications, help | TODO | S4 |
