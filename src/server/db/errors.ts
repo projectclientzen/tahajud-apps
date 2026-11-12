@@ -44,6 +44,8 @@ export const HTTP_STATUS: Record<ApiErrorCode, number> = {
   UNAUTHENTICATED: 401,
   INVALID_OTP: 401,
   PENDING_LOGIN_INVALID: 400,
+  FORBIDDEN_ORIGIN: 403,
+  INTERNAL_ERROR: 500,
 };
 
 /** A database exception that carries one of our codes becomes an ApiError. Anything else returns null. */

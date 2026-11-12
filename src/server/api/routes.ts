@@ -8,15 +8,20 @@ import {
   completePendingLoginRequestSchema,
   counterOperationsRequestSchema,
   counterResultSchema,
+  deleteAccountRequestSchema,
   excuseRequestSchema,
   excuseResponseSchema,
   levelProgressResponseSchema,
   locationUpdateSchema,
   nightSessionSchema,
+  notificationListSchema,
   notificationPreferencesSchema,
+  prayerTimesResponseSchema,
   preferencesUpdateSchema,
   profileSchema,
   profileUpdateSchema,
+  pushSubscriptionRequestSchema,
+  pushSubscriptionSchema,
   quranProgressListSchema,
   quranProgressSchema,
   quranProgressUpdateSchema,
@@ -40,9 +45,11 @@ import {
 } from "@/server/auth/service";
 import { clearSessionCookie } from "@/server/auth/cookie";
 import { one, UUID_RE, type Queryable } from "@/server/db";
+import { deleteAccount, exportData } from "./account";
 import { getDashboard, getPrayerTime, getReport, getWakePlan } from "./compose";
 import { jsonResponse, readBody } from "./http";
-import { route } from "./route";
+import { getSurah, listSurahs } from "./quran";
+import { route, type RouteContext } from "./route";
 
 const NOT_FOUND = () => new ApiError("NOT_FOUND", "Data tidak ditemukan.");
 const uuidParam = (v: string | undefined): string => {
@@ -60,6 +67,12 @@ const dateParam = (v: string | null | undefined, name: string): string | undefin
 const deviceLabel = z.string().max(120).optional();
 const verifyBody = verifyOtpRequestSchema.extend({ device_label: deviceLabel });
 const pendingBody = completePendingLoginRequestSchema.extend({ device_label: deviceLabel });
+
+/** Paid content that does not live in the database (the Qur'an dataset) needs the same access check as the SQL functions. */
+async function requireActiveAccess(c: RouteContext): Promise<void> {
+  const a = accessSchema.parse(await c.d.db.asUser(c.user.userId, (q) => one(q, "public.get_access()")));
+  if (a.access_status !== "active") throw new ApiError("ENTITLEMENT_INACTIVE", "Akses belum aktif untuk akun ini.");
+}
 
 const sessionById = async (q: Queryable, id: string): Promise<NightSession> =>
   nightSessionSchema.parse(await one(q, "public.get_night_session($1::uuid)", [id]));
@@ -394,6 +407,100 @@ export const h = {
           await one(q, "public.put_notification_prefs($1::jsonb)", [JSON.stringify(body)]),
         ),
       );
+    },
+  }),
+
+  // ---------- T3c: prayer times, Qur'an catalog, push, notification history, account ----------
+  prayerTimes: route({
+    auth: "user",
+    handler: (c) => {
+      const regionId = c.url.searchParams.get("region_id");
+      if (regionId && !UUID_RE.test(regionId)) throw new ApiError("NOT_FOUND", "Wilayah tidak ditemukan.");
+      const from = dateParam(c.url.searchParams.get("from"), "awal") ?? null;
+      const to = dateParam(c.url.searchParams.get("to"), "akhir") ?? null;
+      const maghrib = ["true", "1"].includes(c.url.searchParams.get("include_maghrib") ?? "");
+      return c.d.db.asUser(c.user.userId, async (q) =>
+        prayerTimesResponseSchema.parse(
+          await one(q, "public.get_prayer_times($1::uuid, $2::date, $3::date, $4::boolean)", [
+            regionId || null,
+            from,
+            to,
+            maghrib,
+          ]),
+        ),
+      );
+    },
+  }),
+
+  quranSurahs: route({
+    auth: "user",
+    handler: async (c) => {
+      await requireActiveAccess(c);
+      return listSurahs();
+    },
+  }),
+  quranSurah: route({
+    auth: "user",
+    handler: async (c) => {
+      await requireActiveAccess(c);
+      const id = c.params.id ?? "";
+      const surah = /^\d{1,3}$/.test(id) ? Number(id) : 0;
+      const out = surah >= 1 && surah <= 114 ? getSurah(surah) : null;
+      if (!out) throw new ApiError("NOT_FOUND", "Surah tidak ditemukan.");
+      return out;
+    },
+  }),
+
+  addPushSubscription: route({
+    auth: "user",
+    status: 201,
+    handler: async (c) => {
+      const body = await readBody(c.req, pushSubscriptionRequestSchema);
+      return c.d.db.asUser(c.user.userId, async (q) =>
+        pushSubscriptionSchema.parse(
+          await one(q, "public.add_push_subscription($1::uuid, $2, $3, $4)", [
+            c.user.deviceId,
+            body.endpoint,
+            body.keys.p256dh,
+            body.keys.auth,
+          ]),
+        ),
+      );
+    },
+  }),
+  removePushSubscription: route({
+    auth: "user",
+    status: 204,
+    handler: async (c) => {
+      const id = uuidParam(c.params.id);
+      await c.d.db.asUser(c.user.userId, (q) => q.query("select public.remove_push_subscription($1::uuid)", [id]));
+      return null;
+    },
+  }),
+  listNotifications: route({
+    auth: "user",
+    handler: (c) => {
+      const raw = c.url.searchParams.get("limit");
+      const limit = raw === null || raw === "" ? 20 : Number(raw);
+      if (!Number.isInteger(limit) || limit < 1 || limit > 50)
+        throw new ApiError("VALIDATION_ERROR", "Batas harus antara 1 dan 50.", { reason: "limit" });
+      return c.d.db.asUser(c.user.userId, async (q) =>
+        notificationListSchema.parse(await one(q, "public.list_notifications($1::int)", [limit])),
+      );
+    },
+  }),
+
+  dataExport: route({
+    auth: "user",
+    handler: (c) => exportData(c.d, c.user),
+  }),
+  deleteAccount: route({
+    auth: "user",
+    handler: async (c) => {
+      await readBody(c.req, deleteAccountRequestSchema);
+      const r = await deleteAccount(c.d, c.user, c.caller.secure);
+      c.cookies.push(r.cookie);
+      return r.body;
     },
   }),
 

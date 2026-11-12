@@ -431,22 +431,43 @@ describe("SECURITY over HTTP", () => {
       expect(res.status).toBe(400);
     });
 
-    it("a database failure is a generic 503, with no cause in the answer", async () => {
+    const failWith = (err: unknown) => ({
+      asUser: async () => {
+        throw err;
+      },
+      asService: env.db.asService.bind(env.db),
+      close: async () => undefined,
+    });
+
+    it("an unexpected database failure is a generic 500 INTERNAL_ERROR, with no cause in the answer", async () => {
       const b = await env.onboarded("down@ngajigaes.test");
       const real = env.db;
-      setDbForTests({
-        asUser: async () => {
-          throw Object.assign(new Error('relation "secret_table" does not exist'), { code: "42P01" });
-        },
-        asService: real.asService.bind(real),
-        close: async () => undefined,
-      });
+      setDbForTests(failWith(Object.assign(new Error('relation "secret_table" does not exist'), { code: "42P01" })));
+      try {
+        const res = await b.raw("/me/dashboard");
+        expect(res.status).toBe(500);
+        const text = JSON.stringify(await res.json());
+        expect(text).toContain("INTERNAL_ERROR");
+        expect(text).not.toContain("secret_table");
+      } finally {
+        setDbForTests(real);
+      }
+    });
+
+    it.each([
+      ["a lost connection", Object.assign(new Error("connect ECONNREFUSED 10.0.0.1:5432"), { code: "ECONNREFUSED" })],
+      ["a database shutting down", Object.assign(new Error("terminating connection"), { code: "57P01" })],
+      ["too many connections", Object.assign(new Error("sorry, too many clients"), { code: "53300" })],
+    ])("%s is a 503 NOT_AVAILABLE, which the offline queue retries", async (_name, err) => {
+      const b = await env.onboarded("down2@ngajigaes.test");
+      const real = env.db;
+      setDbForTests(failWith(err));
       try {
         const res = await b.raw("/me/dashboard");
         expect(res.status).toBe(503);
         const text = JSON.stringify(await res.json());
         expect(text).toContain("NOT_AVAILABLE");
-        expect(text).not.toContain("secret_table");
+        expect(text).not.toContain("10.0.0.1");
       } finally {
         setDbForTests(real);
       }

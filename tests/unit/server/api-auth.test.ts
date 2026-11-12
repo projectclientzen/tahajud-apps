@@ -408,8 +408,10 @@ describe("Origin check on mutations (SEC-11)", () => {
       "http://localhost.evil.example",
     ]) {
       const res = await direct(bad);
-      expect(res.status, String(bad)).toBe(401);
-      expect((await res.json()).error.details.reason).toBe("origin");
+      expect(res.status, String(bad)).toBe(403);
+      const err = (await res.json()).error;
+      expect(err.code).toBe("FORBIDDEN_ORIGIN");
+      expect(err.details.reason).toBe("origin");
     }
   });
 
@@ -433,7 +435,8 @@ describe("Origin check on mutations (SEC-11)", () => {
         headers: foreign,
         body: payload === undefined ? undefined : JSON.stringify(payload),
       });
-      expect(res.status, `${method} ${path}`).toBe(401);
+      expect(res.status, `${method} ${path}`).toBe(403);
+      expect((await res.json()).error.code, `${method} ${path}`).toBe("FORBIDDEN_ORIGIN");
     }
     // nothing changed, and the user is still signed in
     expect((await b.data().profile.getProfile()).display_name).toBeNull();

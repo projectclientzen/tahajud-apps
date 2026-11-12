@@ -13,6 +13,15 @@ import type {
   CounterOperationsRequest,
   CounterOperationsResponse,
   Dashboard,
+  DataExport,
+  DeleteAccountResponse,
+  NotificationList,
+  PrayerTimesQuery,
+  PrayerTimesResponse,
+  PushSubscriptionInfo,
+  PushSubscriptionRequest,
+  QuranSurahDetail,
+  QuranSurahList,
   ExcuseRequest,
   ExcuseResponse,
   LevelProgressResponse,
@@ -144,4 +153,41 @@ export interface DataLayer {
   quran: QuranProgressRepository;
   notifications: NotificationRepository;
   profile: ProfileRepository;
+}
+
+// ---- T3c: endpoints that only the live (HTTP) layer has so far. The mock layer gets them when a screen needs them. ----
+
+export interface PrayerTimesRepository {
+  /** GET /prayer-times. Stored days of a region (the user's own by default). */
+  getPrayerTimes(query?: PrayerTimesQuery): Promise<PrayerTimesResponse>;
+}
+
+export interface QuranCatalogRepository {
+  /** GET /quran/surahs. The surahs the dataset has, with source and licence. */
+  listSurahs(): Promise<QuranSurahList>;
+  /** GET /quran/surahs/:id. Text verbatim from the dataset. Unknown surah is NOT_FOUND, never invented text. */
+  getSurah(surah: number): Promise<QuranSurahDetail>;
+}
+
+export interface PushRepository {
+  /** POST /me/push-subscriptions. Same browser subscribing again replaces the old row. */
+  addSubscription(req: PushSubscriptionRequest): Promise<PushSubscriptionInfo>;
+  /** DELETE /me/push-subscriptions/:id. Own subscriptions only: someone else's id is NOT_FOUND. */
+  removeSubscription(id: string): Promise<void>;
+  /** GET /me/notifications */
+  listNotifications(limit?: number): Promise<NotificationList>;
+}
+
+export interface AccountRepository {
+  /** POST /me/data-export. Works without active access. */
+  exportData(): Promise<DataExport>;
+  /** POST /me/delete-account. Deletes the account at once. The browser must clear its local data afterwards. */
+  deleteAccount(): Promise<DeleteAccountResponse>;
+}
+
+export interface LiveExtras {
+  prayerTimes: PrayerTimesRepository;
+  quranCatalog: QuranCatalogRepository;
+  push: PushRepository;
+  account: AccountRepository;
 }

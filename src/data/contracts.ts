@@ -24,6 +24,10 @@ export const API_ERROR_CODES = [
   "UNAUTHENTICATED",
   "INVALID_OTP",
   "PENDING_LOGIN_INVALID",
+  /** A mutation from an origin that is not the app (PRD §24.1, SEC-11). 403. */
+  "FORBIDDEN_ORIGIN",
+  /** An unexpected failure on the server that is not a lost connection. 500. */
+  "INTERNAL_ERROR",
 ] as const;
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
 export const apiErrorSchema = z.object({
@@ -411,3 +415,196 @@ export const preferencesUpdateSchema = z
   })
   .partial();
 export type PreferencesUpdate = z.infer<typeof preferencesUpdateSchema>;
+
+// ---- T3c: prayer times, Qur'an catalog, push, notification history, account (PRD §19.2, §19.3, §19.6, §19.7, §24.4) ----
+
+/** GET /prayer-times. Stored rows only: a day with no row is not in the list. */
+export const prayerTimesDaySchema = z.object({
+  local_date: isoDate,
+  fajr_at: isoInstant,
+  /** Only when the request asked for it (`include_maghrib=true`). */
+  maghrib_at: isoInstant.nullable(),
+  source: z.literal("provider"),
+  /** "cached" = stored and past its refresh time. */
+  cache_status: z.enum(["fresh", "cached"]),
+  fetched_at: isoInstant,
+  verification: z.enum(["verified", "needs_review", "unchecked"]).nullable(),
+  attribution: z.string().nullable(),
+});
+export const prayerTimesResponseSchema = z.object({
+  region: regionSchema,
+  days: z.array(prayerTimesDaySchema),
+});
+export type PrayerTimesResponse = z.infer<typeof prayerTimesResponseSchema>;
+export interface PrayerTimesQuery {
+  region_id?: string;
+  from?: string;
+  to?: string;
+  include_maghrib?: boolean;
+}
+
+/** Where the Qur'an text comes from. Shown with every surah (licence: attribution required). */
+export const quranSourceSchema = z.object({
+  name: z.string(),
+  sha256: z.string(),
+  attribution: z.string(),
+  source_url: z.string(),
+  license_name: z.string(),
+  license_url: z.string(),
+});
+export const quranSurahMetaSchema = z.object({
+  number: z.number().int().min(1).max(114),
+  name: z.string(),
+  first_ayah: z.number().int().min(1),
+  last_ayah: z.number().int().min(1),
+  ayah_count: z.number().int().min(1),
+});
+export const quranSurahListSchema = z.object({ source: quranSourceSchema, surahs: z.array(quranSurahMetaSchema) });
+export type QuranSurahList = z.infer<typeof quranSurahListSchema>;
+export const quranSurahDetailSchema = z.object({
+  surah: quranSurahMetaSchema,
+  /** Basmalah as its own opening line, or null. */
+  opening: z.string().nullable(),
+  /** Verbatim from the dataset. */
+  verses: z.array(z.object({ number: z.number().int().min(1), text: z.string() })),
+  source: quranSourceSchema,
+});
+export type QuranSurahDetail = z.infer<typeof quranSurahDetailSchema>;
+
+/** POST /me/push-subscriptions. The shape of `PushSubscription.toJSON()` in the browser. */
+export const pushSubscriptionRequestSchema = z.object({
+  endpoint: z.string().url().max(2048),
+  keys: z.object({ p256dh: z.string().min(1).max(512), auth: z.string().min(1).max(512) }),
+});
+export type PushSubscriptionRequest = z.infer<typeof pushSubscriptionRequestSchema>;
+/** Keys and endpoint are never sent back. */
+export const pushSubscriptionSchema = z.object({ id: z.string(), is_active: z.boolean(), created_at: isoInstant });
+export type PushSubscriptionInfo = z.infer<typeof pushSubscriptionSchema>;
+
+/** GET /me/notifications. What was sent to this user in the last 30 days. */
+export const notificationItemSchema = z.object({
+  id: z.string(),
+  type: z.enum(["bedtime", "tahajud", "fajr", "alkahfi", "achievement"]),
+  sent_for: isoInstant,
+  title: z.string().nullable(),
+  body: z.string().nullable(),
+});
+export const notificationListSchema = z.object({ notifications: z.array(notificationItemSchema) });
+export type NotificationList = z.infer<typeof notificationListSchema>;
+
+/** POST /me/data-export. Everything the user owns, as JSON. No push keys, no cookie hashes. */
+const nullableInstant = isoInstant.nullable();
+export const dataExportSchema = z.object({
+  format_version: z.literal(1),
+  exported_at: isoInstant,
+  account: z.object({
+    email: z.string(),
+    display_name: z.string().nullable(),
+    created_at: isoInstant,
+    region: regionSchema.nullable(),
+    manual_schedule: z.unknown().nullable(),
+    program_start_date: isoDate.nullable(),
+    onboarding_completed: z.boolean(),
+    theme_pref: themePrefSchema,
+    quran_font_size: z.number().int(),
+    dhikr_font_size: z.number().int(),
+  }),
+  access: z.array(
+    z.object({
+      status: z.string(),
+      entitlement_type: z.string(),
+      starts_at: isoInstant,
+      expires_at: nullableInstant,
+    }),
+  ),
+  purchases: z.array(
+    z.object({
+      order_id: z.string(),
+      payment_status: z.string(),
+      amount: z.union([z.string(), z.number()]).nullable(),
+      currency: z.string(),
+      created_at: isoInstant,
+      items: z.array(
+        z.object({ product_id: z.string(), variant_id: z.string().nullable(), quantity: z.number().int() }),
+      ),
+    }),
+  ),
+  level_state: z
+    .object({
+      current_level: z.number().int(),
+      level_1_unlocked_at: nullableInstant,
+      level_2_unlocked_at: nullableInstant,
+      level_3_unlocked_at: nullableInstant,
+      level_2_effective_from: isoDate.nullable(),
+      level_3_effective_from: isoDate.nullable(),
+      journey_completed_at: nullableInstant,
+    })
+    .nullable(),
+  sessions: z.array(
+    z.object({
+      session_key: isoDate,
+      timezone: z.string(),
+      level: z.number().int(),
+      status: z.string(),
+      schedule_source: z.string(),
+      started_at: nullableInstant,
+      completed_at: nullableInstant,
+      closed_at: nullableInstant,
+      activities: z.array(
+        z.object({
+          key: z.string().nullable(),
+          phase: phaseSchema,
+          title: z.string().nullable(),
+          target: z.number().int().nullable(),
+          count: z.number().int(),
+          required: z.boolean(),
+          status: z.string(),
+          completed_at: nullableInstant,
+          operations: z.array(
+            z.object({
+              operation_id: z.string(),
+              type: z.string(),
+              delta: z.number().int(),
+              resulting_count: z.number().int(),
+              client_recorded_at: nullableInstant,
+              applied_at: isoInstant,
+            }),
+          ),
+        }),
+      ),
+    }),
+  ),
+  excused_dates: z.array(isoDate),
+  quran_progress: z.array(
+    z.object({
+      surah: z.number().int(),
+      ayah: z.number().int().nullable(),
+      status: z.string(),
+      updated_at: isoInstant,
+      completed_at: nullableInstant,
+    }),
+  ),
+  quran_completions: z.array(
+    z.object({ session_key: isoDate, surah: z.number().int(), type: z.string(), completed_at: isoInstant }),
+  ),
+  notification_preferences: notificationPreferencesSchema.nullable(),
+  push_subscriptions: z.array(z.object({ id: z.string(), is_active: z.boolean(), created_at: isoInstant })),
+  devices: z.array(
+    z.object({ id: z.string(), label: z.string(), last_seen_at: isoInstant, revoked_at: nullableInstant }),
+  ),
+  notifications: z.array(
+    z.object({
+      type: z.string(),
+      local_date: isoDate,
+      scheduled_at: isoInstant,
+      status: z.string(),
+    }),
+  ),
+});
+export type DataExport = z.infer<typeof dataExportSchema>;
+
+/** POST /me/delete-account. The body must say it is on purpose. */
+export const deleteAccountRequestSchema = z.object({ confirm: z.literal(true) });
+export type DeleteAccountRequest = z.infer<typeof deleteAccountRequestSchema>;
+export const deleteAccountResponseSchema = z.object({ ok: z.literal(true), deleted_at: isoInstant });
+export type DeleteAccountResponse = z.infer<typeof deleteAccountResponseSchema>;

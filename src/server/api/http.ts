@@ -26,6 +26,17 @@ export function errorResponse(e: ApiError, cookies: string[] = []): Response {
   return res;
 }
 
+/** Node socket errors and PostgreSQL classes for "the database is not reachable or is busy right now". */
+const NETWORK_CODES = new Set(["ECONNREFUSED", "ECONNRESET", "ETIMEDOUT", "ENOTFOUND", "EPIPE", "EAI_AGAIN"]);
+const RETRYABLE_SQLSTATE = /^(08|53|57P0|57014|40001|40P01)/;
+
+/** A lost connection or a busy database is worth retrying later. A bug is not. */
+function isTransientFailure(e: unknown): boolean {
+  const code = (e as { code?: unknown })?.code;
+  if (typeof code !== "string") return false;
+  return NETWORK_CODES.has(code) || RETRYABLE_SQLSTATE.test(code);
+}
+
 /** Turns anything thrown into the one error shape. Unknown failures say nothing about their cause. */
 export function toApiError(e: unknown, path: string): ApiError {
   if (e instanceof ApiError) return e;
@@ -45,7 +56,8 @@ export function toApiError(e: unknown, path: string): ApiError {
   console.error("api_error", { path, name: (e as Error)?.name, sqlstate: (e as { code?: string })?.code });
   // Set API_DEBUG_ERRORS=1 on a developer machine to see the whole error. Never in production: it may hold row values.
   if (process.env.API_DEBUG_ERRORS === "1") console.error(e);
-  return new ApiError("NOT_AVAILABLE", "Terjadi gangguan di server. Coba lagi sebentar.");
+  if (isTransientFailure(e)) return new ApiError("NOT_AVAILABLE", "Terjadi gangguan di server. Coba lagi sebentar.");
+  return new ApiError("INTERNAL_ERROR", "Terjadi kesalahan di server. Coba lagi sebentar.");
 }
 
 const MAX_BODY_BYTES = 64 * 1024;
