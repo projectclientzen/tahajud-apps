@@ -74,3 +74,12 @@ Pertanyaan owner baru:
 - Batas 3 perangkat: perangkat ke-4 DITOLAK dengan peringatan dan pilihan mengeluarkan satu perangkat; tidak ada pengeluaran otomatis (mengganti default S4a-10).
 - Sesi login 30 hari: disetujui.
 - Brief ronde 3 siap: `docs/briefs/T1.md`, `docs/briefs/T2.md`, `docs/briefs/PARALLEL-RULES.md`. Menunggu "gas".
+
+## Merge T4 (Agen C) oleh orchestrator (2026-11-12)
+- Merge `claude/t4-quran-prayer-push` (`f0c3099`) ke `main`. Kepemilikan file sesuai brief T4.
+- Verifikasi independen orchestrator: file sumber Tanzil Uthmani 1.1 berisi 6.236 ayat, SHA-256 `6933e133…ec5f` cocok dengan `content/quran/SOURCE.md`, 399 ayat di `content/quran/uthmani.json` identik dengan sumber (0 selisih), `SihatProvider` tidak menebak URL.
+- Hasil gabungan: typecheck dan lint lolos, unit 362/362, e2e 96 passed + 10 skipped, audit bersih.
+- Orchestrator menambah `SIHAT_API_TOKEN`, `VAPID_*` (kosong) ke `.env.example`.
+- Keputusan tampilan basmalah (default PROV, perlu konfirmasi owner): Tanzil menaruh basmalah di awal ayat 1 setiap surah kecuali 1 dan 9. Data disimpan apa adanya. Reader menampilkan basmalah sebagai baris pembuka terpisah di atas surah dan ayat 1 tanpa awalan itu. Aturan pemisahan: awalan harus sama persis dengan teks sumber 1:1 + spasi (sudah dicek benar untuk surah 18, 36, 55, 56, 67, 65). Dikerjakan saat menyambung teks ke Reader setelah T2 merged.
+- Terjemahan: default tanpa terjemahan (opsi A) sampai owner memilih.
+- Catatan: agen T4 tidak memanggil skill lewat tool; dicatat jujur di `docs/sessions/T4.md`.
