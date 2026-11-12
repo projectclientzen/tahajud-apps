@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import { ChevronDown, MessageCircle } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -35,50 +35,60 @@ export function HelpView({ csWhatsapp }: { csWhatsapp?: string }) {
           {LEVELS.map((lv) => {
             const level = amalan.levels[lv];
             return (
-              <Card key={lv} className="flex flex-col gap-4">
-                <CardTitle>
-                  Level {lv}: {level.title}
-                </CardTitle>
-                {PHASES.map((ph) => {
-                  const items = level.activities.filter((a) => a.phase === ph);
-                  if (items.length === 0) return null;
-                  return (
-                    <div key={ph} className="flex flex-col gap-2">
-                      <h3 className="font-semibold">{PHASE_LABEL[ph]}</h3>
-                      <ul className="flex flex-col gap-3">
-                        {items.map((a) => {
-                          const dhikr = a.dhikrRef ? amalan.dhikr[a.dhikrRef] : null;
-                          return (
-                            <li key={a.id} className="flex flex-col gap-1">
-                              <p>
-                                {a.title}
-                                {a.target ? (
-                                  <span className="text-text-muted">
-                                    {" "}
-                                    · {a.target} {a.unit ?? ""}
-                                  </span>
-                                ) : null}
-                                {a.required ? null : <span className="text-text-muted"> · Opsional</span>}
-                              </p>
-                              {dhikr ? (
-                                <p
-                                  className="arabic rounded-[var(--radius-control)] bg-surface-2 p-3 text-start text-[1.5rem] leading-[2.1]"
-                                  lang="ar"
-                                  dir="rtl"
-                                >
-                                  {dhikr.arabicText}
-                                </p>
-                              ) : null}
-                              {dhikr && dhikr.reviewStatus !== "published" ? (
-                                <p className="text-helper text-text-muted">Teks ini belum selesai ditinjau.</p>
-                              ) : null}
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  );
-                })}
+              <Card as="div" key={lv} className="p-0">
+                <details open={lv === 1} className="group">
+                  <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 rounded-[var(--radius-card)] px-5 py-3 [&::-webkit-details-marker]:hidden">
+                    <h3 className="text-card-title font-semibold">
+                      Level {lv}: {level.title}
+                    </h3>
+                    <ChevronDown
+                      aria-hidden
+                      className="size-5 shrink-0 text-text-muted transition-transform group-open:rotate-180"
+                    />
+                  </summary>
+                  <div className="flex flex-col gap-5 px-5 pb-5">
+                    {PHASES.map((ph) => {
+                      const items = level.activities.filter((a) => a.phase === ph);
+                      if (items.length === 0) return null;
+                      return (
+                        <div key={ph} className="flex flex-col gap-2">
+                          <h4 className="font-semibold">{PHASE_LABEL[ph]}</h4>
+                          <ul className="flex flex-col gap-3">
+                            {items.map((a) => {
+                              const dhikr = a.dhikrRef ? amalan.dhikr[a.dhikrRef] : null;
+                              const meta = [
+                                a.target ? `Target ${a.target} ${a.unit ?? ""}`.trim() : null,
+                                a.required ? null : "Opsional",
+                              ]
+                                .filter(Boolean)
+                                .join(". ");
+                              return (
+                                <li key={a.id} className="flex flex-col gap-1">
+                                  <p>
+                                    {a.title}
+                                    {meta ? <span className="block text-helper text-text-muted">{meta}</span> : null}
+                                  </p>
+                                  {dhikr ? (
+                                    <p
+                                      className="arabic rounded-[var(--radius-control)] bg-surface-2 p-3 text-start text-[1.5rem] leading-[2.1]"
+                                      lang="ar"
+                                      dir="rtl"
+                                    >
+                                      {dhikr.arabicText}
+                                    </p>
+                                  ) : null}
+                                  {dhikr && dhikr.reviewStatus !== "published" ? (
+                                    <p className="text-helper text-text-muted">Teks ini belum selesai ditinjau.</p>
+                                  ) : null}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </details>
               </Card>
             );
           })}

@@ -95,7 +95,7 @@ export function CalendarScreen() {
         title="Riwayat istiqomah"
         description="Satu bulan penuh. Ketuk tanggal untuk melihat detail."
         actions={
-          <Link href="/reports" className={buttonVariants({ variant: "secondary" })}>
+          <Link href="/reports" className={cn(buttonVariants({ variant: "secondary" }), "min-h-11 px-4")}>
             Laporan
           </Link>
         }
