@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ID_TIMEZONES } from "@/domain";
 import type { PrayerTime, Profile, Region } from "@/data";
 import { formatClock, tzLabel } from "@/lib/format-id";
+import { ScheduleNote } from "./schedule-note";
 import { Field, Section, SaveNote, SelectInput, TextInput, type SaveState } from "./controls";
 
 const toInput = (iso: string | null, tz: string) => (iso ? formatClock(iso, tz).replace(".", ":") : "");
@@ -42,6 +43,7 @@ export function LocationSection({ profile, regions, fajr }: { profile: Profile; 
   const manualOk = /^\d{2}:\d{2}$/.test(fajrTime);
   return (
     <Section
+      id="wilayah"
       title="Wilayah dan jadwal Subuh"
       description="Pilih wilayah, atau isi jam Subuh sendiri jika jadwal otomatis tidak cocok."
     >
@@ -74,7 +76,7 @@ export function LocationSection({ profile, regions, fajr }: { profile: Profile; 
             <SelectInput id="region" value={regionId} onChange={(e) => setRegionId(e.target.value)}>
               {regions.map((r) => (
                 <option key={r.id} value={r.id}>
-                  {r.name} ({tzLabel(r.timezone)})
+                  {r.name.includes("(") ? r.name : `${r.name} (${tzLabel(r.timezone)})`}
                 </option>
               ))}
             </SelectInput>
@@ -98,10 +100,7 @@ export function LocationSection({ profile, regions, fajr }: { profile: Profile; 
             </Field>
           </div>
         )}
-        <p className="text-helper text-text-muted">
-          Sekarang: {fajr.label ?? "Jadwal belum tersedia"}
-          {fajr.demo_note ? `. ${fajr.demo_note}` : ""}
-        </p>
+        <ScheduleNote fajr={fajr} />
         <Button type="submit" disabled={mode === "manual" && !manualOk} className="self-start">
           Simpan wilayah
         </Button>

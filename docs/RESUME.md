@@ -7,6 +7,13 @@ Dipakai jika sesi orchestrator berhenti (limit token, error) dan dilanjutkan ole
 - T1 versi sesi baru (`claude/t1-auth-onboarding` e7ebbc2) TIDAK dipakai (digantikan T1b yang menambahkan batas perangkat di atas versi Agen A).
 - Semua sesi agen gagal ~15.25 WIB karena limit token; U1a, U1b, T3b, T4c baru mulai dan tidak menghasilkan commit. Harus dijalankan ulang di SESI BARU (sesi lama membawa context besar dan sebagian menolak pesan antar-sesi).
 
+## Sesi aktif (dibuat 19.52 WIB, basis main 0e5cfd2)
+- U1a session_01HkFB33FuS9CdmJtZsYxeh9
+- U1b session_01HkFB2z3Tk5dFFpAzrVhWwD
+- T3b session_01HkFB31WZSsK53dbhMBNkZk
+- T4c session_01HkFB2yy3qcQu8dwc5VAxCw
+Sesi lama (agen a, agen b, T1, T2, Agen C, U1b v1) tidak dipakai lagi.
+
 ## Urutan berikutnya (prioritas owner: UI/UX dulu)
 1. Jalankan paralel di sesi Sonnet baru, basis `main`: U1a dan U1b (`docs/briefs/U1.md`, langsung fase B: audit + perbaiki, karena T1b sudah di main), T4c (`docs/briefs/T4c.md`, environment tahajud-apps), T3b (`docs/briefs/T3b.md`).
 2. Setelah T3b merged: T5 + T6 paralel, lalu T7, T8, lalu prompt audit Fable untuk owner.

@@ -41,8 +41,11 @@ export interface EquranRequest {
 }
 
 const mins = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
-const FAJR_RANGE = [mins("03:30"), mins("05:15")] as const;
-const MAGHRIB_RANGE = [mins("17:15"), mins("19:00")] as const;
+// Coarse sanity bounds in local time only. Indonesia spans ~46 degrees of longitude inside 3 zones,
+// so zone edges produce early/late times (e.g. Central Kalimantan maghrib 17:12 WIB). The adhan
+// cross-check is the precise guard; these bounds only reject clearly broken data.
+const FAJR_RANGE = [mins("03:15"), mins("05:45")] as const;
+const MAGHRIB_RANGE = [mins("16:45"), mins("19:15")] as const;
 
 function reject(reason: string): never {
   throw new PrayerError("PROVIDER_FAILED", `EQuran response rejected: ${reason}`);
