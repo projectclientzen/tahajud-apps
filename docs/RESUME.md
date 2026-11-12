@@ -1,6 +1,6 @@
 # RESUME: titik lanjut orchestrator
 
-> MODE HEMAT (owner, 13 Nov 2026 00.46 WIB): semua otomasi DIJEDA. Jangan membuat sesi agen baru atau jadwal otomatis sampai owner bilang lanjut. Sisa: merge T3b (branch claude/t3b-api-v1 @ fbafd61, sudah hijau di branch-nya), Q1 terhenti karena limit (branch claude/q1-e2e-flaky, WIP), lalu T5, T6, T7, T8, audit Fable.
+> MODE HEMAT (owner): setelah reset 05.40 WIB 13 Nov, owner memakai kuota untuk chat. Agen R4 dihentikan 05.38 dan dilanjutkan HANYA atas perintah owner. Ronde 4 (brief `docs/briefs/R4.md`): Q1 session_01HkFB338Xvtzv5LD9sWjc7V, T3c session_01HkFB2ykqcyzbFnjAwCpmpw, T6 session_01HkFB32LWyp215Gan64Ep4e, T7 session_01HkFB2xi3B8t4zTiTsD2Y3N, masing-masing push WIP ke branch sesinya. Main @ a234d99 (T3b merged, gerbang hijau). Scalev (T5) dikerjakan owner + Hermes; tetap Supabase sampai pindah ke VPS.
  (diperbarui 12 Nov 2026 19.50 WIB)
 
 Dipakai jika sesi orchestrator berhenti (limit token, error) dan dilanjutkan oleh jadwal otomatis atau sesi baru.
