@@ -54,14 +54,7 @@ export class EquranProvider implements PrayerTimeProvider {
     try {
       body = validateEquranMonth(raw, req);
     } catch (err) {
-      this.o.log({
-        event: "month_rejected",
-        provinsi,
-        kabkota,
-        month,
-        year,
-        reason: err instanceof Error ? err.message : String(err),
-      });
+      this.o.log({ event: "month_rejected", provinsi, kabkota, month, year, reason: err instanceof Error ? err.message : String(err) });
       throw err;
     }
 
@@ -71,14 +64,7 @@ export class EquranProvider implements PrayerTimeProvider {
       const cc = crossCheckMonth(body.data.jadwal, year, month, timezone, at);
       verification = cc.withinThreshold ? "verified" : "needs_review";
       if (!cc.withinThreshold) {
-        this.o.log({
-          event: "crosscheck_failed",
-          provinsi,
-          kabkota,
-          month,
-          year,
-          maxDiffMin: Math.round(cc.maxDiffMin * 10) / 10,
-        });
+        this.o.log({ event: "crosscheck_failed", provinsi, kabkota, month, year, maxDiffMin: Math.round(cc.maxDiffMin * 10) / 10 });
       }
     } else {
       this.o.log({ event: "crosscheck_skipped_no_coordinates", provinsi, kabkota });
