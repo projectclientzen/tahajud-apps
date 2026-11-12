@@ -3,7 +3,7 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
-import { errorMessage, useData } from "@/components/providers/data-provider";
+import { useData } from "@/components/providers/data-provider";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import type { SessionActivity } from "@/data";
 import { cn } from "@/lib/cn";
@@ -26,13 +26,52 @@ interface RowProps {
 
 /** Checklist items toggle in place. Counter items open the counter screen. */
 export function ActivityRow({ activity: a, onChanged, onError }: RowProps) {
-  const { layer } = useData();
-  const [pending, setPending] = React.useState(false);
-  // Shows the tick at once and holds it until the server value catches up.
+  const { queue } = useData();
+  const [saving, setSaving] = React.useState(false);
+  // The tick the user chose, shown at once and held until the server value catches up. Also rebuilt from the
+  // offline queue after a reload, so a tick made offline is still on screen (PRD §21.1).
   const [local, setLocal] = React.useState<boolean | null>(null);
+  const checklist = a.kind === "checklist";
+  const localRef = React.useRef<boolean | null>(null);
+  localRef.current = local;
+  const changed = React.useRef(onChanged);
+  changed.current = onChanged;
+  const fail = React.useRef(onError);
+  fail.current = onError;
+
   React.useEffect(() => {
     if (local !== null && a.checked === local) setLocal(null);
   }, [a.checked, local]);
+
+  // Follow the queue: pick up ticks saved earlier, and react when they are sent or refused.
+  React.useEffect(() => {
+    if (!queue || !checklist) return;
+    let alive = true;
+    const sync = async () => {
+      const waiting = (await queue.listPending(a.id)).filter((i) => i.operation_type === "checklist_set");
+      if (!alive) return;
+      const last = waiting.at(-1);
+      if (last) {
+        setLocal((cur) => cur ?? (last.payload as { checked: boolean }).checked);
+        return;
+      }
+      const refused = (await queue.listRejected()).filter((i) => i.entity_id === a.id);
+      if (!alive) return;
+      if (refused.length > 0) {
+        await queue.dismissRejected(refused.map((i) => i.operation_id));
+        setLocal(null);
+        fail.current("Perubahan centang tidak diterima server. Sesi malam itu mungkin sudah ditutup.");
+      }
+      // Sent or refused: read the server value again. Rows with no change of their own stay quiet.
+      if (localRef.current !== null || refused.length > 0) changed.current();
+    };
+    void sync();
+    const off = queue.subscribe(() => void sync());
+    return () => {
+      alive = false;
+      off();
+    };
+  }, [queue, checklist, a.id]);
 
   if (a.kind === "counter") {
     const target = a.target ?? 0;
@@ -61,17 +100,23 @@ export function ActivityRow({ activity: a, onChanged, onError }: RowProps) {
   }
 
   async function toggle() {
-    if (!layer) return;
-    setPending(true);
-    setLocal(!a.checked);
+    if (!queue) return;
+    const next = !(local ?? a.checked);
+    setSaving(true);
+    setLocal(next);
     try {
-      await layer.session.setChecklist(a.id, { checked: !a.checked, version: a.version });
-    } catch (e) {
+      // Into the offline queue first, then out. The server dedupes by operation_id and resolves version clashes.
+      await queue.enqueue({
+        operation_id: crypto.randomUUID(),
+        entity_id: a.id,
+        operation_type: "checklist_set",
+        payload: { checked: next, version: a.version },
+      });
+    } catch {
       setLocal(null);
-      onError(errorMessage(e));
+      onError("Centang belum bisa disimpan. Coba lagi.");
     } finally {
-      setPending(false);
-      onChanged();
+      setSaving(false);
     }
   }
 
@@ -81,14 +126,14 @@ export function ActivityRow({ activity: a, onChanged, onError }: RowProps) {
       <label
         className={cn(
           "flex min-h-14 items-start gap-3 rounded-[var(--radius-control)] p-3 hover:bg-surface-2",
-          pending && "opacity-60",
+          saving && "opacity-60",
         )}
       >
         <input
           type="checkbox"
           className="mt-0.5 size-6 shrink-0 accent-[var(--primary)]"
           checked={local ?? a.checked}
-          disabled={pending}
+          disabled={saving}
           onChange={toggle}
         />
         <span className="flex min-w-0 flex-col gap-1">

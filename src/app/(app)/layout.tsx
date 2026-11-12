@@ -1,11 +1,12 @@
-import { AppGate } from "@/components/auth/gate";
+import { SignedInProviders } from "@/components/auth/signed-in-providers";
+import { DevPanel } from "@/components/dev-panel/dev-panel";
 import { AppShell } from "@/components/shell/app-shell";
 
-/** Everything inside the app needs a signed-in user with active access who finished onboarding. */
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <AppGate need="app">
+    <SignedInProviders gate="app">
       <AppShell>{children}</AppShell>
-    </AppGate>
+      <DevPanel />
+    </SignedInProviders>
   );
 }

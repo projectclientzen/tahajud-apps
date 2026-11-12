@@ -83,3 +83,10 @@ Pertanyaan owner baru:
 - Keputusan tampilan basmalah (default PROV, perlu konfirmasi owner): Tanzil menaruh basmalah di awal ayat 1 setiap surah kecuali 1 dan 9. Data disimpan apa adanya. Reader menampilkan basmalah sebagai baris pembuka terpisah di atas surah dan ayat 1 tanpa awalan itu. Aturan pemisahan: awalan harus sama persis dengan teks sumber 1:1 + spasi (sudah dicek benar untuk surah 18, 36, 55, 56, 67, 65). Dikerjakan saat menyambung teks ke Reader setelah T2 merged.
 - Terjemahan: default tanpa terjemahan (opsi A) sampai owner memilih.
 - Catatan: agen T4 tidak memanggil skill lewat tool; dicatat jujur di `docs/sessions/T4.md`.
+
+## Merge ronde 3 akhir oleh orchestrator (2026-11-12 19.50 WIB)
+- Basis: `claude/t1b-integration` (`d88cd28`) = main + T1 Agen A lama + T2 + T3a + T1b. Ditambah merge T4b (`a3da3e3`); konflik `package.json` (script) diselesaikan dengan menggabungkan keduanya.
+- Gerbang penuh di hasil gabungan: typecheck 0 error, lint 0, unit 549 lolos + 3 live dilewati, e2e 210 passed / 14 skipped / 0 failed, audit bersih.
+- T1 versi sesi baru (e7ebbc2) tidak dipakai. T1b menambahkan batas 3 perangkat (perangkat ke-4 ditolak, token tertunda 10 menit), pesan sesi revoked, checklist lewat antrean offline, link header dashboard.
+- Limit token habis ~15.25 WIB: U1a, U1b, T3b, T4c terhenti tanpa commit; dijalankan ulang di sesi baru setelah reset 19.40.
+- Pertanyaan owner baru (T1b): cukupkah 4 ikon di header dashboard mobile.

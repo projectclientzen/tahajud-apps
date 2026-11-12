@@ -8,8 +8,8 @@ import { PageHeader } from "@/components/shell/page-header";
 import { Card } from "@/components/ui/card";
 import { formatDateLong, tzLabel } from "@/lib/format-id";
 import { levelTitle } from "@/components/dashboard/content-lookup";
-import { useAuthRepo } from "./use-auth-repo";
 import * as React from "react";
+import { useAuth } from "@/components/providers/auth-provider";
 
 const LINKS: [string, string, LucideIcon][] = [
   ["/reports", "Laporan", ChartColumn],
@@ -21,7 +21,7 @@ const LINKS: [string, string, LucideIcon][] = [
 ];
 
 export function ProfileSummary() {
-  const auth = useAuthRepo();
+  const { auth } = useAuth();
   const [email, setEmail] = React.useState<string | null>(null);
   React.useEffect(() => {
     void auth?.getSession().then((s) => setEmail(s.user?.email ?? null));

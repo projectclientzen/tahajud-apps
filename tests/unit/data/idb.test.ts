@@ -8,7 +8,7 @@ const clock = { now: () => wib("2026-11-12 08:00") };
 const mk = (userId: string) => createMockDataLayer({ userId, clock, scenario: "new_account" });
 
 describe("mock persistence in IndexedDB (database per user)", () => {
-  it("uses IndexedDB `tahajud-mock-<userId>` by default when available and survives a new instance", async () => {
+  it("uses IndexedDB `tahajud-<userId>` by default when available and survives a new instance", async () => {
     const a = mk("user-a");
     const s = await a.session.ensureActiveSession();
     const c = s.activities.find((x) => x.id.endsWith("~night:istighfar"))!;
@@ -18,7 +18,7 @@ describe("mock persistence in IndexedDB (database per user)", () => {
       ],
     });
     const names = (await indexedDB.databases()).map((d) => d.name);
-    expect(names).toContain("tahajud-mock-user-a");
+    expect(names).toContain("tahajud-user-a");
 
     const again = mk("user-a"); // simulates app reopened
     const s2 = await again.session.getActiveSession();

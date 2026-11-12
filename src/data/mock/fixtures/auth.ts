@@ -1,13 +1,10 @@
 // DEMO DATA: bukan data asli
 import { PROVISIONAL_AUTH } from "@/domain/config/provisional";
 import type { AuthState, EntitlementStatus } from "../auth";
-import type { ScenarioName } from "../state";
 
 /** Reserved `.test` domain: these addresses can never belong to a real person. */
 export const DEMO_EMAILS = {
   active: "demo@ngajigaes.test",
-  /** Has access but never signed in before: the first login goes through onboarding. */
-  fresh: "baru@ngajigaes.test",
   pending: "pending@ngajigaes.test",
   suspended: "suspended@ngajigaes.test",
   /** Any other address verifies fine but has no entitlement. */
@@ -16,7 +13,6 @@ export const DEMO_EMAILS = {
 
 export const DEMO_ENTITLEMENTS: Record<string, EntitlementStatus> = {
   [DEMO_EMAILS.active]: "active",
-  [DEMO_EMAILS.fresh]: "active",
   [DEMO_EMAILS.pending]: "pending_verification",
   [DEMO_EMAILS.suspended]: "suspended",
 };
@@ -33,18 +29,6 @@ export type AuthScenarioName = (typeof AUTH_SCENARIOS)[number];
 
 const DAY = 86_400_000;
 
-/** Which data scenario a new user's mock database starts from, given their entitlement. */
-export function seedScenarioFor(status: EntitlementStatus): ScenarioName {
-  switch (status) {
-    case "active":
-      return "onboarding_pending";
-    case "pending_verification":
-      return "purchase_pending";
-    default:
-      return "no_active_access";
-  }
-}
-
 export function buildAuthScenario(name: AuthScenarioName, now: number): AuthState {
   const base: AuthState = {
     schemaVersion: 1,
@@ -57,7 +41,6 @@ export function buildAuthScenario(name: AuthScenarioName, now: number): AuthStat
     signedOutReason: "none",
     devices: {},
     pendingLogins: {},
-    seeds: {},
     clockOverride: null,
   };
   if (name === "logged_out") return base;
@@ -87,9 +70,6 @@ export function buildAuthScenario(name: AuthScenarioName, now: number): AuthStat
     issuedAt,
     expiresAt: issuedAt + PROVISIONAL_AUTH.sessionDays * DAY,
   };
-  // Mock database for a user that arrives with a ready-made session: already onboarded, like a returning user.
-  base.seeds![userId] =
-    name === "purchase_pending" ? "purchase_pending" : name === "no_active_access" ? "no_active_access" : "new_account";
   base.devices[userId] = [
     { id: "dev_current", label: "Perangkat ini (Chrome)", lastSeenAt: issuedAt, revokedAt: null },
     { id: "dev_other_1", label: "Contoh: iPhone Safari", lastSeenAt: now - 3 * DAY, revokedAt: null },

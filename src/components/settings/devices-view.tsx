@@ -3,6 +3,7 @@
 import { Laptop } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
+import { useAuth } from "@/components/providers/auth-provider";
 import { errorCode, errorMessage } from "@/components/providers/data-provider";
 import { PageHeader } from "@/components/shell/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -13,10 +14,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PROVISIONAL_AUTH } from "@/domain/config/provisional";
 import type { Device } from "@/data";
 import { formatRelative } from "./relative-time";
-import { useAuthRepo } from "./use-auth-repo";
 
 export function DevicesScreen() {
-  const auth = useAuthRepo();
+  const { auth } = useAuth();
   const [devices, setDevices] = React.useState<Device[] | null>(null);
   const [error, setError] = React.useState<unknown>(null);
   const [target, setTarget] = React.useState<Device | null>(null);
@@ -55,7 +55,7 @@ export function DevicesScreen() {
     <>
       <PageHeader
         title="Perangkat aktif"
-        description={`Akunmu bisa aktif di ${max} perangkat. Jika masuk di perangkat baru saat penuh, perangkat yang paling lama tidak dipakai dikeluarkan.`}
+        description={`Akunmu bisa aktif di ${max} perangkat. Jika sudah penuh, perangkat lain baru bisa masuk setelah kamu mengeluarkan salah satu perangkat di sini.`}
       />
       {error && !devices ? (
         errorCode(error) === "UNAUTHENTICATED" ? (

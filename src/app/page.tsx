@@ -1,15 +1,11 @@
-import Link from "next/link";
-import { RedirectIfSignedIn } from "@/components/auth/redirect-if-signed-in";
 import { DemoBadge } from "@/components/brand/demo-badge";
 import { Wordmark } from "@/components/brand/wordmark";
-import { buttonVariants } from "@/components/ui/button";
-import { PURCHASE_URL } from "@/lib/env";
+import { EntryActions } from "@/components/auth/entry-actions";
 
-/** Light entry page (PRD v1.2 §5.2). Signed-in visitors are sent on to the dashboard. */
+/** Light entry page (PRD v1.2 §5.2): short intro, sign in, and the purchase link when one is configured. */
 export default function EntryPage() {
   return (
-    <main id="main" className="mx-auto flex min-h-dvh w-full max-w-[var(--content-max)] flex-col px-4 py-6 sm:px-6">
-      <RedirectIfSignedIn />
+    <main className="mx-auto flex min-h-dvh w-full max-w-[var(--content-max)] flex-col px-4 py-6 sm:px-6">
       <header className="flex items-center justify-between gap-3">
         <Wordmark />
         <DemoBadge />
@@ -21,22 +17,7 @@ export default function EntryPage() {
         <p className="max-w-[34ch] text-[1.125rem] text-text-muted">
           Catat tahajud, hitung dzikir, dan lihat istiqomahmu tumbuh.
         </p>
-        <div className="flex flex-wrap gap-3">
-          <Link href="/login" className={buttonVariants({ size: "lg" })}>
-            Masuk
-          </Link>
-          {PURCHASE_URL ? (
-            <a
-              href={PURCHASE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonVariants({ variant: "secondary", size: "lg" })}
-            >
-              Beli akses
-              <span className="sr-only"> (buka di tab baru)</span>
-            </a>
-          ) : null}
-        </div>
+        <EntryActions />
       </section>
     </main>
   );

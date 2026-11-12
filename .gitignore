@@ -16,3 +16,4 @@ supabase/.temp/
 *.tsbuildinfo
 next-env.d.ts
 .pnp.*
+tests/e2e/.auth/

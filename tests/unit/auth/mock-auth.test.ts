@@ -261,20 +261,6 @@ describe("mock auth: sessions and devices", () => {
     expect((await err(a.verifyOtp(DEMO_EMAILS.active, "000000"))).code).toBe("INVALID_OTP");
   });
 
-  it("seeds each new user's mock database from the entitlement", async () => {
-    const a = make();
-    await a.requestOtp(DEMO_EMAILS.active);
-    const r = await signIn(a, DEMO_EMAILS.active);
-    expect(await a.dev.seedFor(r.user.id)).toBe("onboarding_pending");
-    expect(await make("logged_in").dev.seedFor(userIdFor(DEMO_EMAILS.active))).toBe("new_account");
-    const p = make();
-    await p.requestOtp(DEMO_EMAILS.pending);
-    expect(await p.dev.seedFor((await signIn(p, DEMO_EMAILS.pending)).user.id)).toBe("purchase_pending");
-    const n = make();
-    await n.requestOtp("someone@example.test");
-    expect(await n.dev.seedFor((await signIn(n, "someone@example.test")).user.id)).toBe("no_active_access");
-  });
-
   it("reports a revoked current device as signed out with reason 'revoked'", async () => {
     const a = make("logged_in");
     const st = a.engine as unknown as {

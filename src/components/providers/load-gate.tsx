@@ -14,7 +14,7 @@ interface LoadGateProps<T> {
   children: (data: T) => React.ReactNode;
 }
 
-function PageSkeleton() {
+export function PageSkeleton() {
   return (
     <div role="status" aria-label="Memuat" className="flex flex-col gap-4">
       <Skeleton className="h-32 w-full" />

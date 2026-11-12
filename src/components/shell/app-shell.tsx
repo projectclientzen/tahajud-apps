@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           id="main"
           className="mx-auto w-full max-w-[var(--content-max)] flex-1 px-4 pb-[calc(var(--nav-height)+env(safe-area-inset-bottom)+1.5rem)] pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 lg:px-10 lg:pb-12 lg:pt-8"
         >
-          <div className="mb-4 empty:hidden">
+          <div className="empty:hidden pb-4">
             <UpdatePrompt />
           </div>
           {children}

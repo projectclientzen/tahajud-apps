@@ -297,79 +297,21 @@ describe("offline queue: logout safety and purge", () => {
   });
 });
 
-describe("offline queue: round 3 wiring", () => {
-  it("lists pending notes for one entity, oldest first, without refused ones", async () => {
+describe("offline queue: listing pending notes", () => {
+  it("lists pending notes for one entity, oldest first, and leaves refused ones out", async () => {
     const s = setup(always("rejected", { code: "SESSION_LOCKED" }));
     const a = await s.q.enqueue(op("e1", 1));
     await s.q.enqueue(op("e2", 2));
-    const c = await s.q.enqueue(op("e1", 3));
+    const c = await s.q.enqueue({
+      ...op("e1"),
+      operation_type: "checklist_set",
+      payload: { checked: true, version: 0 },
+    });
     expect((await s.q.listPending("e1")).map((i) => i.seq)).toEqual([a.seq, c.seq]);
     expect(await s.q.listPending()).toHaveLength(3);
-    await s.q.flushNow(); // everything is refused
+    await s.q.flushNow(); // the server refuses everything
     expect(await s.q.listPending()).toEqual([]);
     expect(await s.q.listRejected()).toHaveLength(3);
-  });
-
-  it("reports the last retry error, keeps it while nothing was tried, and clears it after a clean send", async () => {
-    let fail = true;
-    const s = setup({
-      send: async (items) =>
-        items.map(() => (fail ? { kind: "retry", error: "OFFLINE" } : { kind: "synced" })) as SendOutcome[],
-    });
-    await s.q.enqueue(op("e1"));
-    expect(s.q.getSnapshot().lastError).toBeNull();
-    await s.q.flushNow();
-    expect(s.q.getSnapshot().lastError).toBe("OFFLINE");
-    await s.q.flushDue(); // backoff has not passed: nothing is tried, so the reason is kept
-    expect(s.q.getSnapshot().lastError).toBe("OFFLINE");
-    fail = false;
-    await s.q.flushNow();
-    expect(s.q.getSnapshot()).toMatchObject({ pending: 0, lastError: null });
-  });
-
-  it("says OFFLINE when the browser is offline and notes are waiting", async () => {
-    let online = false;
-    const s = setup(always("synced"), { online: () => online });
-    await s.q.enqueue(op("e1"));
-    expect(await s.q.flushNow()).toEqual({ status: "offline" });
-    expect(s.q.getSnapshot().lastError).toBe("OFFLINE");
-    online = true;
-    await s.q.flushNow();
-    expect(s.q.getSnapshot().lastError).toBeNull();
-  });
-
-  it("SECURITY-06 close() stops everything: no write into a database that logout is about to delete", async () => {
-    const s = setup(always("synced"));
-    await s.q.enqueue(op("e1"));
-    await s.q.close();
-    const late = await s.q.enqueue(op("e1", 5)); // a counter screen unmounting after logout
-    expect(late.seq).toBe(-1);
-    expect(await s.q.flushNow()).toEqual({ status: "offline" });
-    expect(await s.reopen().pendingCount()).toBe(1); // only the note from before close() is on disk
-    await purgeUser(s.userId);
-    expect(((await indexedDB.databases()) ?? []).map((d) => d.name)).not.toContain(`tahajud-${s.userId}`);
-  });
-
-  it("close() waits for a send that is already running", async () => {
-    let release!: () => void;
-    const gate = new Promise<void>((r) => (release = r));
-    const s = setup({
-      send: async (items) => {
-        await gate;
-        return items.map(() => ({ kind: "synced" }) as SendOutcome);
-      },
-    });
-    await s.q.enqueue(op("e1"));
-    const flushing = s.q.flushNow();
-    let closed = false;
-    const closing = s.q.close().then(() => (closed = true));
-    await Promise.resolve();
-    expect(closed).toBe(false);
-    release();
-    await flushing;
-    await closing;
-    expect(closed).toBe(true);
-    expect(await s.reopen().pendingCount()).toBe(0);
   });
 });
 

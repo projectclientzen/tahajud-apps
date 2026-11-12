@@ -14,7 +14,8 @@ export async function withQuranFixture(page: Page) {
 
 /** Auth mock state with a signed-in demo user and three devices (same shape as the logged_in scenario). */
 export async function seedSignedIn(page: Page) {
-  await page.goto("/levels"); // no auth reads on this page, so nothing races the seed
+  // A page that runs no app code, so no sign-in layer holds the old state in memory and writes it back over the seed.
+  await page.goto("/manifest.webmanifest");
   await page.evaluate(async () => {
     const now = Date.now();
     const day = 86_400_000;

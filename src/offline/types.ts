@@ -58,8 +58,6 @@ export interface QueueSnapshot {
   rejected: number;
   lastSyncedAt: number | null;
   flushing: boolean;
-  /** Error code of the last send that had to be retried (for example OFFLINE). Null after a clean send. */
-  lastError: string | null;
 }
 
 export type FlushResult = { status: "offline" } | { status: "done"; synced: number; rejected: number; retry: number };

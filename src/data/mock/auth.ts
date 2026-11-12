@@ -24,8 +24,7 @@ import {
 } from "../contracts";
 import type { AuthRepository } from "../repositories";
 import type { Clock } from "./engine";
-import { AUTH_SCENARIOS, buildAuthScenario, seedScenarioFor, userIdFor, type AuthScenarioName } from "./fixtures/auth";
-import type { ScenarioName } from "./state";
+import { AUTH_SCENARIOS, buildAuthScenario, userIdFor, type AuthScenarioName } from "./fixtures/auth";
 
 export type EntitlementStatus = "active" | "pending_verification" | "suspended" | "none";
 
@@ -58,8 +57,6 @@ export interface AuthState {
   devices: Record<string, DeviceRecord[]>;
   /** Right code but 3 devices active (PRD §24.1). Token -> who is waiting. Absent in older saved states. */
   pendingLogins?: Record<string, PendingLogin>;
-  /** Data scenario each user's mock database starts from. Mock only: a real server just has the data. */
-  seeds?: Record<string, ScenarioName>;
   clockOverride: string | null;
 }
 
@@ -130,7 +127,6 @@ export class MockAuth implements AuthRepository {
         (await this.o.storage.load()) ??
         buildAuthScenario(this.o.scenario ?? "logged_out", this.o.clock.now().getTime());
       this.state.pendingLogins ??= {};
-      this.state.seeds ??= {};
       await this.o.storage.save(this.state);
     }
     return this.state;
@@ -242,8 +238,6 @@ export class MockAuth implements AuthRepository {
     const expiresAt = now + PROVISIONAL_AUTH.sessionDays * 86_400_000;
     st.session = { userId, email, deviceId, issuedAt: now, expiresAt };
     st.signedOutReason = "none";
-    const seeds = (st.seeds ??= {});
-    seeds[userId] ??= seedScenarioFor(st.entitlements[email] ?? "none");
     await this.save();
     return {
       user: { id: userId, email },
@@ -345,10 +339,6 @@ export class MockAuth implements AuthRepository {
   async dev_peekOtp(email: string): Promise<string | null> {
     const st = await this.s();
     return st.otps[normalizeEmail(email)]?.code ?? null;
-  }
-  /** Data scenario to start this user's mock database from. Only meaningful in mock mode. */
-  async dev_seedFor(userId: string): Promise<ScenarioName> {
-    return (await this.s()).seeds?.[userId] ?? "new_account";
   }
   async dev_outbox(): Promise<AuthState["outbox"]> {
     return structuredClone((await this.s()).outbox);

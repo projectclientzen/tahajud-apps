@@ -3,6 +3,7 @@
 import { Download, Trash2 } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
+import { useAuth } from "@/components/providers/auth-provider";
 import { errorMessage, useData } from "@/components/providers/data-provider";
 import { PageHeader } from "@/components/shell/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import { Card, CardTitle } from "@/components/ui/card";
 import { Sheet } from "@/components/ui/sheet";
 import { ApiError, type DataLayer } from "@/data";
 import { Field, TextInput } from "./controls";
-import { useAuthRepo } from "./use-auth-repo";
 
 /** Everything the user's own screens can read. Real export (PRD §24.4) moves to the server in T3. */
 export async function collectExport(layer: DataLayer) {
@@ -41,7 +41,7 @@ async function deleteAccount(layer: DataLayer): Promise<void> {
 
 export function AccountScreen() {
   const { layer, bump } = useData();
-  const auth = useAuthRepo();
+  const { auth } = useAuth();
   const [email, setEmail] = React.useState<string | null>(null);
   const [open, setOpen] = React.useState(false);
   const [typed, setTyped] = React.useState("");

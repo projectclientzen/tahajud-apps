@@ -62,9 +62,13 @@ test("/settings/devices: daftar perangkat, keluarkan perangkat lain", async ({ p
   await expect(page.getByText("Contoh: Laptop Firefox")).toBeVisible();
 });
 
-test("/settings/devices tanpa sesi login menampilkan state sesi berakhir", async ({ page }) => {
-  await page.goto("/settings/devices");
-  await expect(page.getByText("Sesimu sudah berakhir")).toBeVisible();
+test.describe("tanpa sesi login", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+  test("/settings/devices mengarahkan ke /login, bukan menampilkan data", async ({ page }) => {
+    await page.goto("/settings/devices");
+    await expect(page).toHaveURL(/\/login$/);
+    await expect(page.getByText("Perangkat aktif")).toHaveCount(0);
+  });
 });
 
 test("/settings/account: unduh JSON dan hapus akun dengan ketik ulang email", async ({ page }) => {

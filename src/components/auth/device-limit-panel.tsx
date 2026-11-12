@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ApiError, type DeviceLimitResponse } from "@/data";
 import { describeDevice } from "@/lib/device-label";
 import { cn } from "@/lib/cn";
-import { clearPendingEmail } from "./pending-email";
+import { seedUserData } from "./seed-user";
 
 const when = (iso: string) =>
   new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(
@@ -34,8 +34,8 @@ export function DeviceLimitPanel({ limit }: { limit: DeviceLimitResponse }) {
     setBusy(true);
     setError(null);
     try {
-      await auth.completePendingLogin(limit.pending_token, chosen, describeDevice());
-      clearPendingEmail();
+      const res = await auth.completePendingLogin(limit.pending_token, chosen, describeDevice());
+      await seedUserData(res);
       await refresh();
       router.replace("/dashboard");
     } catch (e) {
@@ -52,7 +52,6 @@ export function DeviceLimitPanel({ limit }: { limit: DeviceLimitResponse }) {
   }
 
   function cancel() {
-    clearPendingEmail();
     router.replace("/login");
   }
 
