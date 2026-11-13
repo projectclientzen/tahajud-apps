@@ -48,11 +48,13 @@ begin
       from (select * from public.access_entitlements x where x.email_normalized like v_like escape '\' or x.id = v_uuid
             order by x.created_at desc limit 25) e), '[]'::jsonb),
     'orders', coalesce((select pg_catalog.jsonb_agg(pg_catalog.jsonb_build_object(
-        'id', o.id, 'scalev_order_id', o.scalev_order_id, 'email', o.customer_email_normalized, 'buyer_name', o.buyer_name,
-        'payment_status', o.payment_status, 'verified_via', o.verified_via, 'created_at', app_private.iso(o.created_at))
+        'id', o.id, 'scalev_order_id', o.scalev_order_id, 'scalev_order_number', o.scalev_order_number,
+        'email', o.customer_email_normalized, 'buyer_name', o.buyer_name,
+        'payment_status', o.payment_status, 'verified_via', o.verified_via, 'created_at', app_private.iso(o.created_at),
+        'quarantine_reason', o.quarantine_reason, 'activation_blocked', o.activation_blocked)
         order by o.created_at desc)
       from (select * from public.purchase_orders x
-            where x.scalev_order_id = v_q or x.customer_email_normalized like v_like escape '\' or x.id = v_uuid
+            where x.scalev_order_id = v_q or x.scalev_order_number = v_q or x.customer_email_normalized like v_like escape '\' or x.id = v_uuid
             order by x.created_at desc limit 25) o), '[]'::jsonb));
 end $$;
 
@@ -90,7 +92,8 @@ begin
   if p_filter not in ('all', 'pending', 'quarantine', 'blocked') then perform app_private.fail('VALIDATION_ERROR', '{"field":"filter","reason":"invalid"}'); end if;
   return coalesce((
     select pg_catalog.jsonb_agg(pg_catalog.jsonb_build_object(
-      'id', o.id, 'scalev_order_id', o.scalev_order_id, 'email', o.customer_email_normalized, 'buyer_name', o.buyer_name,
+      'id', o.id, 'scalev_order_id', o.scalev_order_id, 'scalev_order_number', o.scalev_order_number,
+      'email', o.customer_email_normalized, 'buyer_name', o.buyer_name,
       'payment_status', o.payment_status, 'amount', o.amount, 'currency', o.currency, 'verified_via', o.verified_via,
       'payment_verified_at', app_private.iso(o.payment_verified_at), 'created_at', app_private.iso(o.created_at),
       'quarantine_reason', o.quarantine_reason, 'activation_blocked', o.activation_blocked,
