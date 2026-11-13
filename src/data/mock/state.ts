@@ -1,4 +1,4 @@
-import type { Access, NotificationPreferences, QuranProgress } from "../contracts";
+import type { Access, KhatamResponse, NotificationPreferences, QuranProgress } from "../contracts";
 import type { CounterStore } from "@/domain/dhikr/server";
 import type { SessionSnapshot } from "@/domain/content/snapshot";
 import type { UserLevelState } from "@/domain/progression/progression";
@@ -68,6 +68,8 @@ export interface MockState {
   counterStore: CounterStore;
   notificationPrefs: NotificationPreferences;
   quranProgress: Record<string, QuranProgress>;
+  /** Khatam target and ticked slots. Absent in states saved before U2. */
+  khatam?: Pick<KhatamResponse, "target" | "reads">;
   /** Frozen dev clock (ISO), or null to follow real time. */
   clockOverride: string | null;
   installPromptDone: boolean;

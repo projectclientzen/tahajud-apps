@@ -15,6 +15,35 @@ import type { AyahRange } from "@/domain/quran";
 import { cn } from "@/lib/cn";
 import { modeLimit, readHref, type ReadMode } from "./read-modes";
 
+/** Khatam "read up to page X" support. Absent when the user has no running khatam target. */
+export interface MarkProps {
+  /** Last page counted as read, or null before the first page. */
+  lastReadPage: number | null;
+  onMark(page: number): Promise<void>;
+}
+
+function MarkButton({ page, mark }: { page: number; mark: MarkProps }) {
+  const [busy, setBusy] = React.useState(false);
+  const isLast = mark.lastReadPage === page;
+  return (
+    <Button
+      variant={isLast ? "primary" : "secondary"}
+      disabled={busy}
+      aria-pressed={isLast}
+      onClick={async () => {
+        setBusy(true);
+        try {
+          await mark.onMark(page);
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      {isLast ? `Terakhir dibaca: halaman ${page}` : `Tandai sampai halaman ${page}`}
+    </Button>
+  );
+}
+
 const FONT_MIN = 24;
 const FONT_MAX = 44;
 const FONT_STEP = 2;
@@ -49,7 +78,17 @@ function useSegments(mode: ReadMode, n: number) {
   return { ...state, retry: () => setAttempt((a) => a + 1) };
 }
 
-function Ayahs({ seg, size, showPages }: { seg: PageSegment; size: number; showPages: boolean }) {
+function Ayahs({
+  seg,
+  size,
+  showPages,
+  mark,
+}: {
+  seg: PageSegment;
+  size: number;
+  showPages: boolean;
+  mark?: MarkProps;
+}) {
   let lastPage = 0;
   return (
     <Card as="div" className="overflow-hidden p-0">
@@ -75,12 +114,12 @@ function Ayahs({ seg, size, showPages }: { seg: PageSegment; size: number; showP
           return (
             <li key={v.number} className="flex flex-col">
               {marker ? (
-                <Link
-                  href={readHref("halaman", page)}
-                  className="px-4 py-2 text-helper font-medium text-text-muted hover:bg-surface-2"
-                >
-                  Halaman {page}
-                </Link>
+                <div className="flex flex-wrap items-center justify-between gap-2 bg-surface-2/50 px-4 py-1">
+                  <Link href={readHref("halaman", page)} className="inline-flex min-h-11 items-center text-helper font-medium text-text-muted">
+                    Halaman {page}
+                  </Link>
+                  {mark ? <MarkButton page={page} mark={mark} /> : null}
+                </div>
               ) : null}
               <div className="flex items-start gap-3 px-4 py-4">
                 <span
@@ -111,12 +150,12 @@ function Body({
   mode,
   n,
   fontSize,
-  footer,
+  mark,
 }: {
   mode: ReadMode;
   n: number;
   fontSize: number;
-  footer?: React.ReactNode;
+  mark?: MarkProps;
 }) {
   const { layer } = useData();
   const { loading, segments, retry } = useSegments(mode, n);
@@ -159,9 +198,16 @@ function Body({
       ) : segments ? (
         <>
           {segments.map((seg) => (
-            <Ayahs key={`${seg.surah}-${seg.verses[0]?.number}`} seg={seg} size={size} showPages={showPages} />
+            <Ayahs key={`${seg.surah}-${seg.verses[0]?.number}`} seg={seg} size={size} showPages={showPages} mark={mark} />
           ))}
-          {footer}
+          {mode === "halaman" && mark ? (
+            <Card as="div" className="flex flex-col gap-2">
+              <MarkButton page={n} mark={mark} />
+              <p className="text-helper text-text-muted">
+                Mencatat bacaan khatam sampai halaman ini. Bisa dikoreksi dengan menandai halaman lain.
+              </p>
+            </Card>
+          ) : null}
           <p className="text-helper text-text-muted" data-testid="quran-attribution">
             Teks Al-Qur&apos;an: Tanzil Project (
             <a href={QURAN_ATTRIBUTION.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
@@ -212,8 +258,8 @@ function Body({
   );
 }
 
-/** Reader for any surah, juz or Madinah page. `footer` is where the khatam actions plug in. */
-export function FullReader({ mode, n, footer }: { mode: ReadMode; n: number; footer?: React.ReactNode }) {
+/** Reader for any surah, juz or Madinah page. `mark` adds the khatam "read up to page X" actions. */
+export function FullReader({ mode, n, mark }: { mode: ReadMode; n: number; mark?: MarkProps }) {
   const { data, error, loading, reload } = useLoad(async (l) => (await l.profile.getProfile()).quran_font_size, []);
   const sub =
     mode === "surah"
@@ -237,7 +283,7 @@ export function FullReader({ mode, n, footer }: { mode: ReadMode; n: number; foo
         }
       />
       <LoadGate data={data} error={error} loading={loading} onRetry={reload}>
-        {(fontSize) => <Body mode={mode} n={n} fontSize={fontSize} footer={footer} />}
+        {(fontSize) => <Body mode={mode} n={n} fontSize={fontSize} mark={mark} />}
       </LoadGate>
     </>
   );

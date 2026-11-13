@@ -34,6 +34,10 @@ import {
   sessionHistoryResponseSchema,
   sessionSummarySchema,
   activityStatSchema,
+  khatamCreateRequestSchema,
+  khatamMarkRequestSchema,
+  khatamResponseSchema,
+  khatamSlotRequestSchema,
   type NightSession,
 } from "@/data/contracts";
 import {
@@ -446,6 +450,51 @@ export const h = {
       const body = await readBody(c.req, quranProgressUpdateSchema);
       return c.d.db.asUser(c.user.userId, async (q) =>
         quranProgressSchema.parse(await one(q, "public.put_quran_progress($1::int, $2::int)", [surah, body.ayah])),
+      );
+    },
+  }),
+  // ---------- Khatam target (M2). Rules live in SQL; the browser only ever gets raw state back. ----------
+  getKhatam: route({
+    auth: "user",
+    handler: (c) =>
+      c.d.db.asUser(c.user.userId, async (q) => khatamResponseSchema.parse(await one(q, "public.get_khatam()"))),
+  }),
+  createKhatam: route({
+    auth: "user",
+    status: 201,
+    handler: async (c) => {
+      const body = await readBody(c.req, khatamCreateRequestSchema);
+      return c.d.db.asUser(c.user.userId, async (q) =>
+        khatamResponseSchema.parse(await one(q, "public.create_khatam($1::int)", [body.khatam_count])),
+      );
+    },
+  }),
+  changeKhatamTarget: route({
+    auth: "user",
+    handler: async (c) => {
+      const body = await readBody(c.req, khatamCreateRequestSchema);
+      return c.d.db.asUser(c.user.userId, async (q) =>
+        khatamResponseSchema.parse(await one(q, "public.change_khatam_count($1::int)", [body.khatam_count])),
+      );
+    },
+  }),
+  setKhatamSlot: route({
+    auth: "user",
+    handler: async (c) => {
+      const body = await readBody(c.req, khatamSlotRequestSchema);
+      return c.d.db.asUser(c.user.userId, async (q) =>
+        khatamResponseSchema.parse(
+          await one(q, "public.set_khatam_slot($1::int, $2::text, $3::boolean)", [body.day, body.prayer, body.done]),
+        ),
+      );
+    },
+  }),
+  markKhatamPosition: route({
+    auth: "user",
+    handler: async (c) => {
+      const body = await readBody(c.req, khatamMarkRequestSchema);
+      return c.d.db.asUser(c.user.userId, async (q) =>
+        khatamResponseSchema.parse(await one(q, "public.mark_khatam_position($1::int)", [body.page])),
       );
     },
   }),

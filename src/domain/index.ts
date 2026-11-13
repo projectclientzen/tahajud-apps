@@ -3,6 +3,7 @@ export * from "./calendar";
 export * from "./config";
 export * from "./content";
 export * from "./dhikr";
+export * from "./khatam";
 export * from "./notifications";
 export * from "./prayer";
 export * from "./quran";

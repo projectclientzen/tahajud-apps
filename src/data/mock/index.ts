@@ -67,6 +67,13 @@ export function createMockDataLayer(opts: CreateMockOptions): MockDataLayer {
       setLocation: (r) => e.setLocation(r),
     },
     quran: { getProgress: () => e.getQuranProgress(), putProgress: (s, r) => e.putQuranProgress(s, r) },
+    khatam: {
+      getKhatam: () => e.getKhatam(),
+      createTarget: (r) => e.createKhatam(r),
+      changeTarget: (r) => e.changeKhatam(r),
+      setSlot: (r) => e.setKhatamSlot(r),
+      markPosition: (r) => e.markKhatamPosition(r),
+    },
     notifications: { getPreferences: () => e.getPreferences(), putPreferences: (p) => e.putPreferences(p) },
     profile: {
       getProfile: () => e.getProfile(),

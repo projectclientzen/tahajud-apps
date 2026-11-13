@@ -14,7 +14,7 @@ test("bantuan: referensi dari konten owner, disclaimer, CS tersembunyi bila env 
 test("profil: ringkasan dan tautan ke halaman turunan", async ({ page }) => {
   await page.goto("/profile");
   for (const name of ["Laporan", "Notifikasi", "Pengaturan", "Perangkat aktif", "Akun dan data", "Bantuan"]) {
-    await expect(page.getByRole("link", { name })).toBeVisible();
+    await expect(page.getByRole("main").getByRole("link", { name })).toBeVisible();
   }
   await page.getByRole("link", { name: "Bantuan" }).click();
   await expect(page).toHaveURL(/\/help$/);
@@ -32,7 +32,8 @@ for (const theme of ["light", "dark"] as const) {
     await page.addInitScript((t) => localStorage.setItem("tt-theme", t), theme);
     await seedSignedIn(page);
     const routes: [string, string][] = [
-      ["/quran", "Yasin"],
+      ["/quran", "Mulai target khatam"],
+      ["/quran/baca/halaman/1", "Halaman 1"],
       ["/quran/36", "Progres bacaan"],
       ["/reports", "Tingkat tuntas"],
       ["/reports/calendar", "Riwayat istiqomah"],

@@ -49,11 +49,10 @@ test.describe("teks gagal dimuat", () => {
       "Ayat 12 dari 83",
     );
     await page.goto("/quran");
-    await expect(page.getByRole("link", { name: /Yasin/ })).toContainText("12 dari 83 ayat");
-    await expect(page.getByRole("link")).toContainText(
-      ["Yasin", "Al-Waqi'ah", "Al-Mulk", "Ar-Rahman", "Al-Kahfi", "At-Talaq"],
-      { useInnerText: true },
-    );
+    await page.getByText("Enam bacaan malam").click();
+    await expect(page.locator("details").getByRole("link", { name: /Yasin/ })).toContainText("12 dari 83 ayat");
+    for (const name of ["Yasin", "Al-Waqi'ah", "Al-Mulk", "Ar-Rahman", "Al-Kahfi", "At-Talaq"])
+      await expect(page.locator("details").getByRole("link", { name: new RegExp(name) })).toBeVisible();
   });
 });
 
@@ -79,6 +78,7 @@ test("ukuran huruf reader bertahan setelah reload", async ({ page }) => {
 
 test("badge Bacaan Jumat mengikuti jendela Al-Kahfi", async ({ page }) => {
   await page.goto("/quran");
+  await page.getByText("Enam bacaan malam").click();
   await setDemoTime(page, "2026-11-12T19:00"); // Kamis malam, setelah Maghrib
   await expect(page.getByText("Bacaan Jumat")).toBeVisible();
   await setDemoTime(page, "2026-11-14T10:00"); // Sabtu
