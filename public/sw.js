@@ -3,7 +3,10 @@
 const VERSION = "v1";
 const STATIC = `tahajud-static-${VERSION}`;
 const PAGES = `tahajud-pages-${VERSION}`;
-const KEEP = [STATIC, PAGES];
+// Qur'an text files (public/quran/*.json) are static and versioned with the app: bump QURAN_VERSION if they change.
+const QURAN_VERSION = "v1";
+const QURAN = `tahajud-quran-${QURAN_VERSION}`;
+const KEEP = [STATIC, PAGES, QURAN];
 const PRECACHE = ["/offline.html", "/icons/icon.svg", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -39,7 +42,9 @@ self.addEventListener("fetch", (event) => {
   if (req.mode === "navigate") {
     event.respondWith(navigate(req, url));
   } else if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/icons/")) {
-    event.respondWith(cacheFirst(req));
+    event.respondWith(cacheFirst(req, STATIC));
+  } else if (url.pathname.startsWith("/quran/") && url.pathname.endsWith(".json")) {
+    event.respondWith(cacheFirst(req, QURAN));
   }
 });
 
@@ -65,13 +70,13 @@ function cacheable(res) {
   return !/no-store|private/i.test(res.headers.get("cache-control") || "");
 }
 
-async function cacheFirst(req) {
+async function cacheFirst(req, cacheName) {
   const hit = await caches.match(req);
   if (hit) return hit;
   const res = await fetch(req);
   if (res.ok) {
     const copy = res.clone();
-    caches.open(STATIC).then((c) => c.put(req, copy));
+    caches.open(cacheName).then((c) => c.put(req, copy));
   }
   return res;
 }

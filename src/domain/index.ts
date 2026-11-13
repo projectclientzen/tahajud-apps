@@ -5,6 +5,7 @@ export * from "./content";
 export * from "./dhikr";
 export * from "./notifications";
 export * from "./prayer";
+export * from "./quran";
 export * from "./progression";
 export * from "./reporting";
 export * from "./session";

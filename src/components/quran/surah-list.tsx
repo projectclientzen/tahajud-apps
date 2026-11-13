@@ -7,6 +7,7 @@ import { useLoad } from "@/components/providers/data-provider";
 import { PageHeader } from "@/components/shell/page-header";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { BrowseLists } from "./browse";
 import { ayahCount, readCount, SURAHS, AL_KAHFI } from "./surahs";
 import { useKahfiWindow } from "./use-kahfi";
 
@@ -54,6 +55,10 @@ export function SurahList() {
           </ul>
         )}
       </LoadGate>
+      <div className="pt-8">
+        <h2 className="pb-3 text-card-title font-semibold">Seluruh Al-Qur&apos;an</h2>
+        <BrowseLists />
+      </div>
     </>
   );
 }
