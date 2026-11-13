@@ -81,7 +81,7 @@ export const ROUTES: Def[] = [
           roles: s.admin.roles,
           expires_at: s.admin.expiresAt,
           nav: navFor(s.admin.roles),
-          can: Object.fromEntries((["roles.manage", "content.write", "templates.write", "support.write", "jobs.requeue"] as const).map((p) => [p, can(s.admin.roles, p)])),
+          can: Object.fromEntries((["roles.manage", "content.write", "templates.write", "support.write", "support.phone", "support.reset_link", "staff.manage", "jobs.requeue"] as const).map((p) => [p, can(s.admin.roles, p)])),
         };
       }
       return { state: s.state, email: s.email, roles: s.roles };
