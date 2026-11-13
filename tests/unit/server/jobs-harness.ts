@@ -77,6 +77,8 @@ export async function resetJobsTables(db: PgliteDb): Promise<void> {
   await db.exec("delete from public.notification_deliveries");
   await db.exec("delete from public.notification_jobs");
   await db.exec("delete from public.jobs");
+  await db.exec("delete from public.auth_tokens");
+  await db.exec("delete from public.auth_events");
   await db.exec("delete from public.prayer_times");
   await db.exec("delete from public.notification_templates");
   await db.exec("delete from public.push_subscriptions");

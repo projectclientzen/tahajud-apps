@@ -1,4 +1,5 @@
 -- T6: job runner and notification scheduler plumbing (PRD v1.2 §15, §16.2, §17.5, §17.7). Safe to run twice.
+-- Runs after 20261116030000_auth_password.sql, so login_otps no longer exists. housekeeping() below knows that.
 -- Everything here is backend only: functions live in app_private and only service_role may execute them.
 -- Functions that depend on time take p_now (default: app_private.server_now()). The worker passes nothing in
 -- production; tests pass a fixed instant. They are never reachable by a signed-in user.
@@ -15,6 +16,9 @@ create unique index if not exists jobs_dedupe_queued_uq on public.jobs (dedupe_k
   where dedupe_key is not null and status = 'queued';
 create index if not exists jobs_type_status_idx on public.jobs (job_type, status, created_at desc);
 create index if not exists jobs_running_idx on public.jobs (locked_at) where status = 'running';
+
+-- The send_email handler records why a message was not sent (EMAIL_NOT_CONFIGURED until SMTP exists; SCALEV-AUTH-PLAN §8.9).
+alter table public.email_outbox add column if not exists last_error text;
 
 alter table public.notification_jobs add column if not exists template_key text;
 alter table public.notification_jobs add column if not exists skip_reason text;
@@ -238,13 +242,21 @@ create trigger push_subscriptions_reschedule after insert or update on public.pu
   for each row execute function app_private.trg_reschedule_push();
 
 -- ---------- housekeeping ----------
--- Finished work and expired auth leftovers (T3b asked for this). Dead jobs stay 90 days so the admin can read them.
+-- Finished work and expired auth leftovers. Dead jobs stay 90 days so the admin can read them.
 -- Revoked devices keep their cookie hash for 30 days so the cookie still reads "revoked" (PRD §24.1).
+-- Auth: the auth migration states no retention, so these are PROVISIONAL defaults.
+--   auth_tokens (admin reset links): a link that expired, was used or was revoked is deleted 7 days later (SCALEV-AUTH-PLAN §3.2).
+--   auth_events (activation / reset audit, no email or phone): kept auth_events_retention_days, 90 unless the setting says otherwise.
+insert into public.app_settings (key, value, provisional)
+values ('auth_events_retention_days', '90'::jsonb, true)
+on conflict (key) do nothing;
+
 create or replace function app_private.housekeeping(p_now timestamptz default null) returns jsonb
 language plpgsql set search_path = '' as $$
 declare
   v_now timestamptz := coalesce(p_now, app_private.server_now());
-  n_jobs int; n_notif int; n_otp int; n_pending int; n_rate int; n_dev int;
+  v_event_days int := greatest(coalesce((app_private.setting('auth_events_retention_days') #>> '{}')::int, 90), 1);
+  n_jobs int; n_notif int; n_tokens int; n_events int; n_pending int; n_rate int; n_dev int;
 begin
   delete from public.jobs where (status = 'done' and finished_at < v_now - interval '7 days')
     or (status = 'failed' and finished_at < v_now - interval '30 days')
@@ -252,8 +264,11 @@ begin
   get diagnostics n_jobs = row_count;
   delete from public.notification_jobs where status <> 'pending' and scheduled_at < v_now - interval '30 days';
   get diagnostics n_notif = row_count;
-  delete from public.login_otps where issued_at < v_now - interval '1 day';
-  get diagnostics n_otp = row_count;
+  delete from public.auth_tokens
+  where least(expires_at, coalesce(used_at, expires_at), coalesce(revoked_at, expires_at)) < v_now - interval '7 days';
+  get diagnostics n_tokens = row_count;
+  delete from public.auth_events where at < v_now - pg_catalog.make_interval(days => v_event_days);
+  get diagnostics n_events = row_count;
   delete from public.pending_logins where expires_at < v_now - interval '1 day';
   get diagnostics n_pending = row_count;
   delete from public.rate_limits where window_start < v_now - interval '2 days';
@@ -261,8 +276,8 @@ begin
   delete from public.device_sessions s using public.user_devices d
   where d.id = s.device_id and (s.expires_at < v_now - interval '30 days' or d.revoked_at < v_now - interval '30 days');
   get diagnostics n_dev = row_count;
-  return pg_catalog.jsonb_build_object('jobs', n_jobs, 'notification_jobs', n_notif, 'login_otps', n_otp,
-    'pending_logins', n_pending, 'rate_limits', n_rate, 'device_sessions', n_dev);
+  return pg_catalog.jsonb_build_object('jobs', n_jobs, 'notification_jobs', n_notif, 'auth_tokens', n_tokens,
+    'auth_events', n_events, 'pending_logins', n_pending, 'rate_limits', n_rate, 'device_sessions', n_dev);
 end $$;
 
 -- ---------- grants: service_role only ----------

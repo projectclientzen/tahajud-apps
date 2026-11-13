@@ -1,4 +1,5 @@
 import { UUID_RE } from "@/server/db";
+import { emailHandlers } from "@/server/email";
 import { dispatchDue, PushNotConfiguredError } from "@/server/notifications/dispatcher";
 import { scheduleAll, scheduleUser, type SchedulerDeps } from "@/server/notifications/scheduler";
 import { queue } from "./queue";
@@ -18,6 +19,7 @@ export function buildHandlers(svc: Services): JobHandlers {
   });
 
   return {
+    ...emailHandlers(svc),
     // Full sweep. Long sweeps stop at the deadline and continue in a follow-up job.
     [JOB_TYPES.notificationSchedule]: async (job, ctx) => {
       const after = typeof job.payload.after === "string" ? job.payload.after : null;

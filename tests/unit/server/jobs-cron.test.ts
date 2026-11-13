@@ -40,7 +40,7 @@ describe("/api/internal/cron", () => {
 
   it("rejects a missing or wrong secret with 401 and does no work", async () => {
     vi.stubEnv("CRON_SECRET", SECRET);
-    for (const headers of [{}, { authorization: "Bearer nope" }, { "x-cron-secret": "nope" }, { authorization: SECRET }, { authorization: `Bearer ${SECRET}x` }]) {
+    for (const headers of [{} as Record<string, string>, { authorization: "Bearer nope" }, { "x-cron-secret": "nope" }, { authorization: SECRET }, { authorization: `Bearer ${SECRET}x` }]) {
       const res = await call("POST", headers);
       expect(res.status).toBe(401);
       expect(await res.json()).toEqual({ error: { code: "UNAUTHENTICATED", message: "Tidak diizinkan." } });

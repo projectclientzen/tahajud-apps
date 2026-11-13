@@ -863,14 +863,19 @@ describe("delete account (PRD §24.4, PRIV-02)", () => {
   });
 
   it("drops work still waiting for the person, and keeps everyone else's", async () => {
-    const left = await rows<{ status: string; payload: { user_id?: string; email?: string } }>(
+    const left = await rows<{ status: string; job_type: string; payload: { user_id?: string; email?: string } }>(
       pg,
-      "select status, payload from public.jobs order by status",
+      "select status, job_type, payload from public.jobs order by status",
     );
+    // T6 triggers also queue a notification_reschedule for the other user. Only the jobs this test made are compared.
     const waiting = left
-      .filter((j) => j.status === "queued" || j.status === "failed")
+      .filter((j) => (j.status === "queued" || j.status === "failed") && j.job_type === "send_access_email")
       .map((j) => j.payload.user_id ?? j.payload.email);
     expect(waiting).toEqual([other]);
+    // and nothing at all is left waiting for the deleted person, whatever the job type
+    expect(
+      left.filter((j) => (j.status === "queued" || j.status === "failed") && (j.payload.user_id === uid || j.payload.email === EMAIL)),
+    ).toEqual([]);
     // a finished job is history, not work waiting: it keeps a user id that no longer points at anything
     expect(left.filter((j) => j.status === "done")).toHaveLength(1);
   });

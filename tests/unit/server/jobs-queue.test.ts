@@ -35,9 +35,9 @@ describe("backoffSeconds (PRD §17.7: exponential)", () => {
 
 describe("job claim (SKIP LOCKED)", () => {
   it("the claim query uses FOR UPDATE SKIP LOCKED (PRD §17.7)", async () => {
-    const [{ def }] = (await db.exec("select pg_get_functiondef('app_private.jobs_claim(text,int,int,timestamptz)'::regprocedure) as def")) as { def: string }[];
+    const def = ((await db.exec("select pg_get_functiondef('app_private.jobs_claim(text,int,int,timestamptz)'::regprocedure) as def")) as { def: string }[])[0]!.def;
     expect(def.toLowerCase()).toMatch(/for update skip locked/);
-    const [{ def: notif }] = (await db.exec("select pg_get_functiondef('app_private.notif_claim_due(text,int,int,timestamptz)'::regprocedure) as def")) as { def: string }[];
+    const notif = ((await db.exec("select pg_get_functiondef('app_private.notif_claim_due(text,int,int,timestamptz)'::regprocedure) as def")) as { def: string }[])[0]!.def;
     expect(notif.toLowerCase()).toMatch(/for update skip locked/);
   });
 

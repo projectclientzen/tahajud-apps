@@ -7,6 +7,10 @@ export const JOB_TYPES = {
   notificationDispatch: "notification_dispatch",
   prayerSync: "prayer_sync",
   housekeeping: "housekeeping",
+  sendEmail: "send_email",
+  scalevEvent: "scalev_event",
+  scalevSweep: "scalev_sweep",
+  scalevPurge: "scalev_purge",
 } as const;
 export type JobType = (typeof JOB_TYPES)[keyof typeof JOB_TYPES];
 

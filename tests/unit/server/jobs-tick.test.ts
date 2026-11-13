@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { PgliteDb } from "@/server/db/pglite";
+import { queue } from "@/server/jobs/queue";
 import { tick } from "@/server/jobs/tick";
 import type { Services } from "@/server/jobs/services";
 import { addPrayerTimes, addUser, createJobsDb, FakeSender, jobsByType, makeServices, resetJobsTables, setPrefs } from "./jobs-harness";
@@ -134,14 +135,52 @@ describe("tick: the whole chain", () => {
 
   it("housekeeping removes finished jobs older than a week and expired auth leftovers, and keeps dead jobs", async () => {
     await db.exec("insert into public.jobs (job_type, status, finished_at) values ('x', 'done', '2026-11-01T00:00:00Z'), ('x', 'done', '2026-11-11T00:00:00Z'), ('x', 'dead', '2026-11-01T00:00:00Z')");
-    await db.exec("insert into public.login_otps (email_hash, code_hash, issued_at) values ('h', 'c', '2026-11-01T00:00:00Z')");
     await db.exec("insert into public.rate_limits (key, window_start, count) values ('k', '2026-11-01T00:00:00Z', 1), ('k', '2026-11-12T00:00:00Z', 1)");
     const c = clock("2026-11-12T03:00:00Z");
     await c.at("2026-11-12T03:00:00Z");
     await tick(c.svc);
     const left = await db.exec("select status, finished_at::text from public.jobs where job_type = 'x' order by finished_at");
     expect(left.map((r) => r.status)).toEqual(["dead", "done"]);
-    expect((await db.exec("select count(*)::int as n from public.login_otps"))[0]!.n).toBe(0);
     expect((await db.exec("select count(*)::int as n from public.rate_limits"))[0]!.n).toBe(1);
+  });
+
+  it("housekeeping no longer touches login_otps (the table is gone) and cleans auth_tokens and auth_events", async () => {
+    expect(await db.exec("select 1 from pg_tables where schemaname = 'public' and tablename = 'login_otps'")).toHaveLength(0);
+    const u = await addUser(db);
+    const t = (hash: string, created: string, expires: string, used: string | null, revoked: string | null) =>
+      db.exec(
+        "insert into public.auth_tokens (token_hash, user_id, created_at, expires_at, used_at, revoked_at) values ($1, $2, $3, $4, $5, $6)",
+        [hash, u.id, created, expires, used, revoked],
+      );
+    await t("expired-old", "2026-10-01T00:00:00Z", "2026-10-01T01:00:00Z", null, null); // expired 42 days ago: delete
+    await t("used-old", "2026-11-01T00:00:00Z", "2026-11-01T01:00:00Z", "2026-11-01T00:10:00Z", null); // used 11 days ago: delete
+    await t("revoked-old", "2026-11-02T00:00:00Z", "2026-11-12T00:00:00Z", null, "2026-11-02T00:10:00Z"); // revoked 10 days ago: delete
+    await t("expired-recent", "2026-11-11T00:00:00Z", "2026-11-11T01:00:00Z", null, null); // expired a day ago: keep
+    await t("open", "2026-11-12T02:00:00Z", "2026-11-12T04:00:00Z", null, null); // still valid: keep
+    const ev = (at: string) =>
+      db.exec("insert into public.auth_events (user_id, kind, at) values ($1, 'activated', $2)", [u.id, at]);
+    await ev("2026-08-01T00:00:00Z"); // 103 days: delete under the 90 day default
+    await ev("2026-09-01T00:00:00Z"); // 72 days: keep
+    const c = clock("2026-11-12T03:00:00Z");
+    await c.at("2026-11-12T03:00:00Z");
+    const t0 = await tick(c.svc);
+    expect(t0.run.byType.housekeeping).toBe(1);
+    expect((await jobsByType(db, "housekeeping"))[0]).toMatchObject({ status: "done" });
+    const tokens = await db.exec("select token_hash from public.auth_tokens order by token_hash");
+    expect(tokens.map((r) => r.token_hash)).toEqual(["expired-recent", "open"]);
+    expect((await db.exec("select at::text from public.auth_events order by at")).map((r) => String(r.at).slice(0, 10))).toEqual(["2026-09-01"]);
+  });
+
+  it("the auth_events retention follows the provisional setting", async () => {
+    const u = await addUser(db);
+    await db.exec("insert into public.auth_events (user_id, kind, at) values ($1, 'reset_self', '2026-11-01T00:00:00Z')", [u.id]);
+    expect((await db.exec("select provisional from public.app_settings where key = 'auth_events_retention_days'"))[0]!.provisional).toBe(true);
+    await db.exec("update public.app_settings set value = '7'::jsonb where key = 'auth_events_retention_days'");
+    try {
+      const out = await queue.housekeeping(db, new Date("2026-11-12T03:00:00Z"));
+      expect(out.auth_events).toBe(1);
+    } finally {
+      await db.exec("update public.app_settings set value = '90'::jsonb where key = 'auth_events_retention_days'");
+    }
   });
 });
