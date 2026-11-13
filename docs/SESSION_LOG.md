@@ -190,3 +190,9 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Menyentuh satu file di luar kepemilikan: `tests/db/auth-password.test.ts` (kasus `admin_manual` tidak lagi "harus gagal").
 - Sisa: edit konfigurasi level dari admin, jalur CS untuk order tanpa HP, Postgres nyata, uji perangkat.
 - Pertanyaan owner: Q-X2B-1..5 di laporan.
+
+## Merge X2-B admin oleh orchestrator (2026-11-13)
+- Merge `claude/x2b-admin` (`d6a059f`): admin T7 di skema auth baru (migration `20261117100000..130000`), X8 `20261117140000_admin_staff.sql` (staf `staff_comp` + tautan reset sekali tampil, approve manual, blokir aktivasi, cek HP via hash + audit, bypass level staf, staf di luar agregat), `scripts/admin-grant-role.ts`, UI `/admin/**`.
+- Orchestrator menerima perubahan X2-B pada `tests/db/auth-password.test.ts`: order `admin_manual` boleh diaktivasi (approve manual admin = jalur verifikasi sah di CLAUDE.md). Tetap ditanyakan ke owner (Q-X2B-5).
+- Gerbang: typecheck 0, lint 0, unit 1533 + 3 skip, db 344, e2e mock 352, e2e live 38, e2e admin 20, audit bersih.
+- Owner menjeda pekerjaan sampai domain + Scalev siap.
