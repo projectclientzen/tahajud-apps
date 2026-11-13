@@ -446,4 +446,40 @@ begin
               group by notification_type, status) n), '[]'::jsonb));
 end $$;
 
+-- ---------- first admin (scripts/admin-grant-role.ts) ----------
+-- Runs from the command line, before any admin exists, so there is no actor. It makes an account WITHOUT a password
+-- when the email has none (same two inserts as activation and staff creation), then grants one role. The audit row has
+-- no actor. A second super_admin needs p_allow_another = true: later roles are granted in /admin by a super_admin.
+create or replace function app_private.admin_bootstrap_grant(p_email text, p_role text, p_allow_another boolean, p_now timestamptz)
+returns jsonb
+language plpgsql security definer set search_path = '' as $$
+declare v_uid uuid; v_created boolean := false; v_granted boolean; v_email text := pg_catalog.lower(pg_catalog.btrim(coalesce(p_email, '')));
+begin
+  if v_email !~ '^[^\s@]+@[^\s@]+\.[^\s@]{2,}$' then perform app_private.fail('VALIDATION_ERROR', '{"field":"email","reason":"invalid"}'); end if;
+  if p_role not in ('super_admin', 'content_admin', 'support_admin', 'reporting_admin') then
+    perform app_private.fail('VALIDATION_ERROR', '{"field":"role","reason":"unknown_role"}');
+  end if;
+  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtext('admin-bootstrap'));
+  select p.user_id into v_uid from public.profiles p where p.email_normalized = v_email;
+  if p_role = 'super_admin' and not coalesce(p_allow_another, false)
+     and exists (select 1 from public.user_roles r where r.role = 'super_admin' and r.user_id is distinct from v_uid) then
+    perform app_private.fail('CONFLICT', '{"reason":"super_admin_exists"}');
+  end if;
+  if v_uid is null then
+    perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtext('activate:' || v_email));
+    v_uid := gen_random_uuid();
+    insert into auth.users (id, email) values (v_uid, v_email);
+    insert into public.profiles (user_id, email_normalized) values (v_uid, v_email);
+    v_created := true;
+  end if;
+  insert into public.user_roles (user_id, role, granted_at) values (v_uid, p_role, p_now) on conflict do nothing;
+  v_granted := found;
+  if v_granted or v_created then
+    perform app_private.admin_audit(null, 'user_role', v_uid::text, 'role.granted', null,
+      pg_catalog.jsonb_build_object('role', p_role, 'account_created', v_created), 'bootstrap dari baris perintah', null, p_now);
+  end if;
+  return pg_catalog.jsonb_build_object('user_id', v_uid, 'created', v_created, 'granted', v_granted,
+    'has_password', exists (select 1 from public.auth_credentials c where c.user_id = v_uid));
+end $$;
+
 grant execute on all functions in schema app_private to service_role;
