@@ -1,6 +1,7 @@
 # X2-A: T6 job runner selesai, intake Scalev (X3), worker Scalev (X6)
 
 Tanggal 13 Nov 2026. Branch `claude/x2a-jobs-scalev` dari main @ `10c4081` (auth email + password sudah masuk), ditambah merge `origin/claude/t6-job-runner` (WIP T6). Brief: `docs/briefs/X-part2-A.md`. Rencana: `docs/sessions/SCALEV-AUTH-PLAN.md` §4, §5.3, §5.4, §8 (§8.9 menimpa §4).
+**Catatan lingkup:** pesan orchestrator "berhenti setelah Tahap 1, jangan mulai Tahap 2/3" sampai SETELAH Tahap 2 dan 3 selesai dan di-push (dibaca 07.49 UTC; Tahap 3 di-push 07.46). Tidak ada pekerjaan baru sesudah pesan itu kecuali menutup sesi. Tahap 1 = `b8598af` berdiri sendiri; Tahap 2 (`122ee46`) dan 3 (`a0ce6b7`) adalah commit terpisah di atasnya, jadi orchestrator bisa merge hanya sampai `b8598af` (cherry-pick atau reset branch ke sana) bila Scalev memang ditunda. Migration `20261117020000` dan `030000` ikut Tahap 2/3.
 Tidak ada kredensial Scalev yang diminta atau dipakai. Semua test memakai server Scalev palsu di `127.0.0.1` (`tests/unit/server/scalev-fake.ts`) dan fixture berlabel NEEDS_VERIFICATION. Tidak ada PR, tidak ada push ke main.
 
 ## Commit (push per tahap)
@@ -9,7 +10,7 @@ Tidak ada kredensial Scalev yang diminta atau dipakai. Semua test memakai server
 | 1 | `b8598af` | T6 hijau di atas auth password |
 | 2 | `122ee46` | X3 intake webhook |
 | 3 | `a0ce6b7` | X6 worker, sweeper, purge, tes aktivasi end-to-end |
-| 3b | commit terakhir branch | config test, perbaikan regex host lokal, dokumen |
+| 3b | `e4fcc65` + commit penutup | config test, perbaikan cek host lokal, DECISIONS, STATUS, laporan |
 
 ## Hasil
 | Bagian | Status |
@@ -41,7 +42,17 @@ Tidak ada kredensial Scalev yang diminta atau dipakai. Semua test memakai server
 | Aktivasi end-to-end | `scalev-activation.test.ts` |
 
 ## Gerbang (output asli, checkout ini)
-@@GATES@@
+```
+pnpm typecheck        exit 0, tanpa error
+pnpm lint             exit 0, tanpa warning
+pnpm test             Test Files 63 passed (63) · Tests 1331 passed | 3 skipped (1334)
+pnpm test:db          Test Files 11 passed (11) · Tests 299 passed (299)
+pnpm test:e2e --trace off   288 passed, 46 skipped, 0 failed (4.9m, mock mode)
+pnpm audit --prod     No known vulnerabilities found
+DB_DRIVER=pglite TAHAJUD_ALLOW_TEST_DB=true pnpm worker --once
+                      6 job: 5 done, 1 failed. Yang gagal = prayer_sync, pesan jelas "PRAYER_PROVIDER is not set" (memang BLOCKED)
+```
+Catatan: `pnpm test` juga menjalankan tests/db, jadi 299 test DB sudah termasuk di angka 1331. Live e2e (`test:e2e:live`) tidak dijalankan.
 
 ## Keputusan
 Semua ada di `docs/DECISIONS.md` bagian "X2-A" (J1..J3, X3-1..5, X6-1..11). Yang paling berpengaruh ke sesi lain:
