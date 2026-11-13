@@ -9,11 +9,12 @@ export async function seedSignedIn(page: Page) {
     const day = 86_400_000;
     const email = "demo@ngajigaes.test";
     const state = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       scenario: "logged_in",
-      otps: {},
-      sentAt: {},
-      outbox: [],
+      orders: {},
+      accounts: {},
+      fails: {},
+      resetTokens: {},
       entitlements: { [email]: "active" },
       session: { userId: "u_test", email, deviceId: "dev_current", issuedAt: now - day, expiresAt: now + 29 * day },
       signedOutReason: "none",

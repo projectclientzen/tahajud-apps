@@ -3,6 +3,8 @@ import { isLocalDate } from "@/domain/time/tz";
 import {
   ApiError,
   accessSchema,
+  activateRequestSchema,
+  changePasswordRequestSchema,
   calendarResponseSchema,
   checklistUpdateRequestSchema,
   completePendingLoginRequestSchema,
@@ -12,6 +14,7 @@ import {
   excuseRequestSchema,
   excuseResponseSchema,
   levelProgressResponseSchema,
+  loginRequestSchema,
   locationUpdateSchema,
   nightSessionSchema,
   notificationListSchema,
@@ -26,22 +29,26 @@ import {
   quranProgressSchema,
   quranProgressUpdateSchema,
   regionSchema,
-  requestOtpRequestSchema,
+  resetPasswordRequestSchema,
+  setPasswordRequestSchema,
   sessionHistoryResponseSchema,
   sessionSummarySchema,
   activityStatSchema,
-  verifyOtpRequestSchema,
   type NightSession,
 } from "@/data/contracts";
 import {
+  activate,
   authSessionBody,
+  changePassword,
   completePendingLogin,
   listDevices,
+  login,
   logout,
   refreshedCookie,
-  requestOtp,
+  resetPasswordSelf,
   revokeDevice,
-  verifyOtp,
+  setPasswordWithToken,
+  type SignInOutcome,
 } from "@/server/auth/service";
 import { clearSessionCookie } from "@/server/auth/cookie";
 import { one, UUID_RE, type Queryable } from "@/server/db";
@@ -65,8 +72,13 @@ const dateParam = (v: string | null | undefined, name: string): string | undefin
 
 // The sign-in screens also tell us which device this is. Not part of the shared request schemas, so added here.
 const deviceLabel = z.string().max(120).optional();
-const verifyBody = verifyOtpRequestSchema.extend({ device_label: deviceLabel });
 const pendingBody = completePendingLoginRequestSchema.extend({ device_label: deviceLabel });
+
+/** Sets the cookie when a session was opened, and returns the body (signed in, or the device limit answer). */
+function signInBody(c: RouteContext, r: SignInOutcome) {
+  if (r.kind === "ok") c.cookies.push(r.cookie);
+  return r.body;
+}
 
 /** Paid content that does not live in the database (the Qur'an dataset) needs the same access check as the SQL functions. */
 async function requireActiveAccess(c: RouteContext): Promise<void> {
@@ -79,21 +91,67 @@ const sessionById = async (q: Queryable, id: string): Promise<NightSession> =>
 
 export const h = {
   // ---------- auth ----------
-  requestOtp: route({
+  login: route({
     auth: "public",
     handler: async (c) => {
-      const body = await readBody(c.req, requestOtpRequestSchema);
-      return requestOtp(c.d, body.email, c.caller);
+      const body = await readBody(c.req, loginRequestSchema);
+      return signInBody(
+        c,
+        await login(c.d, { email: body.email, password: body.password, deviceLabel: body.device_label }, c.caller),
+      );
     },
   }),
 
-  verifyOtp: route({
+  activate: route({
     auth: "public",
     handler: async (c) => {
-      const body = await readBody(c.req, verifyBody);
-      const r = await verifyOtp(c.d, { email: body.email, code: body.code, deviceLabel: body.device_label }, c.caller);
-      if (r.kind === "ok") c.cookies.push(r.cookie);
-      return r.body;
+      const body = await readBody(c.req, activateRequestSchema);
+      return signInBody(
+        c,
+        await activate(
+          c.d,
+          { email: body.email, phone: body.phone, password: body.password, deviceLabel: body.device_label },
+          c.caller,
+        ),
+      );
+    },
+  }),
+
+  resetPassword: route({
+    auth: "public",
+    handler: async (c) => {
+      const body = await readBody(c.req, resetPasswordRequestSchema);
+      await resetPasswordSelf(c.d, { email: body.email, phone: body.phone, newPassword: body.new_password }, c.caller);
+      return { ok: true };
+    },
+  }),
+
+  setPassword: route({
+    auth: "public",
+    handler: async (c) => {
+      const body = await readBody(c.req, setPasswordRequestSchema);
+      return signInBody(
+        c,
+        await setPasswordWithToken(
+          c.d,
+          { token: body.token, password: body.password, deviceLabel: body.device_label },
+          c.caller,
+        ),
+      );
+    },
+  }),
+
+  changePassword: route({
+    auth: "user",
+    handler: async (c) => {
+      const body = await readBody(c.req, changePasswordRequestSchema);
+      await changePassword(
+        c.d,
+        c.user,
+        { currentPassword: body.current_password, newPassword: body.new_password },
+        c.caller,
+      );
+      return { ok: true };
     },
   }),
 

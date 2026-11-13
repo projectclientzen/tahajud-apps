@@ -7,14 +7,32 @@ export const DEMO_EMAILS = {
   active: "demo@ngajigaes.test",
   pending: "pending@ngajigaes.test",
   suspended: "suspended@ngajigaes.test",
-  /** Any other address verifies fine but has no entitlement. */
+  /** Has an account and a password, but no entitlement. */
   noAccess: "noaccess@ngajigaes.test",
+  /** Paid demo order, no account yet: use it to try activation. */
+  newBuyer: "baru@ngajigaes.test",
 } as const;
+
+/**
+ * DEMO ONLY. The one password every demo account has. It exists only in mock mode, it is never sent to a server and
+ * never saved in a database. Real accounts have no shared or default password (CLAUDE.md auth rules).
+ */
+export const DEMO_PASSWORD = "demo-password-aman";
+/** SHA-256 of `tt-demo-only:` + DEMO_PASSWORD, so the sync scenario builder needs no crypto. */
+const DEMO_PASSWORD_HASH = "15d3fd5b62d100974ddb9f8965cdcb92689e74473866afb01a245d049de5d1e9";
+
+/** DEMO phone numbers (not real), as typed by a buyer. Stored normalized in the demo orders. */
+export const DEMO_PHONES = {
+  active: "0812-0000-0001",
+  newBuyer: "0812-0000-0002",
+} as const;
+const DEMO_PHONES_NORMALIZED = { active: "6281200000001", newBuyer: "6281200000002" } as const;
 
 export const DEMO_ENTITLEMENTS: Record<string, EntitlementStatus> = {
   [DEMO_EMAILS.active]: "active",
   [DEMO_EMAILS.pending]: "pending_verification",
   [DEMO_EMAILS.suspended]: "suspended",
+  [DEMO_EMAILS.newBuyer]: "active",
 };
 
 export const AUTH_SCENARIOS = [
@@ -30,12 +48,22 @@ export type AuthScenarioName = (typeof AUTH_SCENARIOS)[number];
 const DAY = 86_400_000;
 
 export function buildAuthScenario(name: AuthScenarioName, now: number): AuthState {
+  const account = (email: string) => ({ userId: userIdFor(email), passwordHash: DEMO_PASSWORD_HASH });
   const base: AuthState = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     scenario: name,
-    otps: {},
-    sentAt: {},
-    outbox: [],
+    orders: {
+      [DEMO_EMAILS.active]: { phone: DEMO_PHONES_NORMALIZED.active },
+      [DEMO_EMAILS.newBuyer]: { phone: DEMO_PHONES_NORMALIZED.newBuyer },
+    },
+    accounts: {
+      [DEMO_EMAILS.active]: account(DEMO_EMAILS.active),
+      [DEMO_EMAILS.pending]: account(DEMO_EMAILS.pending),
+      [DEMO_EMAILS.suspended]: account(DEMO_EMAILS.suspended),
+      [DEMO_EMAILS.noAccess]: account(DEMO_EMAILS.noAccess),
+    },
+    fails: {},
+    resetTokens: {},
     entitlements: { ...DEMO_ENTITLEMENTS },
     session: null,
     signedOutReason: "none",

@@ -20,6 +20,9 @@ export function EntryActions() {
       <Link href="/login" className={cn(buttonVariants({ size: "lg" }), "w-full sm:w-auto")}>
         Masuk
       </Link>
+      <Link href="/activate" className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "w-full sm:w-auto")}>
+        Aktivasi akun
+      </Link>
       {SCALEV_URL ? (
         <a href={SCALEV_URL} className={cn(buttonVariants({ size: "lg", variant: "secondary" }), "w-full sm:w-auto")}>
           Beli akses di Scalev

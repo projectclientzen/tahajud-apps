@@ -143,3 +143,11 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Gerbang: typecheck 0, lint 0, unit 981 + 3 skip, audit bersih, e2e mock 260/0 failed, e2e live 24/0 failed. Kegagalan live sebelumnya berasal dari server preview lama di container (tidak terulang di checkout bersih; agen Q1 juga 24/24).
 - Catatan: branch `claude/integration-r4a` ter-push tanpa sengaja (isi sama dengan branch orchestrator), boleh dihapus owner.
 - Keputusan owner berjalan: login email + password (bukan OTP), menunggu jawaban Hermes soal alur password dan detail Scalev.
+
+## Sesi perencanaan Scalev + email/password (branch `claude/scalev-email-pass`, 2026-11-13)
+- Dikerjakan: audit dokumen Scalev (21 butir berlabel terverifikasi dokumen / dari temuan Hermes / belum dicek), audit kode `src/` dan `supabase/migrations/` di main @ 55187ad plus branch T6 dan T7 (dibaca, tidak di-merge), rencana migrasi OTP ke email+password, rencana webhook + reconciliation + email outbox, pembagian task X0..X7 tanpa irisan file. Laporan: `docs/sessions/SCALEV-AUTH-PLAN.md`.
+- Tidak ada kode produksi, tidak ada test dijalankan (sesi dokumen saja). Tidak ada kredensial Scalev yang dipakai.
+- Temuan utama: (1) `GET /v3/orders/{id}` tidak punya `variant_unique_id` di OpenAPI (hanya `variant` angka dan `variant_sku`); (2) webhook butuh paket Scalev Basic ke atas; (3) tidak ada handler `send_email` di T6 padahal T7 sudah memasukkan jobnya; (4) tidak ada runner migration untuk Postgres biasa; (5) `callerOf` memakai entri pertama `x-forwarded-for`, bisa dipalsukan di belakang proxy VPS.
+- Keputusan desain yang diusulkan (menunggu owner/orchestrator): akun lahir saat token dikonsumsi (bukan saat pembelian); token di fragmen URL; tanpa auto-login setelah set-password (hemat slot 3 perangkat, penyimpanan PWA iOS terpisah dari Safari, perlu uji perangkat); token dibuat saat email dikirim, tidak disimpan di outbox; hash scrypt; refund hanya menandai untuk admin.
+- Sisa pekerjaan: eksekusi X0..X7 (urutan dan prasyarat di §5), perubahan CLAUDE.md dan PRD v1.3 oleh orchestrator (§7).
+- Pertanyaan untuk owner: Q1..Q11 di §6 (paling mendesak: produk Scalev, domain + SMTP, VPS, API key restricted, hasil cek order nyata dari Hermes).

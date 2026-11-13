@@ -15,7 +15,7 @@ const when = (iso: string) =>
   );
 
 /**
- * 4th device (PRD §24.1). The code was right, so the user may remove ONE device and continue, or cancel.
+ * 4th device (PRD §24.1). The password was right, so the user may remove ONE device and continue, or cancel.
  * Nothing is removed unless they choose it.
  */
 export function DeviceLimitPanel({ limit }: { limit: DeviceLimitResponse }) {
@@ -26,7 +26,7 @@ export function DeviceLimitPanel({ limit }: { limit: DeviceLimitResponse }) {
   const [error, setError] = React.useState<{ text: string; expired: boolean } | null>(null);
   const heading = React.useRef<HTMLHeadingElement>(null);
 
-  // The screen replaced the code form: move focus to the new heading so a screen reader announces it.
+  // The screen replaced the form: move focus to the new heading so a screen reader announces it.
   React.useEffect(() => heading.current?.focus(), []);
 
   async function proceed() {
@@ -42,7 +42,7 @@ export function DeviceLimitPanel({ limit }: { limit: DeviceLimitResponse }) {
       const expired = e instanceof ApiError && e.code === "PENDING_LOGIN_INVALID";
       setError({
         text: expired
-          ? "Waktu untuk melanjutkan sudah habis. Minta kode baru untuk masuk lagi."
+          ? "Waktu untuk melanjutkan sudah habis. Masuk lagi dengan password untuk melanjutkan."
           : "Belum berhasil. Coba lagi.",
         expired,
       });

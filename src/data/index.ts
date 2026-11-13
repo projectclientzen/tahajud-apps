@@ -21,7 +21,7 @@ export function createDataLayer(opts: CreateMockOptions & { mode?: DataMode }): 
   return mode === "live" ? createHttpDataLayer() : createMockDataLayer(opts);
 }
 
-/** Sign-in repository. Mock mode simulates OTP and sessions in the browser. Live mode is a stub until S5. */
+/** Sign-in repository. Mock mode simulates activation, passwords and sessions in the browser (demo only). Live mode calls /api/v1. */
 export function createAuthLayer(
   opts: CreateMockAuthOptions & { mode?: DataMode } = {},
 ): AuthRepository | MockAuthLayer {

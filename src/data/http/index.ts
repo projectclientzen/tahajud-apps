@@ -16,6 +16,7 @@ import {
   levelProgressResponseSchema,
   levelSchema,
   nightSessionSchema,
+  okResponseSchema,
   notificationListSchema,
   notificationPreferencesSchema,
   prayerTimeSchema,
@@ -28,10 +29,9 @@ import {
   quranProgressSchema,
   regionSchema,
   reportResponseSchema,
-  requestOtpResponseSchema,
   sessionHistoryResponseSchema,
   sessionSummarySchema,
-  verifyOtpResponseSchema,
+  signInResponseSchema,
   wakePlanSchema,
   type ApiErrorCode,
 } from "../contracts";
@@ -102,8 +102,8 @@ class Http {
 }
 
 const currentLevelSchema = z.object({ level: levelSchema, effective_from_session_key: isoDate.nullable() });
-const okSchema = verifyOtpResponseSchema.extend({ status: z.literal("ok") });
-const verifySchema = z.union([okSchema, deviceLimitResponseSchema]);
+const okSchema = signInResponseSchema.extend({ status: z.literal("ok") });
+const signInSchema = z.union([okSchema, deviceLimitResponseSchema]);
 
 export type HttpDataLayer = DataLayer & LiveExtras;
 
@@ -211,19 +211,37 @@ export function createHttpDataLayer(opts: HttpOptions = {}): HttpDataLayer {
 export function createHttpAuthRepository(opts: HttpOptions = {}): AuthRepository {
   const http = new Http(opts);
   return {
-    requestOtp: (email) =>
-      http.call("POST", "/auth/request-otp", { body: { email }, schema: requestOtpResponseSchema }),
-    verifyOtp: async (email, code, deviceLabel) => {
-      const r = await http.call("POST", "/auth/verify-otp", {
-        body: { email, code, device_label: deviceLabel },
-        schema: verifySchema,
+    login: (email, password, deviceLabel) =>
+      http.call("POST", "/auth/login", {
+        body: { email, password, device_label: deviceLabel },
+        schema: signInSchema,
+      }),
+    activate: (input) =>
+      http.call("POST", "/auth/activate", {
+        body: { email: input.email, phone: input.phone, password: input.password, device_label: input.deviceLabel },
+        schema: signInSchema,
+      }),
+    resetPassword: async (input) => {
+      await http.call("POST", "/auth/reset-password", {
+        body: { email: input.email, phone: input.phone, new_password: input.newPassword },
+        schema: okResponseSchema,
       });
-      return r;
+    },
+    setPasswordWithToken: (token, password, deviceLabel) =>
+      http.call("POST", "/auth/set-password", {
+        body: { token, password, device_label: deviceLabel },
+        schema: signInSchema,
+      }),
+    changePassword: async (currentPassword, newPassword) => {
+      await http.call("POST", "/me/password", {
+        body: { current_password: currentPassword, new_password: newPassword },
+        schema: okResponseSchema,
+      });
     },
     completePendingLogin: (pendingToken, revokeDeviceId, deviceLabel) =>
       http.call("POST", "/auth/complete-pending-login", {
         body: { pending_token: pendingToken, revoke_device_id: revokeDeviceId, device_label: deviceLabel },
-        schema: verifyOtpResponseSchema,
+        schema: signInResponseSchema,
       }),
     getSession: () => http.call("GET", "/me", { schema: authSessionSchema }),
     logout: async () => {
