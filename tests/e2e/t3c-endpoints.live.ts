@@ -1,19 +1,14 @@
-import { readFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
+import { LIVE_PASSWORD, LIVE_PHONE } from "./live-auth";
 
 /**
  * T3c: the endpoints added after T3b, called the way the browser calls them (same origin, cookie, Origin header)
  * against the real server and a real PostgreSQL (PGlite). No UI for these exists yet in live mode, so the calls are
  * made with fetch from inside the page.
  */
-const MAIL_DIR = join(tmpdir(), "tt-e2e-mail");
-const code = (email: string) =>
-  (JSON.parse(readFileSync(join(MAIL_DIR, `${email}.json`), "utf8")) as { code: string }).code;
 const mail = (kind: string, project: string) => `t3c-${kind}-${project}@ngajigaes.test`;
 
-// Each sign-in comes from its own address: request-otp is limited to 10 an hour per IP, and the t3b tests share one.
+// Each sign-in comes from its own address: activation is limited to 20 an hour per IP, and the t3b tests share one.
 let ipCounter = 0;
 const nextIp = (project: string) => `198.51.100.${(project === "mobile" ? 10 : 100) + ++ipCounter}`;
 
@@ -52,12 +47,11 @@ async function api(page: Page, method: string, path: string, body?: unknown): Pr
 async function signInAndOnboard(page: Page, email: string, project: string) {
   await page.goto("/login");
   const headers = { origin: new URL(page.url()).origin, "x-forwarded-for": nextIp(project) };
-  expect((await page.request.post("/api/v1/auth/request-otp", { data: { email }, headers })).status()).toBe(200);
-  const verify = await page.request.post("/api/v1/auth/verify-otp", {
-    data: { email, code: code(email), device_label: `Chrome ${project}` },
+  const activate = await page.request.post("/api/v1/auth/activate", {
+    data: { email, phone: LIVE_PHONE, password: LIVE_PASSWORD, device_label: `Chrome ${project}` },
     headers,
   });
-  expect(verify.status()).toBe(200);
+  expect(activate.status()).toBe(200);
   const regions = (await (await page.request.get("/api/v1/regions")).json()) as { id: string; name: string }[];
   const jkt = regions.find((r) => r.name.startsWith("Jakarta"))!;
   expect(
@@ -175,8 +169,11 @@ test("live T3c: a user without access cannot read paid content, but can still ex
   const email = mail("lapsed", info.project.name);
   await page.goto("/login");
   const headers = { origin: new URL(page.url()).origin, "x-forwarded-for": nextIp(info.project.name) };
-  await page.request.post("/api/v1/auth/request-otp", { data: { email }, headers });
-  await page.request.post("/api/v1/auth/verify-otp", { data: { email, code: code(email) }, headers });
+  const login = await page.request.post("/api/v1/auth/login", {
+    data: { email, password: LIVE_PASSWORD, device_label: "Chrome lapsed" },
+    headers,
+  });
+  expect(login.status()).toBe(200);
   for (const path of ["/quran/surahs", "/quran/surahs/18", "/prayer-times", "/me/notifications"]) {
     const r = await api(page, "GET", path);
     expect(r.status, path).toBe(403);

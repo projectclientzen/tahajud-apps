@@ -1,38 +1,33 @@
 import { readFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
-
-const MAIL_DIR = join(tmpdir(), "tt-e2e-mail");
-
-/** The "email": the local provider writes the code to a file. There is no route that shows it. */
-function readCode(email: string): string {
-  return (JSON.parse(readFileSync(join(MAIL_DIR, `${email}.json`), "utf8")) as { code: string }).code;
-}
+import { LIVE_PASSWORD, LIVE_PHONE } from "./live-auth";
 
 const mail = (kind: string, project: string) => `${kind}-${project}@ngajigaes.test`;
 
-async function signIn(page: Page, email: string) {
+/** First sign-in of a bought account: the real activation screens, email + phone of the order, then a password. */
+async function activateUi(page: Page, email: string) {
+  await page.goto("/activate");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Nomor HP").fill(LIVE_PHONE);
+  await page.getByRole("button", { name: "Lanjut" }).click();
+  await page.getByLabel("Password baru", { exact: true }).fill(LIVE_PASSWORD);
+  await page.getByLabel("Ulangi password", { exact: true }).fill(LIVE_PASSWORD);
+  await page.getByRole("button", { name: "Aktifkan akun" }).click();
+  await expect(page.getByTestId("activated-email")).toHaveText(email);
+  await page.getByRole("button", { name: "Lanjut ke aplikasi" }).click();
+}
+
+/** Later sign-in of an account that exists: email + password on /login. */
+async function loginUi(page: Page, email: string, password = LIVE_PASSWORD) {
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
-  await page.getByRole("button", { name: "Kirim kode" }).click();
-  await expect(page).toHaveURL(/\/auth\/verify$/);
-  await expect
-    .poll(() => {
-      try {
-        return readCode(email);
-      } catch {
-        return "";
-      }
-    })
-    .toMatch(/^\d{6}$/);
-  await page.getByLabel("Kode 6 digit").fill(readCode(email));
+  await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
 }
 
 test("live: the real login, onboarding and a Level 1 night, saved on the server", async ({ page, browser }, info) => {
   const email = mail("live", info.project.name);
-  await signIn(page, email);
+  await activateUi(page, email);
 
   // onboarding: welcome, region, confirm
   await expect(page).toHaveURL(/\/onboarding$/);
@@ -107,11 +102,11 @@ test("live: the API answers privately and refuses what it should", async ({ page
   const me = await request.get("/api/v1/me");
   expect(await me.json()).toMatchObject({ authenticated: false, reason: "none" });
   // no Origin on a mutation: refused
-  const noOrigin = await request.post("/api/v1/auth/request-otp", { data: { email: "someone@ngajigaes.test" } });
+  const noOrigin = await request.post("/api/v1/auth/login", { data: { email: "someone@ngajigaes.test", password: "x" } });
   expect(noOrigin.status()).toBe(403);
   expect((await noOrigin.json()).error.code).toBe("FORBIDDEN_ORIGIN");
-  const foreign = await request.post("/api/v1/auth/request-otp", {
-    data: { email: "someone@ngajigaes.test" },
+  const foreign = await request.post("/api/v1/auth/login", {
+    data: { email: "someone@ngajigaes.test", password: "x" },
     headers: { origin: "https://evil.example" },
   });
   expect(foreign.status()).toBe(403);
@@ -123,25 +118,20 @@ test("live: the API answers privately and refuses what it should", async ({ page
   void page;
 });
 
-test("live: a wrong code gets one generic message", async ({ page }, info) => {
-  const email = mail("live-out", info.project.name);
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(email);
-  await page.getByRole("button", { name: "Kirim kode" }).click();
-  await expect(page).toHaveURL(/\/auth\/verify$/);
-  await page.getByLabel("Kode 6 digit").fill("000000");
-  await page.getByRole("button", { name: "Masuk", exact: true }).click();
-  await expect(page.locator("#otp-error")).toHaveText("Kode tidak valid atau sudah kedaluwarsa.");
+test("live: a wrong password gets one generic message, for a known and an unknown email", async ({ page }, info) => {
+  const seen: string[] = [];
+  for (const email of [mail("pending", info.project.name), "nobody-at-all@ngajigaes.test"]) {
+    await loginUi(page, email, "salah-salah-1");
+    await expect(page.locator("#login-error")).toBeVisible();
+    seen.push((await page.locator("#login-error").innerText()).trim());
+  }
+  expect(seen[0]).toBe("Email atau password salah.");
+  expect(seen[1]).toBe(seen[0]);
 });
 
 test("live: logout removes the session and the local copy, and the app pages close again", async ({ page }, info) => {
   const email = mail("live-logout", info.project.name);
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(email);
-  await page.getByRole("button", { name: "Kirim kode" }).click();
-  await expect(page).toHaveURL(/\/auth\/verify$/);
-  await page.getByLabel("Kode 6 digit").fill(readCode(email));
-  await page.getByRole("button", { name: "Masuk", exact: true }).click();
+  await activateUi(page, email);
   await expect(page).toHaveURL(/\/onboarding$/);
   await page.getByRole("button", { name: "Mulai", exact: true }).click();
   await page.getByRole("radio", { name: /Jakarta/ }).check();
@@ -167,7 +157,7 @@ test("live: logout removes the session and the local copy, and the app pages clo
 });
 
 test("live: an email whose purchase is not verified yet waits on its own screen", async ({ page }, info) => {
-  await signIn(page, mail("pending", info.project.name));
+  await loginUi(page, mail("pending", info.project.name));
   await expect(page).toHaveURL(/\/access-status$/);
   await expect(page.getByText("Pembelianmu sedang diverifikasi")).toBeVisible();
   await page.goto("/dashboard");
@@ -176,7 +166,7 @@ test("live: an email whose purchase is not verified yet waits on its own screen"
 
 // Regression guard for the live-mode reload loop fixed in session-view.tsx (onChanged calls reload(), not bump()).
 test("live: a checklist tick is saved on the server and survives a reload", async ({ page }, info) => {
-  await signIn(page, mail("live-tick", info.project.name));
+  await activateUi(page, mail("live-tick", info.project.name));
   await page.getByRole("button", { name: "Mulai", exact: true }).click();
   await page.getByRole("radio", { name: /Jakarta/ }).check();
   await page.getByRole("button", { name: "Lanjut" }).click();
