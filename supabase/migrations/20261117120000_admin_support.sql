@@ -22,7 +22,8 @@ language sql stable set search_path = '' as $$
     'revoked_at', app_private.iso(e.revoked_at), 'revoke_reason', e.revoke_reason,
     'transferred_from_email', e.transferred_from_email, 'created_at', app_private.iso(e.created_at),
     'order', (select pg_catalog.jsonb_build_object('id', o.id, 'scalev_order_id', o.scalev_order_id,
-                'payment_status', o.payment_status, 'verified_via', o.verified_via)
+                'payment_status', o.payment_status, 'verified_via', o.verified_via,
+                'quarantine_reason', o.quarantine_reason, 'activation_blocked', o.activation_blocked)
               from public.purchase_orders o where o.id = e.purchase_order_id))
 $$;
 
@@ -86,16 +87,20 @@ language plpgsql stable set search_path = '' as $$
 declare v_lim int := least(greatest(coalesce(p_limit, 25), 1), 100); v_off int := greatest(coalesce(p_offset, 0), 0);
 begin
   perform app_private.admin_require(p_actor, p_roles);
-  if p_filter not in ('all', 'pending') then perform app_private.fail('VALIDATION_ERROR', '{"field":"filter","reason":"invalid"}'); end if;
+  if p_filter not in ('all', 'pending', 'quarantine', 'blocked') then perform app_private.fail('VALIDATION_ERROR', '{"field":"filter","reason":"invalid"}'); end if;
   return coalesce((
     select pg_catalog.jsonb_agg(pg_catalog.jsonb_build_object(
       'id', o.id, 'scalev_order_id', o.scalev_order_id, 'email', o.customer_email_normalized, 'buyer_name', o.buyer_name,
       'payment_status', o.payment_status, 'amount', o.amount, 'currency', o.currency, 'verified_via', o.verified_via,
       'payment_verified_at', app_private.iso(o.payment_verified_at), 'created_at', app_private.iso(o.created_at),
+      'quarantine_reason', o.quarantine_reason, 'activation_blocked', o.activation_blocked,
       'entitlement', (select pg_catalog.jsonb_build_object('id', e.id, 'status', e.status) from public.access_entitlements e where e.purchase_order_id = o.id limit 1))
       order by o.created_at desc)
     from (select * from public.purchase_orders x
-          where p_filter = 'all' or exists (select 1 from public.access_entitlements e where e.purchase_order_id = x.id and e.status = 'pending_verification')
+          where p_filter = 'all'
+             or (p_filter = 'pending' and exists (select 1 from public.access_entitlements e where e.purchase_order_id = x.id and e.status = 'pending_verification'))
+             or (p_filter = 'quarantine' and x.quarantine_reason is not null)
+             or (p_filter = 'blocked' and x.activation_blocked)
           order by x.created_at desc limit v_lim offset v_off) o
   ), '[]'::jsonb);
 end $$;
@@ -116,16 +121,6 @@ begin
 end $$;
 
 -- ---------- entitlement changes ----------
-create or replace function app_private.admin_queue_email(p_to text, p_template text, p_payload jsonb) returns uuid
-language plpgsql set search_path = '' as $$
-declare v_id uuid;
-begin
-  insert into public.email_outbox (to_email, template_key, payload, status) values (p_to, p_template, p_payload, 'queued') returning id into v_id;
-  -- The job carries only the outbox id, so no address sits in a job payload. A worker (T6) sends it.
-  insert into public.jobs (job_type, payload) values ('send_email', pg_catalog.jsonb_build_object('outbox_id', v_id));
-  return v_id;
-end $$;
-
 create or replace function app_private.admin_entitlement_approve(
   p_actor uuid, p_roles text[], p_id uuid, p_reason text, p_ref text, p_now timestamptz
 ) returns jsonb
@@ -141,7 +136,7 @@ begin
     perform app_private.fail('INVALID_TRANSITION', pg_catalog.jsonb_build_object('from', e.status, 'to', 'active')::text);
   end if;
   v_before := app_private.admin_entitlement_json(e);
-  -- An account that already proved its email by OTP can be linked now. Otherwise the next sign-in links it.
+  -- An account that already exists for this email is linked now. Otherwise the buyer links it by activating (email + phone).
   select p.user_id into v_uid from public.profiles p where p.email_normalized = e.email_normalized;
   update public.access_entitlements set status = 'active', user_id = coalesce(user_id, v_uid) where id = e.id returning * into e;
   if e.purchase_order_id is not null then
@@ -210,31 +205,9 @@ begin
   -- The previous owner loses access at once: access follows user_id.
   update public.access_entitlements set email_normalized = v_to, user_id = v_new_uid, transferred_from_email = v_old
    where id = e.id returning * into e;
-  perform app_private.admin_queue_email(v_old, 'entitlement_transfer_old', pg_catalog.jsonb_build_object('entitlement_id', e.id, 'counterpart', app_private.admin_mask_email(v_to)));
-  perform app_private.admin_queue_email(v_to, 'entitlement_transfer_new', pg_catalog.jsonb_build_object('entitlement_id', e.id, 'counterpart', app_private.admin_mask_email(v_old)));
   perform app_private.admin_audit(p_actor, 'entitlement', e.id::text, 'entitlement.transferred', v_before,
                                   app_private.admin_entitlement_json(e), v_reason, null, p_now);
   return app_private.admin_entitlement_json(e);
-end $$;
-
-create or replace function app_private.admin_resend_access_email(p_actor uuid, p_roles text[], p_id uuid, p_now timestamptz) returns jsonb
-language plpgsql set search_path = '' as $$
-declare e public.access_entitlements; hit jsonb; v_outbox uuid;
-begin
-  perform app_private.admin_require(p_actor, p_roles);
-  select * into e from public.access_entitlements where id = p_id;
-  if e.id is null then perform app_private.fail('NOT_FOUND'); end if;
-  if e.status <> 'active' then
-    perform app_private.fail('INVALID_TRANSITION', pg_catalog.jsonb_build_object('from', e.status, 'to', 'email_sent')::text);
-  end if;
-  hit := app_private.rate_hit('admin:resend:' || e.id::text, p_now, 3600, 3);
-  if not (hit ->> 'allowed')::boolean then
-    perform app_private.fail('RATE_LIMITED', pg_catalog.jsonb_build_object('retry_after_seconds', (hit ->> 'retry_after_seconds')::int)::text);
-  end if;
-  v_outbox := app_private.admin_queue_email(e.email_normalized, 'access_resend', pg_catalog.jsonb_build_object('entitlement_id', e.id));
-  perform app_private.admin_audit(p_actor, 'entitlement', e.id::text, 'entitlement.access_email_queued', null, null, null,
-                                  'email_outbox:' || v_outbox::text, p_now);
-  return pg_catalog.jsonb_build_object('queued', true);
 end $$;
 
 -- ---------- jobs and integration health (no user data) ----------

@@ -20,6 +20,15 @@ export const PERMISSIONS = {
   "templates.write": [SUPER, "content_admin"],
   "support.read": [SUPER, "support_admin"],
   "support.write": [SUPER, "support_admin"],
+  /** One time reset link for an account. Needs a reason; shown once; audited. */
+  "support.reset_link": [SUPER, "support_admin"],
+  /**
+   * Check a phone number a buyer says against the order. The stored number is never shown (only a keyed hash exists).
+   * Only these two roles (super_admin and CS) may check, and each check is written to the audit log.
+   */
+  "support.phone": [SUPER, "support_admin"],
+  /** Staff accounts (staff_comp): create, revoke, list. */
+  "staff.manage": [SUPER],
   "audit.read": [SUPER, "support_admin", "content_admin"],
   "roles.manage": [SUPER],
 } as const satisfies Record<string, readonly AdminRole[]>;
@@ -38,7 +47,7 @@ export const rolesFor = (perm: Permission): string[] => [...PERMISSIONS[perm]];
 export function auditTypesFor(roles: readonly string[]): string[] | null {
   if (roles.includes(SUPER)) return null;
   const out = new Set<string>();
-  if (roles.includes("support_admin")) ["entitlement", "job"].forEach((t) => out.add(t));
+  if (roles.includes("support_admin")) ["entitlement", "job", "order", "user"].forEach((t) => out.add(t));
   if (roles.includes("content_admin")) ["activity", "notification_template"].forEach((t) => out.add(t));
   return [...out];
 }
@@ -55,6 +64,8 @@ export const ADMIN_NAV: readonly NavItem[] = [
   { href: "/admin/users", label: "Pengguna", perm: "support.read" },
   { href: "/admin/purchases", label: "Pembelian", perm: "support.read" },
   { href: "/admin/entitlements", label: "Akses", perm: "support.read" },
+  { href: "/admin/staff", label: "Staf", perm: "staff.manage" },
+  { href: "/admin/review", label: "Review konten", perm: "content.read" },
   { href: "/admin/levels", label: "Level", perm: "content.read" },
   { href: "/admin/activities", label: "Amalan", perm: "content.read" },
   { href: "/admin/dhikr", label: "Dzikir", perm: "content.read" },

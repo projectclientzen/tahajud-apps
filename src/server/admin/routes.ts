@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { normalizeEmail } from "@/domain/auth/email";
+import { hashPhone } from "@/server/auth/crypto";
+import { buildResetLink, issueAdminResetToken } from "@/server/auth/tokens";
 import { jsonResponse, readBody } from "@/server/api/http";
 import { UUID_RE, one } from "@/server/db";
 import { shapeAggregates, type RawAggregates } from "./aggregates";
@@ -25,6 +27,9 @@ const statusBody = z.object({ to: z.enum(["suspended", "active", "revoked"]), re
 const grantBody = z.object({ email: text(254), role: z.enum(ADMIN_ROLES), reason: text(500) }).strict();
 const revokeBody = z.object({ user_id: z.string(), role: z.enum(ADMIN_ROLES), reason: text(500) }).strict();
 const resetBody = z.object({ user_id: z.string(), reason: text(500) }).strict();
+const blockBody = z.object({ blocked: z.boolean(), reason: text(500) }).strict();
+const phoneBody = z.object({ phone: text(40) }).strict();
+const staffCreateBody = z.object({ email: text(254), display_name: text(60).optional(), reason: text(500) }).strict();
 
 const uuid = (v: string | undefined): string => {
   if (!v || !UUID_RE.test(v)) throw new AdminError("NOT_FOUND");
@@ -44,6 +49,18 @@ interface Def {
   access: Access;
   perm?: Permission | null;
   handler: AdminHandler;
+}
+
+/**
+ * The one place a reset link is made. The database checks role, rate limit and who may reset whom first
+ * (admin_reset_precheck). Then the token is made (issueAdminResetToken: only its keyed hash is stored, the audit row is
+ * written with the reason). The link goes back in this response and nowhere else: not to a log, not to a table.
+ */
+async function issueLink(c: AdminCtx, targetUserId: string, reason: string, perm: Permission): Promise<{ link: string; expires_at: string }> {
+  await rpc(c, perm, "admin_reset_precheck", ["uuid", "text"], [targetUserId, reason], { now: true });
+  const issued = await issueAdminResetToken(c.d, { actorId: c.admin.userId, targetUserId, reason });
+  const base = process.env.APP_BASE_URL?.trim() || c.url.origin;
+  return { link: buildResetLink(base, issued.token), expires_at: issued.expires_at };
 }
 
 // ---------- the table ----------
@@ -302,12 +319,80 @@ export const ROUTES: Def[] = [
       return rpc(c, "support.write", "admin_entitlement_set_status", ["uuid", "text", "text"], [uuid(c.params.id), b.to, b.reason], { now: true });
     },
   },
+
+  // --- orders (X8): detail, approve by hand, block activation, phone check ---
+  { method: "GET", path: "orders/:id", access: "admin", perm: "support.read", handler: (c) => rpc(c, "support.read", "admin_order_detail", ["uuid"], [uuid(c.params.id)]) },
   {
     method: "POST",
-    path: "entitlements/:id/resend-email",
+    path: "orders/:id/approve",
     access: "admin",
     perm: "support.write",
-    handler: (c) => rpc(c, "support.write", "admin_resend_access_email", ["uuid"], [uuid(c.params.id)], { now: true }),
+    handler: async (c) => {
+      const b = await body(c, approveBody);
+      return rpc(c, "support.write", "admin_order_approve", ["uuid", "text", "text"], [uuid(c.params.id), b.reason, b.approval_reference], { now: true });
+    },
+  },
+  {
+    method: "POST",
+    path: "orders/:id/activation-block",
+    access: "admin",
+    perm: "support.write",
+    handler: async (c) => {
+      const b = await body(c, blockBody);
+      return rpc(c, "support.write", "admin_order_set_activation_blocked", ["uuid", "boolean", "text"], [uuid(c.params.id), b.blocked, b.reason], { now: true });
+    },
+  },
+  {
+    method: "POST",
+    path: "orders/:id/phone-check",
+    access: "admin",
+    perm: "support.phone",
+    handler: async (c) => {
+      const b = await body(c, phoneBody);
+      // Hashed here with the same function as activation. The number itself goes no further than this line.
+      const h = hashPhone(c.d.cfg.pepper, b.phone);
+      if (!h) throw new AdminError("VALIDATION_ERROR", "Nomor HP tidak valid.", { issues: [{ path: "phone", message: "bukan nomor HP" }] });
+      return rpc(c, "support.phone", "admin_order_phone_check", ["uuid", "text"], [uuid(c.params.id), h], { now: true });
+    },
+  },
+
+  // --- reset link (X8): CS sends it by hand. Shown once, the raw token is not stored. ---
+  {
+    method: "POST",
+    path: "users/:id/reset-link",
+    access: "admin",
+    perm: "support.reset_link",
+    handler: async (c) => {
+      const b = await body(c, reasonBody);
+      return issueLink(c, uuid(c.params.id), b.reason, "support.reset_link");
+    },
+  },
+
+  // --- staff accounts (X8): no purchase, no password chosen by an admin ---
+  { method: "GET", path: "staff", access: "admin", perm: "staff.manage", handler: (c) => rpc(c, "staff.manage", "admin_staff_list", [], []) },
+  {
+    method: "POST",
+    path: "staff",
+    access: "admin",
+    perm: "staff.manage",
+    handler: async (c) => {
+      const b = await body(c, staffCreateBody);
+      const made = await rpc<{ user_id: string; entitlement: unknown }>(c, "staff.manage", "admin_staff_create", ["text", "text", "text"], [normalizeEmail(b.email), b.display_name ?? null, b.reason], { now: true });
+      // The account exists now and cannot sign in. The link is the only way to choose a password. If making the link
+      // fails, the account stays and the staff screen can issue a new link.
+      const link = await issueLink(c, made.user_id, b.reason, "staff.manage");
+      return { user_id: made.user_id, entitlement: made.entitlement, ...link };
+    },
+  },
+  {
+    method: "POST",
+    path: "staff/:id/revoke",
+    access: "admin",
+    perm: "staff.manage",
+    handler: async (c) => {
+      const b = await body(c, reasonBody);
+      return rpc(c, "staff.manage", "admin_staff_revoke", ["uuid", "text"], [uuid(c.params.id), b.reason], { now: true });
+    },
   },
 
   // --- health and jobs ---
