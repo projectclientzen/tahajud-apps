@@ -3,8 +3,8 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Tahajud Tracker by NgajiGaes",
-    short_name: "Tahajud",
+    name: "Munaja oleh NgajiGaes",
+    short_name: "Munaja",
     description: "Pendamping ibadah malam dari NgajiGaes.",
     lang: "id",
     dir: "ltr",

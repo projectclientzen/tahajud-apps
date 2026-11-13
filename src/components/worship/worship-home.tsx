@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronRight, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 import { LoadGate } from "@/components/providers/load-gate";
 import { useLoad } from "@/components/providers/data-provider";
@@ -45,6 +46,52 @@ export function WorshipHome() {
               <Link href="/worship/session" className={buttonVariants({ size: "lg", block: true })}>
                 {label}
               </Link>
+              <section aria-labelledby="riwayat-level" className="flex flex-col gap-3 pt-2">
+                <div className="flex flex-col gap-1">
+                  <h2 id="riwayat-level" className="text-card-title font-semibold">
+                    Riwayat level
+                  </h2>
+                  <p className="text-helper text-text-muted">
+                    Level yang sudah kamu capai bisa dibuka lagi, hanya untuk dibaca. Level lain terbuka setelah syaratnya
+                    tercapai.
+                  </p>
+                </div>
+                <ul className="flex flex-col gap-2">
+                  {d.level_progress.levels.map((lv) =>
+                    lv.unlocked ? (
+                      <li key={lv.level}>
+                        <Link
+                          href={`/worship/level/${lv.level}`}
+                          className="flex min-h-14 items-center justify-between gap-3 rounded-[var(--radius-card)] border border-border bg-surface px-4 py-3 hover:bg-surface-2"
+                        >
+                          <span className="flex flex-col">
+                            <span className="font-medium">
+                              Level {lv.level}: {levelTitle(lv.level)}
+                            </span>
+                            <span className="text-helper text-text-muted">
+                              {lv.is_current ? "Sedang berjalan. " : ""}Malam tuntas {lv.completed} dari {lv.required}
+                            </span>
+                          </span>
+                          <ChevronRight aria-hidden className="size-5 shrink-0 text-text-muted" />
+                        </Link>
+                      </li>
+                    ) : (
+                      <li key={lv.level}>
+                        <div
+                          aria-disabled="true"
+                          className="flex min-h-14 items-center justify-between gap-3 rounded-[var(--radius-card)] bg-surface-2 px-4 py-3 text-text-muted"
+                        >
+                          <span className="font-medium">Level {lv.level}</span>
+                          <span className="inline-flex items-center gap-1.5 text-helper">
+                            <LockKeyhole aria-hidden className="size-4" />
+                            Terkunci
+                          </span>
+                        </div>
+                      </li>
+                    ),
+                  )}
+                </ul>
+              </section>
             </div>
           );
         }}

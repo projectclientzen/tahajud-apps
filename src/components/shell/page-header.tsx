@@ -1,7 +1,10 @@
 import * as React from "react";
-import { LogOut } from "lucide-react";
+import Link from "next/link";
+import { LogOut, UserRound } from "lucide-react";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { DemoBadge } from "@/components/brand/demo-badge";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 
 interface PageHeaderProps {
   title: string;
@@ -16,6 +19,13 @@ export function PageHeader({ title, description, actions }: PageHeaderProps) {
         <DemoBadge className="shrink-0 whitespace-nowrap" />
         <div className="flex items-center">
           {actions}
+          <Link
+            href="/profile"
+            aria-label="Profil"
+            className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-11")}
+          >
+            <UserRound aria-hidden className="size-5" />
+          </Link>
           {/* The sidebar has its own sign-out on desktop. Phones have no sidebar, so every header carries one. */}
           <span className="lg:hidden">
             <LogoutButton size="icon" aria-label="Keluar" className="size-11">

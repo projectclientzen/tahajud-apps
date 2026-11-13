@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserRound } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { Wordmark } from "@/components/brand/wordmark";
@@ -74,7 +75,22 @@ export function SidebarNav() {
           })}
         </ul>
       </nav>
-      <LogoutButton className="mt-auto justify-start">Keluar</LogoutButton>
+      <div className="mt-auto flex flex-col gap-1">
+        <Link
+          href="/profile"
+          aria-current={isActive(pathname, "/profile") ? "page" : undefined}
+          className={cn(
+            "flex min-h-12 items-center gap-3 rounded-[var(--radius-control)] px-3 transition-colors duration-[var(--dur-fast)]",
+            isActive(pathname, "/profile")
+              ? "bg-primary-soft font-semibold text-text"
+              : "text-text-muted hover:bg-surface-2 hover:text-text",
+          )}
+        >
+          <UserRound aria-hidden className="size-5" strokeWidth={1.75} />
+          Profil
+        </Link>
+        <LogoutButton className="justify-start">Keluar</LogoutButton>
+      </div>
     </aside>
   );
 }

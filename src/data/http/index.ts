@@ -13,6 +13,7 @@ import {
   deviceSchema,
   excuseResponseSchema,
   isoDate,
+  khatamResponseSchema,
   levelProgressResponseSchema,
   levelSchema,
   nightSessionSchema,
@@ -158,6 +159,13 @@ export function createHttpDataLayer(opts: HttpOptions = {}): HttpDataLayer {
         (await http.call("GET", "/me/quran-progress", { schema: quranProgressListSchema })).progress,
       putProgress: (surah, req) =>
         http.call("PUT", `/me/quran-progress/${surah}`, { body: req, schema: quranProgressSchema }),
+    },
+    khatam: {
+      getKhatam: () => http.call("GET", "/khatam", { schema: khatamResponseSchema }),
+      createTarget: (req) => http.call("POST", "/khatam", { body: req, schema: khatamResponseSchema }),
+      changeTarget: (req) => http.call("PUT", "/khatam/target", { body: req, schema: khatamResponseSchema }),
+      setSlot: (req) => http.call("PUT", "/khatam/slots", { body: req, schema: khatamResponseSchema }),
+      markPosition: (req) => http.call("PUT", "/khatam/position", { body: req, schema: khatamResponseSchema }),
     },
     notifications: {
       getPreferences: () => http.call("GET", "/me/notification-preferences", { schema: notificationPreferencesSchema }),
