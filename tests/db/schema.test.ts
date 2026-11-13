@@ -54,6 +54,9 @@ const EXPECTED_TABLES = [
   "auth_credentials",
   "auth_tokens",
   "auth_events",
+  // X2-B (T7 admin): MFA factors and admin sessions. Backend only.
+  "admin_mfa_factors",
+  "admin_sessions",
 ];
 
 /** Structure of the public schema as text, so two databases can be compared. */
