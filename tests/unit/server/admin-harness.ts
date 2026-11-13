@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { base32Decode, totp } from "@/server/admin/rules/totp";
 import { createApiEnv, type ApiEnv, type TestBrowser } from "./api-harness";
 

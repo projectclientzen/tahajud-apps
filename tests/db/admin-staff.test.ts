@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { attempt, createTestDb, rows } from "./harness";
@@ -138,7 +139,7 @@ describe("X8 schema: staff accounts, order tools, level bypass, report exclusion
       const staffProfiles = Number((await rows<{ n: number }>(pg, "select count(*)::int as n from public.profiles p where app_private.is_staff_user(p.user_id)"))[0]!.n);
       expect(staffProfiles).toBe(1);
       expect(accountsNow).toBe(profiles - staffProfiles);
-      expect(before.entitlements.some((g: any) => false)).toBe(false);
+      expect(before.entitlements.length >= 0).toBe(false);
       const staffInEnt = (await rows<{ n: number }>(pg, "select count(*)::int as n from public.access_entitlements where entitlement_type = 'staff_comp'"))[0]!.n;
       expect(staffInEnt).toBe(1);
       const total = before.entitlements.reduce((s: number, g: any) => s + Number(g.n), 0);

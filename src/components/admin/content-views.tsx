@@ -73,7 +73,7 @@ export function QuranContentView() {
                 { label: "Ayat dimuat", value: `${q.verses_loaded} dari ${q.verses_expected || "?"}` },
                 { label: "Terjemahan dimuat", value: q.translations_loaded },
               ]} />
-              {Number(q.verses_loaded) === 0 ? <Notice tone="warn">Dataset Tanzil belum diimpor. Layar Qur'an menampilkan keadaan kosong, bukan ayat buatan.</Notice> : null}
+              {Number(q.verses_loaded) === 0 ? <Notice tone="warn">Dataset Tanzil belum diimpor. Layar Qur&apos;an menampilkan keadaan kosong, bukan ayat buatan.</Notice> : null}
             </Section>
             <Section title="Sumber dataset">
               {q.sources.length === 0 ? <Empty title="Belum ada sumber tercatat" hint="Jalankan pnpm import:quran dengan dataset terverifikasi." /> : (

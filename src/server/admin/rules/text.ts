@@ -3,7 +3,6 @@
  * Owner content stays owner content: no Arabic from a form, no HTML, only two template variables (PRD §15.2, SEC-10).
  */
 const ARABIC = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/;
-// eslint-disable-next-line no-control-regex
 const CONTROL = /[\u0001-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 
 export const hasArabic = (s: string): boolean => ARABIC.test(s);

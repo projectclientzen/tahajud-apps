@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createAdminEnv, type AdminEnv } from "./admin-harness";
 
