@@ -132,6 +132,7 @@ export class MockAuth implements AuthRepository {
   private writes: Promise<void> = Promise.resolve();
   private epoch = 0;
   private readonly random: (max: number) => number;
+  private tokenSeq = 0;
 
   constructor(private readonly o: AuthOptions) {
     this.random = o.randomInt ?? cryptoInt;
@@ -478,7 +479,7 @@ export class MockAuth implements AuthRepository {
     const st = await this.s();
     const e = normalizeEmail(email);
     if (!st.accounts[e]) return null;
-    const token = `demo_${this.random(10 ** 9).toString(36)}${this.random(10 ** 9).toString(36)}${this.random(10 ** 9).toString(36)}`;
+    const token = `demo_${++this.tokenSeq}_${this.random(10 ** 9).toString(36)}${this.random(10 ** 9).toString(36)}${this.random(10 ** 9).toString(36)}`;
     for (const t of Object.values(st.resetTokens)) if (t.email === e && !t.used) t.used = true;
     st.resetTokens[token] = { email: e, expiresAt: this.nowMs() + PROVISIONAL_AUTH.adminResetTokenMinutes * 60_000, used: false };
     await this.save();

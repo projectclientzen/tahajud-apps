@@ -113,7 +113,7 @@ describe("mock auth: concurrent first calls share one state", () => {
       clear: () => inner.clear(),
     };
     const auth = createMockAuth({ scenario: "logged_in", clock: { now: () => wib("2026-11-12 08:00") }, storage });
-    const [a, b] = await Promise.all([auth.getSession(), auth.dev.outbox()]);
+    const [a, b] = await Promise.all([auth.getSession(), auth.dev.issueResetToken("demo@ngajigaes.test")]);
     await auth.dev.setNow("2026-11-12T12:00:00.000Z");
     await auth.dev.setEntitlement("demo@ngajigaes.test", "suspended");
     expect(a).toBeDefined();

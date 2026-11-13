@@ -1,4 +1,5 @@
 import { PROVISIONAL_AUTH } from "../config/provisional";
+import { normalizePhone } from "./phone";
 
 export type PasswordProblem = "too_short" | "too_long" | "common" | "same_as_email" | "same_as_phone";
 
@@ -49,11 +50,10 @@ export function checkPassword(raw: string, ctx: PasswordContext = {}): PasswordP
     if (lower === email || (local.length >= 6 && lower === local)) return "same_as_email";
   }
   if (ctx.phone) {
-    const digits = ctx.phone.replace(/\D/g, "");
-    const pd = lower.replace(/\D/g, "");
-    if (digits.length >= 8 && pd.length >= 8 && (pd === digits || pd === `0${digits.replace(/^62/, "")}`)) {
-      return "same_as_phone";
-    }
+    // Same number written differently (0812..., +62812...) counts as the same.
+    const np = normalizePhone(ctx.phone);
+    const pp = normalizePhone(p);
+    if (np && pp && np === pp) return "same_as_phone";
   }
   if (COMMON.has(lower) || isTrivial(lower)) return "common";
   return null;
