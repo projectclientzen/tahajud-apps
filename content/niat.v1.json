@@ -1,8 +1,8 @@
 {
   "_comment": "Bacaan niat salat di sesi tahajud. Teks Arab, Latin, dan terjemahan HANYA diisi owner. Agen/AI dilarang mengisi atau mengubah field ini. null = belum tersedia, UI menampilkan empty state.",
-  "content_version": "1.0.0",
-  "review_status": "in_review",
-  "approved_by": null,
+  "content_version": "1.0.1",
+  "review_status": "published",
+  "approved_by": "Owner (Zen), 13 Nov 2026: teks dipakai apa adanya; Qabliyah Subuh tanpa niat",
   "niat": [
     {
       "activity_key": "salat_taubat",
@@ -43,14 +43,6 @@
       "latin": "Ushallii sunnatal witri rak'ataini lillaahi ta'aalaa.",
       "translation": null,
       "note": "Atau menggunakan tambahan menghadap kiblat: \"Usholli sunnatal witri rak'ataini mustaqbilal qiblati lillaahi ta'aalaa\""
-    },
-    {
-      "activity_key": "salat_qabliyah_subuh",
-      "title": "Salat sunnah Qabliyah Subuh",
-      "arabic": null,
-      "latin": null,
-      "translation": null,
-      "note": null
     }
   ],
   "source": "Owner (Zen), pesan chat 13 Nov 2026, disalin apa adanya. Satu-satunya perubahan: tanda kurung pembungkus Latin Salat Hajat dibuang."

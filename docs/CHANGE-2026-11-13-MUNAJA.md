@@ -32,5 +32,8 @@ Sumber: pesan owner 13 Nov 2026 + jawaban 4 pertanyaan orchestrator. Berlaku di 
 - Tidak mengubah aturan progres: tidak ada reset, tidak mengunci ulang.
 
 ## M6. Niat salat di sesi tahajud
-- Setiap langkah salat di sesi (Taubat, Tahajud, Hajat, Witir 1 dan 2 rakaat, Qabliyah Subuh) punya tombol "Lihat niat": sheet Arab + Latin (+ terjemahan bila ada).
+- Langkah salat yang punya entri di `content/niat.v1.json` (Taubat, Tahajud, Hajat, Witir 1 rakaat, Witir 2 rakaat) punya tombol "Lihat niat": sheet Arab + Latin (+ catatan). Qabliyah Subuh tanpa tombol (keputusan owner).
 - Teks HANYA dari `content/niat.v1.json` yang diisi owner. Sebelum diisi: empty state "Bacaan niat belum tersedia". Badge review bila `review_status != "published"`.
+
+## M7. Label status sesi
+- Status `upcoming` tampil "Belum waktunya" (menggantikan "Akan datang"), disetujui owner 13 Nov 2026.
