@@ -5,7 +5,6 @@ import { as, attempt, createTestDb, rows } from "./harness";
 const NOW = "2026-11-12T03:00:00Z";
 const PHONE_HASH = "a".repeat(64);
 const PW_HASH = "$scrypt$ln=15,r=8,p=3$c2FsdHNhbHRzYWx0c2FsdA$aGFzaGhhc2hoYXNoaGFzaGhhc2hoYXNoaGFzaGhhc2g";
-const TOKEN_A = "t".repeat(64);
 
 describe("X4 schema: email + password, activation, admin reset links", () => {
   let pg: PGlite;

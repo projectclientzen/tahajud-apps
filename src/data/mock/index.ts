@@ -4,7 +4,6 @@ import {
   idbAuthStorage,
   memoryAuthStorage,
   type AuthOptions,
-  type AuthState,
   type EntitlementStatus,
 } from "./auth";
 import type { AuthScenarioName } from "./fixtures/auth";

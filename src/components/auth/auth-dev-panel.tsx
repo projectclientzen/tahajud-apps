@@ -9,7 +9,7 @@ import { Sheet } from "@/components/ui/sheet";
 import { AUTH_SCENARIOS, type AuthScenarioName } from "@/data";
 import { DEV_ROUTES_ENABLED, IS_DEMO } from "@/lib/env";
 import { fieldClass } from "./auth-shell";
-import { LOGIN_EMAIL_KEY } from "./seed-user";
+import { DEMO_EMAILS, DEMO_PASSWORD, DEMO_PHONES } from "@/data/mock/fixtures/auth";
 
 const SCENARIO_LABEL: Record<AuthScenarioName, string> = {
   logged_out: "Belum masuk",
@@ -21,7 +21,7 @@ const SCENARIO_LABEL: Record<AuthScenarioName, string> = {
 };
 
 /**
- * Demo-only tools on the sign-in screens: read the OTP that a real server would email, change the
+ * Demo-only tools on the sign-in screens: show the demo accounts, make a reset link like CS would, change the
  * entitlement, expire the session. Hidden outside mock mode.
  */
 export function AuthDevPanel() {
@@ -33,14 +33,14 @@ function AuthDevPanelInner() {
   const data = useDataOptional();
   const [open, setOpen] = React.useState(false);
   const [email, setEmail] = React.useState("");
-  const [otp, setOtp] = React.useState<string | null>(null);
+  const [resetLink, setResetLink] = React.useState<string | null>(null);
   const [scenario, setScenario] = React.useState<AuthScenarioName>("logged_out");
   const [info, setInfo] = React.useState("");
 
   React.useEffect(() => {
     if (!open) return;
     try {
-      setEmail(session?.user?.email ?? sessionStorage.getItem(LOGIN_EMAIL_KEY) ?? "");
+      setEmail(session?.user?.email ?? DEMO_EMAILS.active);
     } catch {
       /* storage blocked */
     }
@@ -53,7 +53,7 @@ function AuthDevPanelInner() {
       open={open}
       onOpenChange={setOpen}
       title="Alat demo masuk"
-      description="Hanya ada saat mode demo. Menggantikan email, WhatsApp, dan server."
+      description="Hanya ada saat mode demo. Menggantikan CS, order Scalev, dan server."
       trigger={
         <button
           type="button"
@@ -76,13 +76,30 @@ function AuthDevPanelInner() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Button variant="secondary" onClick={async () => setOtp(await dev.peekOtp(email))}>
-            Tampilkan kode OTP
+          <Button
+            variant="secondary"
+            onClick={async () => {
+              const t = await dev.issueResetToken(email);
+              setResetLink(t ? `/reset#t=${t}` : null);
+              setInfo(t ? "Tautan reset demo dibuat" : "Email ini belum punya akun demo");
+            }}
+          >
+            Buat tautan reset demo
           </Button>
-          <p data-testid="dev-otp" className="text-stat font-semibold tabular-nums">
-            {otp ?? "Belum ada kode"}
-          </p>
-          <p className="text-helper text-text-muted">Akses demo aktif: demo@ngajigaes.test</p>
+          {resetLink ? (
+            <a data-testid="dev-reset-link" href={resetLink} className="break-all underline">
+              {resetLink}
+            </a>
+          ) : null}
+          <div className="rounded-[var(--radius-control)] bg-surface-2 p-3 text-helper text-text-muted">
+            <p className="font-semibold text-text">Data demo (bukan data asli)</p>
+            <p>Akun demo: {DEMO_EMAILS.active}</p>
+            <p>
+              Password demo: <span data-testid="dev-demo-password">{DEMO_PASSWORD}</span>
+            </p>
+            <p>HP order demo: {DEMO_PHONES.active}</p>
+            <p>Order lunas tanpa akun (untuk aktivasi): {DEMO_EMAILS.newBuyer}, HP {DEMO_PHONES.newBuyer}</p>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">

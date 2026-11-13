@@ -412,10 +412,9 @@ describe("activation, reset and admin links", () => {
       const pw2 = "sandi-kedua-untuk-pindai-2";
       const pw3 = "sandi-ketiga-untuk-pindai-3";
       const logs: string[] = [];
-      const orig = [console.log, console.error, console.warn, console.info];
-      for (const k of ["log", "error", "warn", "info"] as const) {
-        console[k] = (...a: unknown[]) => void logs.push(a.map(String).join(" "));
-      }
+      const kinds = ["log", "error", "warn", "info"] as const;
+      const orig = kinds.map((k) => console[k]);
+      for (const k of kinds) console[k] = (...a: unknown[]) => void logs.push(a.map(String).join(" "));
       try {
         await env.grantOrder(email, { phone: "0877-1234-5678" });
         const b = env.browser();
@@ -443,7 +442,7 @@ describe("activation, reset and admin links", () => {
         const logged = logs.join("\n");
         for (const secret of [pw1, pw2, pw3, token, "877"]) expect(logged).not.toContain(secret);
       } finally {
-        [console.log, console.error, console.warn, console.info] = orig as never;
+        kinds.forEach((k, i) => (console[k] = orig[i]!));
       }
     });
   });

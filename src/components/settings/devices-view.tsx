@@ -125,7 +125,7 @@ export function DevicesScreen() {
         onOpenChange={(o) => !o && setTarget(null)}
         title="Keluarkan perangkat ini?"
         description={
-          target ? `${target.label} harus masuk lagi dengan kode OTP. Catatan ibadahmu tidak terhapus.` : undefined
+          target ? `${target.label} harus masuk lagi dengan password. Catatan ibadahmu tidak terhapus.` : undefined
         }
       >
         <Button variant="danger" loading={busy} onClick={revoke}>
