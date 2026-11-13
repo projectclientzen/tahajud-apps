@@ -2,10 +2,9 @@ import { ChevronDown, MessageCircle } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { getAmalan, PHASES } from "@/domain/content";
+import { LevelAmalan } from "@/components/levels/level-amalan";
+import { getAmalan } from "@/domain/content";
 import { LEVELS } from "@/domain/config/provisional";
-
-const PHASE_LABEL = { night: "Malam", fajr: "Subuh", post_fajr: "Setelah Subuh" } as const;
 
 /** Digits only, so the wa.me link cannot carry anything else. Empty hides the contact. */
 export const csLink = (raw: string | undefined): string | null => {
@@ -46,48 +45,7 @@ export function HelpView({ csWhatsapp }: { csWhatsapp?: string }) {
                       className="size-5 shrink-0 text-text-muted transition-transform group-open:rotate-180"
                     />
                   </summary>
-                  <div className="flex flex-col gap-5 px-5 pb-5">
-                    {PHASES.map((ph) => {
-                      const items = level.activities.filter((a) => a.phase === ph);
-                      if (items.length === 0) return null;
-                      return (
-                        <div key={ph} className="flex flex-col gap-2">
-                          <h4 className="font-semibold">{PHASE_LABEL[ph]}</h4>
-                          <ul className="flex flex-col gap-3">
-                            {items.map((a) => {
-                              const dhikr = a.dhikrRef ? amalan.dhikr[a.dhikrRef] : null;
-                              const meta = [
-                                a.target ? `Target ${a.target} ${a.unit ?? ""}`.trim() : null,
-                                a.required ? null : "Opsional",
-                              ]
-                                .filter(Boolean)
-                                .join(". ");
-                              return (
-                                <li key={a.id} className="flex flex-col gap-1">
-                                  <p>
-                                    {a.title}
-                                    {meta ? <span className="block text-helper text-text-muted">{meta}</span> : null}
-                                  </p>
-                                  {dhikr ? (
-                                    <p
-                                      className="arabic rounded-[var(--radius-control)] bg-surface-2 p-3 text-start text-[1.5rem] leading-[2.1]"
-                                      lang="ar"
-                                      dir="rtl"
-                                    >
-                                      {dhikr.arabicText}
-                                    </p>
-                                  ) : null}
-                                  {dhikr && dhikr.reviewStatus !== "published" ? (
-                                    <p className="text-helper text-text-muted">Teks ini belum selesai ditinjau.</p>
-                                  ) : null}
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  <LevelAmalan level={lv} className="px-5 pb-5" />
                 </details>
               </Card>
             );
