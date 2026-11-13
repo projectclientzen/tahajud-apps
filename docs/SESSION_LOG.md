@@ -151,3 +151,10 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Keputusan desain yang diusulkan (menunggu owner/orchestrator): akun lahir saat token dikonsumsi (bukan saat pembelian); token di fragmen URL; tanpa auto-login setelah set-password (hemat slot 3 perangkat, penyimpanan PWA iOS terpisah dari Safari, perlu uji perangkat); token dibuat saat email dikirim, tidak disimpan di outbox; hash scrypt; refund hanya menandai untuk admin.
 - Sisa pekerjaan: eksekusi X0..X7 (urutan dan prasyarat di §5), perubahan CLAUDE.md dan PRD v1.3 oleh orchestrator (§7).
 - Pertanyaan untuk owner: Q1..Q11 di §6 (paling mendesak: produk Scalev, domain + SMTP, VPS, API key restricted, hasil cek order nyata dari Hermes).
+
+## Merge auth email + password (X-part1) oleh orchestrator (2026-11-13)
+- Merge `claude/scalev-email-pass` (`58d0c65`): login email + password, aktivasi email + nomor HP order Scalev (tanpa SMTP), lupa password via email + HP, tautan reset admin (hash, sekali pakai, 60 menit), ganti password, entitlement `staff_comp` di skema; jalur OTP dihapus. Orchestrator menghapus 4 file OTP yang sudah dikosongkan agen (`git rm`).
+- Gerbang orchestrator: typecheck 0, lint 0, unit 1068 + 3 skip, e2e mock 288 passed / 0 failed, e2e live 38 passed / 0 failed, audit bersih.
+- Untuk merge T6 nanti: `housekeeping()` di migration T6 masih menghapus dari `login_otps` (tabel sudah dihapus) → ganti ke `auth_tokens`/`auth_events`.
+- Belum: webhook Scalev + worker (X3/X6), admin staff_comp/reset UI (X8 + T7), SMTP opsional.
+- Pertanyaan owner: password minimal 10 karakter dan batas percobaan (PROV) setuju?; format `customer.phone` order nyata (Hermes).
