@@ -112,3 +112,9 @@ Detail dan bukti: `docs/sessions/U2.md`. Semua yang berlabel PROVISIONAL menungg
 | X8-10 | Bootstrap `super_admin` pertama: fungsi SQL `admin_bootstrap_grant` (security definer, karena `service_role` tidak boleh menulis `auth.users`) + `scripts/admin-grant-role.ts`. Akun dibuat tanpa password; tautan `--print-link` hanya ke TTY, tidak ke log; super_admin kedua butuh `--allow-another-super-admin` | Aturan: tanpa password bawaan | Script mengisi password |
 | X8-11 | UI `/admin` selalu memakai `/api/v1/admin` dan login HTTP, tidak bergantung `NEXT_PUBLIC_DATA_MODE`; tanpa mock admin. Halaman `force-dynamic`, `noindex` | Admin tidak punya mode demo; data nyata saja | Mock admin |
 | X8-12 | MFA = TOTP sendiri (T7-1), tanpa library QR: layar menampilkan kunci base32 dan tautan `otpauth://` | Tanpa dependency baru | Library QR |
+
+## 2026-11-13: jawaban owner Q-X2B-1..5
+- Q-X2B-1: CS melihat nomor HP pembeli di dashboard Scalev. Munaja tetap hanya menyimpan hash HP; admin cukup cek cocok/tidak.
+- Q-X2B-2: tidak ada pembuatan akun oleh CS untuk order tanpa HP. Checkout Scalev mewajibkan email + HP; order tanpa HP tetap karantina.
+- Q-X2B-3: staf membuka semua level (perilaku sekarang).
+- Q-X2B-4/5: tidak ada approve manual di admin Munaja. Semua order lewat Scalev. TUGAS saat lanjut: ganti tombol "approve manual" di `/admin` dengan "cek ulang ke Scalev" (enqueue verifikasi worker X6), hapus jalur `verified_via='admin_manual'` untuk aktivasi pembeli, sesuaikan test (`tests/db/auth-password.test.ts`, admin e2e).
