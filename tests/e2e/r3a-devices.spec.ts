@@ -181,16 +181,17 @@ test("SECURITY-06: keluar menghapus pengaturan perencana (tt-planner-prefs) teta
   await expect(page.getByText("dikeluarkan dari akunmu")).toHaveCount(0);
 });
 
-test("header dashboard: tautan notifikasi, laporan, pengaturan, dan profil", async ({ page }) => {
+test("header dashboard: tautan notifikasi, pengaturan, dan profil; laporan ada di navigasi bawah", async ({ page }) => {
   await page.goto("/dashboard");
   const main = page.getByRole("main");
   await expect(main.getByRole("link", { name: "Notifikasi" })).toHaveAttribute("href", "/notifications");
-  await expect(main.getByRole("link", { name: "Laporan" })).toHaveAttribute("href", "/reports");
+  // M4: reports left the header (it is in the primary nav now).
+  await expect(main.getByRole("link", { name: "Laporan" })).toHaveCount(0);
   await expect(main.getByRole("link", { name: "Pengaturan" })).toHaveAttribute("href", "/settings");
   await expect(main.getByRole("link", { name: "Profil" })).toHaveAttribute("href", "/profile");
-  await main.getByRole("link", { name: "Laporan" }).click();
-  await expect(page).toHaveURL(/\/reports$/);
-  await page.goBack();
+  const nav = page.getByRole("navigation", { name: "Navigasi utama" }).filter({ visible: true });
+  await expect(nav.getByRole("link", { name: "Laporan" })).toHaveAttribute("href", "/reports");
+  await expect(nav.getByRole("link", { name: "Profil" })).toHaveCount(0);
   await main.getByRole("link", { name: "Pengaturan" }).click();
   await expect(page).toHaveURL(/\/settings$/);
   const overflow = await page.evaluate(

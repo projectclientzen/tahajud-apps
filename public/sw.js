@@ -1,4 +1,4 @@
-/* Tahajud Tracker service worker. Caches the app shell and static files only. */
+/* Munaja service worker. Caches the app shell and static files only. */
 // Bump VERSION to drop old caches on the next activate. shortcut: manual bump, automate with the build id later.
 const VERSION = "v1";
 const STATIC = `tahajud-static-${VERSION}`;
