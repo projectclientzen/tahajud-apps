@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { ApiError } from "@/data/contracts";
-import { createApiEnv, ORIGIN, type ApiEnv, type TestBrowser } from "./api-harness";
+import { createApiEnv, ORIGIN, TEST_PASSWORD, type ApiEnv, type TestBrowser } from "./api-harness";
 
 const MIN = 60_000;
 const T0 = "2026-11-12T02:00:00+07:00";
@@ -15,7 +15,7 @@ async function code(res: Promise<unknown>): Promise<string | undefined> {
   }
 }
 
-describe("sign-in (PRD §24.1)", () => {
+describe("sign-in with email and password (CLAUDE.md auth rules)", () => {
   let env: ApiEnv;
   beforeAll(async () => {
     env = await createApiEnv();
@@ -26,15 +26,12 @@ describe("sign-in (PRD §24.1)", () => {
     return env.browser();
   };
 
-  describe("AUTH-05: the code", () => {
-    it("works once and opens a session with an HttpOnly SameSite=Lax cookie", async () => {
+  describe("login", () => {
+    it("opens a session with an HttpOnly SameSite=Lax cookie", async () => {
       const b = await fresh();
       await env.grant("a1@ngajigaes.test");
-      await b.auth().requestOtp("a1@ngajigaes.test");
-      const res = await b.json("/auth/verify-otp", "POST", {
-        email: "a1@ngajigaes.test",
-        code: env.readCode("a1@ngajigaes.test"),
-      });
+      await env.createAccount("a1@ngajigaes.test");
+      const res = await b.json("/auth/login", "POST", { email: "a1@ngajigaes.test", password: TEST_PASSWORD });
       expect(res.status).toBe(200);
       const body = await res.json();
       expect(body).toMatchObject({
@@ -48,139 +45,167 @@ describe("sign-in (PRD §24.1)", () => {
       expect(cookie).not.toContain("Secure"); // plain http in tests
       // the secret half of the cookie is never in the body
       expect(JSON.stringify(body)).not.toContain(cookie.split("=")[1]!.split(".")[1]!.split(";")[0]!);
-      // the same code does not work again
-      const again = await b.json("/auth/verify-otp", "POST", {
-        email: "a1@ngajigaes.test",
-        code: env.readCode("a1@ngajigaes.test"),
-      });
-      expect(again.status).toBe(401);
-      expect((await again.json()).error.code).toBe("INVALID_OTP");
+    });
+
+    it("normalizes the email (case and spaces)", async () => {
+      const b = await fresh();
+      await env.createAccount("a1b@ngajigaes.test");
+      const r = await b.auth().login("  A1B@Ngajigaes.TEST ", TEST_PASSWORD);
+      expect(r.status).toBe("ok");
     });
 
     it("sets Secure when the request came over https", async () => {
       const b = await fresh();
-      await b.auth().requestOtp("a2@ngajigaes.test");
+      await env.createAccount("a2@ngajigaes.test");
       const res = await b.json(
-        "/auth/verify-otp",
+        "/auth/login",
         "POST",
-        { email: "a2@ngajigaes.test", code: env.readCode("a2@ngajigaes.test") },
+        { email: "a2@ngajigaes.test", password: TEST_PASSWORD },
         { "x-forwarded-proto": "https" },
       );
       expect(res.headers.get("set-cookie")).toContain("Secure");
     });
 
-    it("a wrong code, an expired code and a code nobody asked for all give the same answer", async () => {
+    it("AUTH-09: a wrong password, an unknown email and a malformed email give the same answer", async () => {
       const b = await fresh();
-      await b.auth().requestOtp("a3@ngajigaes.test");
-      const good = env.readCode("a3@ngajigaes.test");
-      const wrong = good === "000000" ? "000001" : "000000";
-      const r1 = await b.json("/auth/verify-otp", "POST", { email: "a3@ngajigaes.test", code: wrong });
-      const r2 = await b.json("/auth/verify-otp", "POST", { email: "nobody@ngajigaes.test", code: wrong });
-      expect(r1.status).toBe(401);
-      expect(await r1.json()).toEqual(await r2.json());
-      await env.setNow(at(11 * MIN));
-      const r3 = await b.json("/auth/verify-otp", "POST", { email: "a3@ngajigaes.test", code: good });
-      expect(r3.status).toBe(401);
-      expect((await r3.json()).error.code).toBe("INVALID_OTP");
+      await env.createAccount("a3@ngajigaes.test");
+      const r1 = await b.json("/auth/login", "POST", { email: "a3@ngajigaes.test", password: "salah-salah-salah" });
+      const r2 = await b.json("/auth/login", "POST", { email: "nobody@ngajigaes.test", password: "salah-salah-salah" });
+      const r3 = await b.json("/auth/login", "POST", { email: "bukan-email", password: "salah-salah-salah" });
+      for (const r of [r1, r2, r3]) expect(r.status).toBe(401);
+      const [j1, j2, j3] = [await r1.json(), await r2.json(), await r3.json()];
+      expect(j1).toEqual(j2);
+      expect(j1).toEqual(j3);
+      expect(j1.error.code).toBe("INVALID_CREDENTIALS");
+      expect(r1.headers.get("set-cookie")).toBeNull();
     });
 
-    it("dies after 5 wrong tries, even if the right code comes next", async () => {
-      const b = await fresh();
-      await b.auth().requestOtp("a4@ngajigaes.test");
-      const good = env.readCode("a4@ngajigaes.test");
-      const wrong = good === "111111" ? "222222" : "111111";
-      for (let i = 0; i < 5; i++)
-        expect(await code(b.auth().verifyOtp("a4@ngajigaes.test", wrong))).toBe("INVALID_OTP");
-      expect(await code(b.auth().verifyOtp("a4@ngajigaes.test", good))).toBe("INVALID_OTP");
+    it("AUTH-09: an unknown email still costs a hash check (same work as a wrong password)", async () => {
+      const { dummyHash } = await import("@/server/auth/password");
+      // The dummy hash is made with the configured settings, so the time matches a real account.
+      expect(await dummyHash(env.cfg.scrypt)).toMatch(/^\$scrypt\$ln=10,r=8,p=1\$/);
     });
 
-    it("lasts 10 minutes", async () => {
+    it("a user without active access can still sign in and see their status", async () => {
       const b = await fresh();
-      await b.auth().requestOtp("a5@ngajigaes.test");
-      await env.setNow(at(9 * MIN + 50_000));
-      const r = await b.auth().verifyOtp("a5@ngajigaes.test", env.readCode("a5@ngajigaes.test"));
-      expect(r.status).toBe("ok");
+      await env.grant("a4@ngajigaes.test", "pending_verification");
+      await env.createAccount("a4@ngajigaes.test");
+      const r = await b.auth().login("a4@ngajigaes.test", TEST_PASSWORD);
+      expect(r).toMatchObject({ status: "ok", access: { access_status: "awaiting_order_verification" } });
     });
 
-    it("refuses a code that is not six digits before it touches anything", async () => {
+    it("rejects a body that is not valid before it touches the database", async () => {
       const b = await fresh();
-      const res = await b.json("/auth/verify-otp", "POST", { email: "a6@ngajigaes.test", code: "12ab56" });
+      const res = await b.json("/auth/login", "POST", { email: "x@y.test" });
       expect(res.status).toBe(400);
     });
-  });
 
-  describe("AUTH-06: limits and the generic answer", () => {
-    it("answers the same for an email with access and one without", async () => {
-      const b = await fresh();
-      await env.grant("known@ngajigaes.test");
-      const a = await b.json("/auth/request-otp", "POST", { email: "known@ngajigaes.test" });
-      const c = await b.json("/auth/request-otp", "POST", { email: "unknown@ngajigaes.test" });
-      expect(a.status).toBe(c.status);
-      expect(await a.json()).toEqual(await c.json());
-    });
-
-    it("waits 60 seconds before sending another code, and says how long", async () => {
-      const b = await fresh();
-      await b.auth().requestOtp("l1@ngajigaes.test");
-      await env.setNow(at(30_000));
-      const res = await b.json("/auth/request-otp", "POST", { email: "l1@ngajigaes.test" });
-      expect(res.status).toBe(429);
-      expect(res.headers.get("retry-after")).toBe("30");
-      expect((await res.json()).error).toMatchObject({
-        code: "RATE_LIMITED",
-        details: { reason: "cooldown", retry_after_seconds: 30 },
-      });
-      await env.setNow(at(61_000));
-      expect((await b.json("/auth/request-otp", "POST", { email: "l1@ngajigaes.test" })).status).toBe(200);
-    });
-
-    it("allows 5 codes per email per hour, for any email alike", async () => {
+    it("AUTH-15: ten failures lock that email for the window, a correct password does not count and cannot bypass it", async () => {
       await fresh();
-      for (const email of ["l2@ngajigaes.test", "l2-unknown@ngajigaes.test"]) {
-        const b = env.browser(); // one address per email, so this checks the email limit and not the address limit
-        for (let i = 0; i < 5; i++) {
-          await env.setNow(at(i * 61_000 + (email.includes("unknown") ? 1_000 : 0)));
-          expect((await b.json("/auth/request-otp", "POST", { email })).status, `${email} #${i}`).toBe(200);
-        }
-        await env.setNow(at(5 * 61_000 + 2_000));
-        const res = await b.json("/auth/request-otp", "POST", { email });
-        expect(res.status).toBe(429);
-        expect((await res.json()).error.details.reason).toBe("hourly_limit");
+      await env.createAccount("lock@ngajigaes.test");
+      // Different addresses so the IP limit is not what stops us.
+      for (let i = 0; i < 10; i++) {
+        const r = await env.browser().json("/auth/login", "POST", { email: "lock@ngajigaes.test", password: "salah-salah-1" });
+        expect(r.status, `try ${i}`).toBe(401);
+      }
+      const locked = await env.browser().json("/auth/login", "POST", { email: "lock@ngajigaes.test", password: TEST_PASSWORD });
+      expect(locked.status).toBe(429);
+      expect((await locked.json()).error.code).toBe("RATE_LIMITED");
+      // other emails are not affected
+      await env.createAccount("free@ngajigaes.test");
+      expect((await env.browser().auth().login("free@ngajigaes.test", TEST_PASSWORD)).status).toBe("ok");
+      // after the window the right password works again
+      await env.setNow(at(16 * MIN));
+      expect((await env.browser().auth().login("lock@ngajigaes.test", TEST_PASSWORD)).status).toBe("ok");
+    });
+
+    it("AUTH-15: successful logins do not add to the failure count", async () => {
+      await fresh();
+      await env.createAccount("many@ngajigaes.test");
+      for (let i = 0; i < 12; i++) {
+        const r = await env.browser().auth().login("many@ngajigaes.test", TEST_PASSWORD, `P${i}`);
+        // the 4th device onward hits the device limit, which is not an auth failure
+        expect(["ok", "device_limit"]).toContain(r.status);
       }
     });
 
-    it("allows 10 requests per IP per hour across different emails", async () => {
-      await env.setNow(T0);
-      const ip = "198.51.100.77";
+    it("AUTH-15: 30 attempts per address per 10 minutes", async () => {
+      await fresh();
+      const ip = "198.51.100.40";
       const b = env.browser(ip);
-      for (let i = 0; i < 10; i++)
-        expect((await b.json("/auth/request-otp", "POST", { email: `ip${i}@ngajigaes.test` })).status).toBe(200);
-      const res = await b.json("/auth/request-otp", "POST", { email: "ip-extra@ngajigaes.test" });
+      for (let i = 0; i < 30; i++) {
+        const r = await b.json("/auth/login", "POST", { email: `ip${i}@ngajigaes.test`, password: "salah-salah-1" });
+        expect(r.status, `try ${i}`).toBe(401);
+      }
+      const res = await b.json("/auth/login", "POST", { email: "ip-extra@ngajigaes.test", password: "salah-salah-1" });
       expect(res.status).toBe(429);
-      expect((await res.json()).error.details.reason).toBe("ip_limit");
-      // another address is unaffected
+      expect(res.headers.get("retry-after")).toBeTruthy();
       expect(
-        (await env.browser("198.51.100.78").json("/auth/request-otp", "POST", { email: "ip-other@ngajigaes.test" }))
+        (await env.browser("198.51.100.41").json("/auth/login", "POST", { email: "ip-other@ngajigaes.test", password: "salah-salah-1" }))
           .status,
-      ).toBe(200);
+      ).toBe(401);
     });
 
-    it("stores only hashes: no code, no email, no IP in the rate limit or code tables", async () => {
-      const b = await fresh();
-      await b.auth().requestOtp("plain@ngajigaes.test");
-      const dump = JSON.stringify([
-        await env.db.exec("select * from public.login_otps"),
-        await env.db.exec("select * from public.rate_limits"),
-      ]);
+    it("AUTH-15: only the proxy-added address counts, entries a client puts in front are ignored", async () => {
+      await fresh();
+      const spoof = async (i: number) =>
+        env
+          .browser("203.0.113.200")
+          .json(
+            "/auth/login",
+            "POST",
+            { email: `sp${i}@ngajigaes.test`, password: "salah-salah-1" },
+            // the client invents a new "address" every time, our proxy appends the real one last
+            { "x-forwarded-for": `10.9.8.${i}, 203.0.113.200` },
+          );
+      for (let i = 0; i < 30; i++) expect((await spoof(i)).status).toBe(401);
+      expect((await spoof(31)).status).toBe(429);
+    });
+
+    it("with no trusted proxy the forwarded header is ignored and everyone shares one bucket", async () => {
+      const { callerOf } = await import("@/server/auth/service");
+      const req = new Request("http://localhost/x", { headers: { "x-forwarded-for": "1.1.1.1, 2.2.2.2" } });
+      expect(callerOf(req, 1).ip).toBe("2.2.2.2");
+      expect(callerOf(req, 2).ip).toBe("1.1.1.1");
+      expect(callerOf(req, 0).ip).toBe("unknown");
+    });
+
+    it("keeps the password and the email out of the rate limit table", async () => {
+      await fresh();
+      const b = env.browser("198.51.100.55");
+      await b.json("/auth/login", "POST", { email: "plain@ngajigaes.test", password: "rahasia-sekali-123" });
+      const dump = JSON.stringify(await env.db.exec("select * from public.rate_limits"));
       expect(dump).not.toContain("plain@ngajigaes.test");
-      expect(dump).not.toContain(env.readCode("plain@ngajigaes.test"));
-      expect(dump).not.toContain(b.ip);
+      expect(dump).not.toContain("rahasia-sekali-123");
+      expect(dump).not.toContain("198.51.100.55");
+    });
+  });
+
+  describe("stored password", () => {
+    it("is a scrypt hash with its parameters, never the password", async () => {
+      await env.createAccount("h1@ngajigaes.test");
+      const rows = await env.db.exec("select password_hash from public.auth_credentials");
+      for (const r of rows) expect(String(r.password_hash)).toMatch(/^\$scrypt\$ln=\d+,r=\d+,p=\d+\$[A-Za-z0-9+/]+\$[A-Za-z0-9+/]+$/);
+      expect(JSON.stringify(rows)).not.toContain(TEST_PASSWORD);
     });
 
-    it("rejects an email that is not an email without sending anything", async () => {
-      const b = await fresh();
-      const res = await b.json("/auth/request-otp", "POST", { email: "not-an-email" });
-      expect(res.status).toBe(400);
+    it("an older, cheaper hash is replaced with the current settings after a right login", async () => {
+      const { hashPassword, needsRehash } = await import("@/server/auth/password");
+      await env.createAccount("h2@ngajigaes.test");
+      const cheaper = { ln: 10, r: 8, p: 1 };
+      const old = await hashPassword(TEST_PASSWORD, cheaper);
+      await env.db.exec("update public.auth_credentials set password_hash = $1 where user_id = (select id from auth.users where email = 'h2@ngajigaes.test')", [old]);
+      const stronger = { ...env.cfg, scrypt: { ln: 11, r: 8, p: 1 } };
+      const { setDepsForTests } = await import("@/server/api/deps");
+      setDepsForTests({ now: () => env.now(), cfg: stronger });
+      try {
+        expect((await env.browser().auth().login("h2@ngajigaes.test", TEST_PASSWORD)).status).toBe("ok");
+      } finally {
+        setDepsForTests({ now: () => env.now(), cfg: env.cfg });
+      }
+      const after = String((await env.db.exec("select password_hash from public.auth_credentials where user_id = (select id from auth.users where email = 'h2@ngajigaes.test')"))[0]!.password_hash);
+      expect(after).not.toBe(old);
+      expect(needsRehash(after, stronger.scrypt)).toBe(false);
     });
   });
 
@@ -269,15 +294,14 @@ describe("sign-in (PRD §24.1)", () => {
       return list;
     }
 
-    it("refuses the 4th after a right code, lists the devices, and creates no session", async () => {
+    it("refuses the 4th after a right password, lists the devices, and creates no session", async () => {
       const email = "d1@ngajigaes.test";
       await threeDevices(email);
       await env.setNow(at(10 * MIN));
       const four = env.browser();
-      await four.auth().requestOtp(email);
-      const res = await four.json("/auth/verify-otp", "POST", {
+      const res = await four.json("/auth/login", "POST", {
         email,
-        code: env.readCode(email),
+        password: TEST_PASSWORD,
         device_label: "Perangkat 4",
       });
       expect(res.status).toBe(200);
@@ -299,8 +323,7 @@ describe("sign-in (PRD §24.1)", () => {
       const [first, second] = await threeDevices(email);
       await env.setNow(at(10 * MIN));
       const four = env.browser();
-      await four.auth().requestOtp(email);
-      const r = await four.auth().verifyOtp(email, env.readCode(email), "Perangkat 4");
+      const r = await four.auth().login(email, TEST_PASSWORD, "Perangkat 4");
       if (r.status !== "device_limit") throw new Error("expected device_limit");
       const victim = r.devices.find((d) => d.label === "Perangkat 1")!;
       const ok = await four.auth().completePendingLogin(r.pending_token, victim.id, "Perangkat 4");
@@ -320,8 +343,7 @@ describe("sign-in (PRD §24.1)", () => {
       await threeDevices(email);
       await env.setNow(at(10 * MIN));
       const four = env.browser();
-      await four.auth().requestOtp(email);
-      const r = await four.auth().verifyOtp(email, env.readCode(email));
+      const r = await four.auth().login(email, TEST_PASSWORD);
       if (r.status !== "device_limit") throw new Error("expected device_limit");
       await four.auth().completePendingLogin(r.pending_token, r.devices[0]!.id);
       const again = env.browser();
@@ -331,8 +353,7 @@ describe("sign-in (PRD §24.1)", () => {
 
       await env.setNow(at(30 * MIN));
       const five = env.browser();
-      await five.auth().requestOtp(email);
-      const r2 = await five.auth().verifyOtp(email, env.readCode(email));
+      const r2 = await five.auth().login(email, TEST_PASSWORD);
       if (r2.status !== "device_limit") throw new Error("expected device_limit");
       await env.setNow(at(30 * MIN + 10 * MIN + 1_000));
       expect(await code(five.auth().completePendingLogin(r2.pending_token, r2.devices[0]!.id))).toBe(
@@ -349,8 +370,7 @@ describe("sign-in (PRD §24.1)", () => {
       await env.setNow(at(10 * MIN));
       const four = env.browser();
       expect(await code(four.auth().completePendingLogin("made-up-token", victimDevice))).toBe("PENDING_LOGIN_INVALID");
-      await four.auth().requestOtp(email);
-      const r = await four.auth().verifyOtp(email, env.readCode(email));
+      const r = await four.auth().login(email, TEST_PASSWORD);
       if (r.status !== "device_limit") throw new Error("expected device_limit");
       expect(await code(four.auth().completePendingLogin(r.pending_token, victimDevice))).toBe("NOT_FOUND");
       expect((await oa!.auth().getSession()).authenticated).toBe(true);
@@ -380,11 +400,11 @@ describe("Origin check on mutations (SEC-11)", () => {
   });
   afterAll(async () => env.close());
 
-  const body = { email: "o1@ngajigaes.test" };
+  const body = { email: "o1@ngajigaes.test", password: "salah-salah-1" };
   it("allows the app's own origin and refuses a missing, foreign or null one", async () => {
     const b = env.browser();
     const post = (origin: string | null) =>
-      b.raw("/auth/request-otp", {
+      b.raw("/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json", ...(origin === null ? {} : { origin }) },
         body: JSON.stringify(body),
@@ -395,11 +415,12 @@ describe("Origin check on mutations (SEC-11)", () => {
       if (origin !== null) headers.set("origin", origin);
       return import("./api-harness").then((m) =>
         m.dispatch(
-          new Request(`${ORIGIN}/api/v1/auth/request-otp`, { method: "POST", headers, body: JSON.stringify(body) }),
+          new Request(`${ORIGIN}/api/v1/auth/login`, { method: "POST", headers, body: JSON.stringify(body) }),
         ),
       );
     };
-    expect((await post(ORIGIN)).status).toBe(200);
+    // a real answer from the login endpoint (wrong password), not the Origin refusal
+    expect((await post(ORIGIN)).status).toBe(401);
     for (const bad of [
       null,
       "https://evil.example",
@@ -453,12 +474,12 @@ describe("Origin check on mutations (SEC-11)", () => {
     const { setDepsForTests } = await import("@/server/api/deps");
     setDepsForTests({ now: () => env.now(), cfg: { ...env.cfg, allowedOrigins: ["https://app.ngajigaes.test"] } });
     const b = env.browser();
-    const res = await b.raw("/auth/request-otp", {
+    const res = await b.raw("/auth/login", {
       method: "POST",
       headers: { "content-type": "application/json", origin: "https://app.ngajigaes.test" },
-      body: JSON.stringify({ email: "o4@ngajigaes.test" }),
+      body: JSON.stringify({ email: "o4@ngajigaes.test", password: "salah-salah-1" }),
     });
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(401);
     setDepsForTests({ now: () => env.now(), cfg: env.cfg });
   });
 });

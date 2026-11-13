@@ -1,8 +1,9 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readdirSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
 import { createHttpAuthRepository, createHttpDataLayer } from "@/data/http";
 import type { AuthConfig } from "@/server/auth/config";
+import { hashPhone } from "@/server/auth/crypto";
+import { hashPassword } from "@/server/auth/password";
 import { setDepsForTests } from "@/server/api/deps";
 import { setDbForTests } from "@/server/db";
 import { createPgliteDb, type PgliteDb } from "@/server/db/pglite";
@@ -120,18 +121,24 @@ export class TestBrowser {
   }
 }
 
+/** The password every test account has. Test only. */
+export const TEST_PASSWORD = "uji-password-panjang-123";
+/** The phone every test order has, as a buyer would type it. */
+export const TEST_PHONE = "0812-3456-7890";
+
 export interface ApiEnv {
   db: PgliteDb;
   cfg: AuthConfig;
-  mailDir: string;
   /** Moves the app clock and the database clock together. */
   setNow(iso: string): Promise<void>;
   now(): Date;
   browser(ip?: string): TestBrowser;
-  /** Code the local provider "emailed" to this address. */
-  readCode(email: string): string;
   grant(email: string, status?: "active" | "pending_verification" | "suspended" | "revoked" | "expired"): Promise<void>;
-  /** Sign in a fresh browser through the real endpoints (code from the mail file). */
+  /** A paid, verified Scalev order with an entitlement and no account yet. This is what activation needs. */
+  grantOrder(email: string, opts?: { phone?: string; status?: string; paymentStatus?: string; verifiedVia?: string | null }): Promise<string>;
+  /** Makes an account with TEST_PASSWORD directly in the database (not through activation) and links entitlements. */
+  createAccount(email: string): Promise<string>;
+  /** Sign in a fresh browser through the real login endpoint. Creates the account first when it does not exist. */
   signIn(email: string, opts?: { browser?: TestBrowser; label?: string }): Promise<TestBrowser>;
   /** Sign in, choose the demo Jakarta region, and finish onboarding. */
   onboarded(email: string, opts?: { browser?: TestBrowser }): Promise<TestBrowser>;
@@ -141,15 +148,15 @@ export interface ApiEnv {
 
 export async function createApiEnv(startAt = "2026-11-12T02:00:00+07:00"): Promise<ApiEnv> {
   const db = await createPgliteDb();
-  const mailDir = mkdtempSync(join(tmpdir(), "tt-mail-"));
+  // Cheap scrypt settings (the minimum the code accepts) keep the suite fast. Production uses ln=15.
   const cfg: AuthConfig = {
-    provider: "local",
     pepper: "test-pepper-test-pepper-test-pepper-123",
     allowedOrigins: [],
-    mailDir,
-    supabaseUrl: null,
-    supabaseAnonKey: null,
+    trustedProxyHops: 1,
+    scrypt: { ln: 10, r: 8, p: 1 },
   };
+  const testHash = await hashPassword(TEST_PASSWORD, cfg.scrypt);
+  let orderN = 0;
   let nowMs = Date.parse(startAt);
   await db.setNow(new Date(nowMs).toISOString());
   setDbForTests(db);
@@ -166,30 +173,58 @@ export async function createApiEnv(startAt = "2026-11-12T02:00:00+07:00"): Promi
   const env: ApiEnv = {
     db,
     cfg,
-    mailDir,
     now: () => new Date(nowMs),
     async setNow(iso) {
       nowMs = Date.parse(iso);
       await db.setNow(new Date(nowMs).toISOString());
     },
     browser: (ip) => new TestBrowser(ip ?? `203.0.113.${ipN++}`),
-    readCode(email) {
-      return (JSON.parse(readFileSync(join(mailDir, `${email}.json`), "utf8")) as { code: string }).code;
-    },
     async grant(email, status = "active") {
       await db.exec(
         "insert into public.access_entitlements (email_normalized, status, starts_at, expires_at) values ($1, $2, '2026-01-01T00:00:00Z', null)",
         [email, status],
       );
     },
+    async grantOrder(email, opts = {}) {
+      const id = (
+        await db.exec(
+          `insert into public.purchase_orders (scalev_order_id, customer_email_normalized, payment_status, verified_via,
+             payment_verified_at, customer_phone_hash)
+           values ($1, $2, $3, $4, now(), $5) returning id::text as id`,
+          [
+            `T-${++orderN}`,
+            email,
+            opts.paymentStatus ?? "paid",
+            opts.verifiedVia === undefined ? "scalev_api" : opts.verifiedVia,
+            hashPhone(cfg.pepper, opts.phone ?? TEST_PHONE),
+          ],
+        )
+      )[0]!.id as string;
+      await db.exec(
+        `insert into public.access_entitlements (email_normalized, status, purchase_order_id, starts_at)
+         values ($1, $2, $3::uuid, '2026-01-01T00:00:00Z')`,
+        [email, opts.status ?? "active", id],
+      );
+      return id;
+    },
+    async createAccount(email) {
+      const existing = await db.exec("select id::text as id from auth.users where email = $1", [email]);
+      if (existing[0]) return String(existing[0].id);
+      const uid = String((await db.exec("insert into auth.users (email) values ($1) returning id::text as id", [email]))[0]!.id);
+      await db.exec("insert into public.profiles (user_id, email_normalized) values ($1::uuid, $2)", [uid, email]);
+      await db.exec(
+        "insert into public.auth_credentials (user_id, password_hash, password_changed_at) values ($1::uuid, $2, now())",
+        [uid, testHash],
+      );
+      await db.exec("update public.access_entitlements set user_id = $1::uuid where email_normalized = $2 and user_id is null", [uid, email]);
+      return uid;
+    },
     async signIn(email, opts = {}) {
       const b = opts.browser ?? env.browser();
-      const auth = b.auth();
-      // Tests that sign in several times for the same email are not testing the resend limits.
-      await db.exec("delete from public.login_otps");
+      // Tests that sign in several times for the same email are not testing the limits.
       await db.exec("delete from public.rate_limits");
-      await auth.requestOtp(email);
-      const r = await auth.verifyOtp(email, env.readCode(email), opts.label ?? "Chrome di Android");
+      await env.createAccount(email);
+      const r = await b.auth().login(email, TEST_PASSWORD, opts.label ?? "Chrome di Android");
       if (r.status !== "ok") throw new Error("device limit");
       return b;
     },
@@ -210,7 +245,6 @@ export async function createApiEnv(startAt = "2026-11-12T02:00:00+07:00"): Promi
       setDbForTests(null);
       setDepsForTests();
       await db.close();
-      rmSync(mailDir, { recursive: true, force: true });
     },
   };
   return env;

@@ -108,7 +108,8 @@ $$;
 -- email is unknown, the phone is wrong, the order is unpaid, or the account already exists.
 create or replace function app_private.activate_account(p_email text, p_phone_hash text, p_password_hash text, p_ip_hash text, p_now timestamptz)
 returns jsonb
-language plpgsql set search_path = '' as $$
+-- SECURITY DEFINER: the backend role has no direct write access to auth.users. Only this function creates accounts.
+language plpgsql security definer set search_path = '' as $$
 declare v_ent_id uuid; v_uid uuid;
 begin
   if p_email is null or p_phone_hash is null or p_password_hash is null then return pg_catalog.jsonb_build_object('ok', false); end if;
@@ -180,7 +181,7 @@ end $$;
 create or replace function app_private.password_token_issue(
   p_actor uuid, p_target_uid uuid, p_token_hash text, p_reason text, p_now timestamptz, p_ttl_seconds int default null
 ) returns jsonb
-language plpgsql set search_path = '' as $$
+language plpgsql security definer set search_path = '' as $$
 declare v_ttl int; v_exp timestamptz;
 begin
   if p_reason is null or pg_catalog.char_length(pg_catalog.btrim(p_reason)) < 3 then
