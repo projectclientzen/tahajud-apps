@@ -34,3 +34,14 @@ Confidence berdasarkan kaidah nahwu/imla umum, bukan rujukan kitab tertentu. Kep
 ## Masih terbuka
 - Keputusan 8 usulan koreksi di atas. Sampai diputuskan, teks owner tampil apa adanya di produksi.
 - Transliterasi Latin dan terjemahan Indonesia (opsional).
+
+## Niat salat (`content/niat.v1.json` v1.0.0, dari owner 13 Nov 2026), status `in_review`
+Teks disalin apa adanya. Temuan di bawah TIDAK diterapkan sampai owner memutuskan.
+| # | Item | Temuan | Usulan |
+|---|------|--------|--------|
+| N1 | Hajat | Arab memuat أَدَاءً (adā'an), Latin tidak | Samakan Arab dan Latin |
+| N2 | Witir 1 | Arab سُنَّةً مِنَ الْوِتْرِ (sunnatan minal witri), Latin "sunnatal witri" | Samakan |
+| N3 | Witir 1 | Latin "lillaahhi" (h ganda) | Kemungkinan salah ketik |
+| N4 | Witir 2 | Sama dengan N2 | Samakan |
+| N5 | Semua | Gaya transliterasi beda (â, aa, oo/o) | Pilih satu gaya |
+| N6 | Qabliyah Subuh | Belum ada teks | Owner kirim, atau tombol niat disembunyikan di langkah ini |

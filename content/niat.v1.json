@@ -1,14 +1,57 @@
 {
   "_comment": "Bacaan niat salat di sesi tahajud. Teks Arab, Latin, dan terjemahan HANYA diisi owner. Agen/AI dilarang mengisi atau mengubah field ini. null = belum tersedia, UI menampilkan empty state.",
-  "content_version": "0.1.0",
-  "review_status": "draft",
+  "content_version": "1.0.0",
+  "review_status": "in_review",
   "approved_by": null,
   "niat": [
-    { "activity_key": "salat_taubat", "title": "Salat Taubat", "arabic": null, "latin": null, "translation": null },
-    { "activity_key": "salat_tahajud", "title": "Salat Tahajud", "arabic": null, "latin": null, "translation": null },
-    { "activity_key": "salat_hajat", "title": "Salat Hajat", "arabic": null, "latin": null, "translation": null },
-    { "activity_key": "salat_witir_1", "title": "Salat Witir (1 rakaat)", "arabic": null, "latin": null, "translation": null },
-    { "activity_key": "salat_witir_2", "title": "Salat Witir (2 rakaat)", "arabic": null, "latin": null, "translation": null },
-    { "activity_key": "salat_qabliyah_subuh", "title": "Salat sunnah Qabliyah Subuh", "arabic": null, "latin": null, "translation": null }
-  ]
+    {
+      "activity_key": "salat_taubat",
+      "title": "Salat Taubat",
+      "arabic": "أُصَلِّي سُنَّةَ التَّوْبَةِ رَكْعَتَيْنِ لِلَّهِ تَعَالَى",
+      "latin": "Ushalli sunnatat taubati rak'ataini lillaahi ta'aalaa.",
+      "translation": null,
+      "note": null
+    },
+    {
+      "activity_key": "salat_tahajud",
+      "title": "Salat Tahajud",
+      "arabic": "أُصَلِّيْ سُنَّةَ التَهَجُّدِ رَكْعَتَيْنِ لِلّٰهِ تَعَالَى",
+      "latin": "Ushallî sunnatat tahajjudi rak'ataini lillâhi ta'âlâ.",
+      "translation": null,
+      "note": null
+    },
+    {
+      "activity_key": "salat_hajat",
+      "title": "Salat Hajat",
+      "arabic": "أُصَلِّيْ سُنَّةَ الحَاجَةِ رَكْعَتَيْنِ أَدَاءً لِلهِ تَعَالَى",
+      "latin": "Ushollii sunnatal haajati rok'ataini lillahi ta'ala",
+      "translation": null,
+      "note": null
+    },
+    {
+      "activity_key": "salat_witir_1",
+      "title": "Salat Witir (1 rakaat)",
+      "arabic": "أُصَلِّى سُنَّةً مِنَ الْوِتْرِ رَكْعَةً لِلّٰهِ تَعَالَى",
+      "latin": "Ushallii sunnatal witri rak'atal lillaahhi ta'aalaa.",
+      "translation": null,
+      "note": "Sendirian"
+    },
+    {
+      "activity_key": "salat_witir_2",
+      "title": "Salat Witir (2 rakaat)",
+      "arabic": "أُصَلِّى سُنَّةً مِنَ الْوِتْرِ رَكْعَتَيْنِ لِلّٰهِ تَعَالَى",
+      "latin": "Ushallii sunnatal witri rak'ataini lillaahi ta'aalaa.",
+      "translation": null,
+      "note": "Atau menggunakan tambahan menghadap kiblat: \"Usholli sunnatal witri rak'ataini mustaqbilal qiblati lillaahi ta'aalaa\""
+    },
+    {
+      "activity_key": "salat_qabliyah_subuh",
+      "title": "Salat sunnah Qabliyah Subuh",
+      "arabic": null,
+      "latin": null,
+      "translation": null,
+      "note": null
+    }
+  ],
+  "source": "Owner (Zen), pesan chat 13 Nov 2026, disalin apa adanya. Satu-satunya perubahan: tanda kurung pembungkus Latin Salat Hajat dibuang."
 }
