@@ -108,7 +108,16 @@ export const locationUpdateSchema = z.discriminatedUnion("mode", [
 ]);
 export type LocationUpdate = z.infer<typeof locationUpdateSchema>;
 
-export const regionSchema = z.object({ id: z.string(), name: z.string(), timezone: z.string() });
+export const regionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  timezone: z.string(),
+  /**
+   * The provider's regency or city name (for example "Kota Bandung") when `name` is not exactly that. Used to match a
+   * GPS point to a region on the device. Absent means `name` is the provider name.
+   */
+  place: z.string().nullable().optional(),
+});
 export type Region = z.infer<typeof regionSchema>;
 
 export const wakePlanSchema = z.object({
@@ -316,6 +325,44 @@ export type QuranProgress = z.infer<typeof quranProgressSchema>;
 export const quranProgressUpdateSchema = z.object({ ayah: z.number().int().min(1).nullable() });
 export type QuranProgressUpdate = z.infer<typeof quranProgressUpdateSchema>;
 export const quranProgressListSchema = z.object({ progress: z.array(quranProgressSchema) });
+
+// ---- Khatam target (CHANGE-2026-11-13 M2). The server keeps raw state; the view is computed with src/domain/khatam. ----
+export const khatamPrayerSchema = z.enum(["subuh", "dzuhur", "ashar", "maghrib", "isya"]);
+export const khatamTargetSchema = z.object({
+  id: z.string().uuid(),
+  khatam_count: z.number().int().min(1).max(5),
+  start_date: isoDate,
+  end_date: isoDate,
+  timezone: z.string(),
+  /** Pages added or removed by "read up to page X" marks. */
+  adjustment: z.number().int(),
+  created_at: isoInstant,
+});
+export type KhatamTarget = z.infer<typeof khatamTargetSchema>;
+export const khatamReadSchema = z.object({
+  day: z.number().int().min(1).max(30),
+  prayer: khatamPrayerSchema,
+  pages: z.number().int().min(1),
+});
+export const khatamResponseSchema = z.object({
+  /** Null until the user sets a target. */
+  target: khatamTargetSchema.nullable(),
+  reads: z.array(khatamReadSchema),
+  /** Server clock when the answer was made. The screen uses it to pick today's day number. */
+  server_now: isoInstant,
+});
+export type KhatamResponse = z.infer<typeof khatamResponseSchema>;
+export const khatamCreateRequestSchema = z.object({ khatam_count: z.number().int().min(1).max(5) });
+export type KhatamCreateRequest = z.infer<typeof khatamCreateRequestSchema>;
+/** Tick or untick one prayer slot. `done` is a set, not a toggle, so a replayed request changes nothing. */
+export const khatamSlotRequestSchema = z.object({
+  day: z.number().int().min(1).max(30),
+  prayer: khatamPrayerSchema,
+  done: z.boolean(),
+});
+export type KhatamSlotRequest = z.infer<typeof khatamSlotRequestSchema>;
+export const khatamMarkRequestSchema = z.object({ page: z.number().int().min(1).max(604) });
+export type KhatamMarkRequest = z.infer<typeof khatamMarkRequestSchema>;
 
 // ---- notification preferences (§19.7) ----
 const clock = z.string().regex(/^\d{2}:\d{2}$/);

@@ -57,6 +57,9 @@ const EXPECTED_TABLES = [
   // X2-B (T7 admin): MFA factors and admin sessions. Backend only.
   "admin_mfa_factors",
   "admin_sessions",
+  // U2: khatam target + ticked prayer slots. Backend only for writes.
+  "khatam_targets",
+  "khatam_reads",
 ];
 
 /** Structure of the public schema as text, so two databases can be compared. */
@@ -285,13 +288,16 @@ describe("security shape (PRD §18, SEC-03)", () => {
         "add_excuse(date,date)",
         "add_push_subscription(uuid,text,text,text)",
         "cancel_excuse(date)",
+        "change_khatam_count(integer)",
         "complete_onboarding()",
+        "create_khatam(integer)",
         "get_access()",
         "get_active_session()",
         "get_activity_stats()",
         "get_calendar(date,date)",
         "get_current_level()",
         "get_dashboard()",
+        "get_khatam()",
         "get_level_progress()",
         "get_night_session(uuid)",
         "get_notification_prefs()",
@@ -304,9 +310,11 @@ describe("security shape (PRD §18, SEC-03)", () => {
         "get_session_summary(uuid)",
         "list_notifications(integer)",
         "list_regions()",
+        "mark_khatam_position(integer)",
         "remove_push_subscription(uuid)",
         "put_notification_prefs(jsonb)",
         "put_quran_progress(integer,integer)",
+        "set_khatam_slot(integer,text,boolean)",
         "set_location(text,uuid,text,text,text)",
         "update_preferences(text,integer,integer)",
         "update_profile(text)",

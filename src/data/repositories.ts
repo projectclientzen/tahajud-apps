@@ -23,6 +23,10 @@ import type {
   QuranSurahList,
   ExcuseRequest,
   ExcuseResponse,
+  KhatamCreateRequest,
+  KhatamMarkRequest,
+  KhatamResponse,
+  KhatamSlotRequest,
   LevelProgressResponse,
   LocationUpdate,
   NightSession,
@@ -103,6 +107,19 @@ export interface QuranProgressRepository {
   putProgress(surah: number, req: QuranProgressUpdate): Promise<QuranProgress>;
 }
 
+export interface KhatamRepository {
+  /** GET /khatam. The current target, ticked slots and the server clock. */
+  getKhatam(): Promise<KhatamResponse>;
+  /** POST /khatam. Starts a 30 day target. Refused while a running target is not finished or past its 30 days. */
+  createTarget(req: KhatamCreateRequest): Promise<KhatamResponse>;
+  /** PUT /khatam/target. Changes N for the running target. Pages already read stay. */
+  changeTarget(req: KhatamCreateRequest): Promise<KhatamResponse>;
+  /** PUT /khatam/slots. Tick or untick a prayer slot of day 1 up to today. A set, so safe to replay. */
+  setSlot(req: KhatamSlotRequest): Promise<KhatamResponse>;
+  /** PUT /khatam/position. "Read up to page X". Safe to replay. */
+  markPosition(req: KhatamMarkRequest): Promise<KhatamResponse>;
+}
+
 export interface NotificationRepository {
   /** GET /me/notification-preferences */
   getPreferences(): Promise<NotificationPreferences>;
@@ -159,6 +176,7 @@ export interface DataLayer {
   report: ReportRepository;
   prayer: PrayerRepository;
   quran: QuranProgressRepository;
+  khatam: KhatamRepository;
   notifications: NotificationRepository;
   profile: ProfileRepository;
 }

@@ -283,18 +283,6 @@ test("onboarding takes at most 3 screens from first sign-in to the dashboard", a
   await expect(page.getByText("Subuh berikutnya")).toBeVisible();
 });
 
-test("onboarding with a manual schedule shows the Fajr time that was typed", async ({ page }) => {
-  await signIn(page);
-  await page.getByRole("button", { name: "Mulai", exact: true }).click();
-  await page.getByRole("radio", { name: "Atur jadwal manual" }).check();
-  await page.getByLabel("Zona waktu").selectOption("Asia/Riyadh");
-  await page.getByLabel("Jam Subuh").fill("04:45");
-  await page.getByRole("button", { name: "Lanjut" }).click();
-  await expect(page.getByTestId("confirm-fajr")).toContainText("04.45");
-  await page.getByRole("button", { name: "Mulai perjalanan" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
-});
-
 test("an email without access sees what to do next, not a dashboard", async ({ page }) => {
   await signIn(page, NO_ACCESS_EMAIL);
   await expect(page).toHaveURL(/\/access-status$/);
@@ -352,9 +340,6 @@ test("axe: login, activation, forgot password, reset and payment screens (no ser
   found.push(...(await serious(page, "/onboarding welcome")));
   await page.getByRole("button", { name: "Mulai", exact: true }).click();
   found.push(...(await serious(page, "/onboarding region")));
-  await page.getByRole("radio", { name: "Atur jadwal manual" }).check();
-  found.push(...(await serious(page, "/onboarding manual")));
-  await page.getByRole("radio", { name: "Pilih wilayah" }).check();
   await page.getByRole("radio", { name: /Jakarta/ }).check();
   await page.getByRole("button", { name: "Lanjut" }).click();
   found.push(...(await serious(page, "/onboarding confirm")));

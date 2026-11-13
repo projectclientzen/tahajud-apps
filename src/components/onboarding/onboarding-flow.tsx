@@ -5,7 +5,8 @@ import * as React from "react";
 import { fieldClass } from "@/components/auth/auth-shell";
 import { errorMessage, useData, useLoad } from "@/components/providers/data-provider";
 import { Button } from "@/components/ui/button";
-import type { PrayerTime } from "@/data";
+import type { PrayerTime, Region } from "@/data";
+import { autoLocate, AUTO_LOCATE_MESSAGE, type AutoLocateResult } from "@/lib/auto-location";
 import { formatClock, formatDateLong, tzLabel } from "@/lib/format-id";
 import { cn } from "@/lib/cn";
 import { requestPersistentStorage } from "@/offline";
@@ -13,15 +14,63 @@ import { requestPersistentStorage } from "@/offline";
 type Step = "welcome" | "region" | "confirm";
 const STEPS: Step[] = ["welcome", "region", "confirm"];
 
-const ZONES = [
-  ["Asia/Jakarta", "WIB (Asia/Jakarta)"],
-  ["Asia/Makassar", "WITA (Asia/Makassar)"],
-  ["Asia/Jayapura", "WIT (Asia/Jayapura)"],
-  ["Asia/Riyadh", "Arab Saudi (Asia/Riyadh)"],
-  ["Asia/Kuala_Lumpur", "Malaysia (Asia/Kuala_Lumpur)"],
-  ["Asia/Singapore", "Singapura (Asia/Singapore)"],
-  ["Europe/London", "Inggris (Europe/London)"],
-] as const;
+/** Regions shown at once in the manual list. The rest is reached by typing in the search box. */
+const LIST_LIMIT = 12;
+
+/** A region the user can pick by hand, with a search box so a list of 500 stays usable on a phone. */
+function RegionPicker({ regions, value, onChange }: { regions: Region[]; value: string; onChange: (id: string) => void }) {
+  const [q, setQ] = React.useState("");
+  const needle = q.trim().toLowerCase();
+  const matches = needle ? regions.filter((r) => r.name.toLowerCase().includes(needle)) : regions;
+  // The chosen region stays on screen even when the search no longer matches it.
+  const shown = matches.slice(0, LIST_LIMIT);
+  const chosen = regions.find((r) => r.id === value);
+  if (chosen && !shown.some((r) => r.id === chosen.id)) shown.unshift(chosen);
+  return (
+    <div className="flex flex-col gap-3">
+      {regions.length > LIST_LIMIT ? (
+        <div className="flex flex-col gap-2">
+          <label htmlFor="ob-search" className="font-semibold">
+            Cari wilayah
+          </label>
+          <input
+            id="ob-search"
+            type="search"
+            className={fieldClass}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Ketik nama kota atau kabupaten"
+            autoComplete="off"
+          />
+        </div>
+      ) : null}
+      <fieldset className="flex flex-col gap-2">
+        <legend className="pb-1 font-semibold">Wilayah</legend>
+        {shown.map((r) => (
+          <label
+            key={r.id}
+            className="flex min-h-14 items-center gap-3 rounded-[var(--radius-control)] border border-border px-4 has-[:checked]:border-primary has-[:checked]:bg-primary-soft"
+          >
+            <input
+              type="radio"
+              name="region"
+              className="size-5 accent-[var(--primary)]"
+              checked={value === r.id}
+              onChange={() => onChange(r.id)}
+            />
+            {r.name}
+          </label>
+        ))}
+        {matches.length === 0 ? <p className="text-text-muted">Tidak ada wilayah dengan nama itu.</p> : null}
+        {matches.length > LIST_LIMIT ? (
+          <p className="text-helper text-text-muted" role="status">
+            Menampilkan {LIST_LIMIT} dari {matches.length} wilayah. Ketik di kolom cari untuk mempersempit.
+          </p>
+        ) : null}
+      </fieldset>
+    </div>
+  );
+}
 
 /** Minimum path (PRD §6.2): welcome, region or manual schedule, confirm Fajr. Everything else is a card on the dashboard. */
 export function OnboardingFlow() {
@@ -29,22 +78,31 @@ export function OnboardingFlow() {
   const router = useRouter();
   const regions = useLoad((l) => l.prayer.listRegions());
   const [step, setStep] = React.useState<Step>("welcome");
-  const [mode, setMode] = React.useState<"region" | "manual">("region");
   const [regionId, setRegionId] = React.useState("");
-  const [timezone, setTimezone] = React.useState("Asia/Jakarta");
-  const [fajr, setFajr] = React.useState("04:30");
+  const [locating, setLocating] = React.useState(false);
+  const [found, setFound] = React.useState<Extract<AutoLocateResult, { kind: "found" }> | null>(null);
+  const [autoNote, setAutoNote] = React.useState<string | null>(null);
   const [prayer, setPrayer] = React.useState<PrayerTime | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
 
-  async function saveLocation() {
+  /** One tap: read the position on this device, find the nearest city, and ask the user to confirm it. */
+  async function useAutoLocation() {
+    setLocating(true);
+    setAutoNote(null);
+    setFound(null);
+    const r = await autoLocate(regions.data ?? []);
+    setLocating(false);
+    if (r.kind === "found") setFound(r);
+    else setAutoNote(AUTO_LOCATE_MESSAGE[r.kind]);
+  }
+
+  async function saveLocation(id: string = regionId) {
     if (!layer) return;
     setBusy(true);
     setError(null);
     try {
-      const p = await layer.profile.setLocation(
-        mode === "region" ? { mode: "region", region_id: regionId } : { mode: "manual", timezone, fajr_time: fajr },
-      );
+      const p = await layer.profile.setLocation({ mode: "region", region_id: id });
       setPrayer(p);
       setStep("confirm");
     } catch (e) {
@@ -68,7 +126,8 @@ export function OnboardingFlow() {
     }
   }
 
-  const canContinue = mode === "region" ? regionId !== "" : /^\d{2}:\d{2}$/.test(fajr) && timezone !== "";
+  const canContinue = regionId !== "";
+  const foundRegion = found ? (regions.data ?? []).find((r) => r.id === found.regionId) : undefined;
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -93,7 +152,7 @@ export function OnboardingFlow() {
           <div className="flex flex-col gap-2">
             <h1 className="text-page-title font-bold">Selamat datang</h1>
             <p className="text-text-muted">
-              Dua langkah singkat: pilih wilayah, lalu cek jadwal Subuh. Pengingat dan panduan pasang aplikasi bisa
+              Dua langkah singkat: tentukan wilayah, lalu cek jadwal Subuh. Pengingat dan panduan pasang aplikasi bisa
               diatur belakangan dari beranda.
             </p>
           </div>
@@ -107,98 +166,83 @@ export function OnboardingFlow() {
         <>
           <div className="flex flex-col gap-2">
             <h1 className="text-page-title font-bold">Wilayahmu</h1>
-            <p className="text-text-muted">Jadwal Subuh mengikuti wilayah. Tidak ketemu? Atur jam Subuh sendiri.</p>
+            <p className="text-text-muted">
+              Jadwal Subuh mengikuti wilayah. Lokasi hanya dipakai sekali untuk mencari kota terdekat di perangkatmu.
+              Titik GPS tidak dikirim dan tidak disimpan.
+            </p>
           </div>
-          <fieldset className="flex flex-col gap-2">
-            <legend className="sr-only">Cara menentukan jadwal</legend>
-            <label className="flex min-h-14 items-center gap-3 rounded-[var(--radius-control)] border border-border px-4 has-[:checked]:border-primary has-[:checked]:bg-primary-soft">
-              <input
-                type="radio"
-                name="mode"
-                className="size-5 accent-[var(--primary)]"
-                checked={mode === "region"}
-                onChange={() => setMode("region")}
-              />
-              Pilih wilayah
-            </label>
-            <label className="flex min-h-14 items-center gap-3 rounded-[var(--radius-control)] border border-border px-4 has-[:checked]:border-primary has-[:checked]:bg-primary-soft">
-              <input
-                type="radio"
-                name="mode"
-                className="size-5 accent-[var(--primary)]"
-                checked={mode === "manual"}
-                onChange={() => setMode("manual")}
-              />
-              Atur jadwal manual
-            </label>
-          </fieldset>
 
-          {mode === "region" ? (
-            <fieldset className="flex flex-col gap-2">
-              <legend className="pb-1 font-semibold">Kota (daftar contoh)</legend>
-              {(regions.data ?? []).map((r) => (
-                <label
-                  key={r.id}
-                  className="flex min-h-14 items-center gap-3 rounded-[var(--radius-control)] border border-border px-4 has-[:checked]:border-primary has-[:checked]:bg-primary-soft"
+          {found ? (
+            <div
+              role="group"
+              aria-label="Konfirmasi lokasi"
+              className="flex flex-col gap-3 rounded-[var(--radius-card)] border-2 border-primary bg-primary-soft/40 p-5"
+            >
+              <p className="text-card-title font-semibold" data-testid="auto-place">
+                Lokasimu: {foundRegion?.name ?? found.place}. Benar?
+              </p>
+              <p className="text-helper text-text-muted">
+                Ini perkiraan dari titik pusat kota terdekat. Di dekat perbatasan hasilnya bisa meleset.
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button
+                  size="lg"
+                  onClick={() => {
+                    setRegionId(found.regionId);
+                    void saveLocation(found.regionId);
+                  }}
+                  loading={busy}
                 >
-                  <input
-                    type="radio"
-                    name="region"
-                    className="size-5 accent-[var(--primary)]"
-                    checked={regionId === r.id}
-                    onChange={() => setRegionId(r.id)}
-                  />
-                  {r.name}
-                </label>
-              ))}
-            </fieldset>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="ob-tz" className="font-semibold">
-                  Zona waktu
-                </label>
-                <select
-                  id="ob-tz"
-                  className={fieldClass}
-                  value={timezone}
-                  onChange={(e) => setTimezone(e.target.value)}
+                  Benar, lanjut
+                </Button>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  onClick={() => {
+                    setFound(null);
+                    setAutoNote("Pilih wilayahmu dari daftar di bawah.");
+                  }}
+                  disabled={busy}
                 >
-                  {ZONES.map(([v, l]) => (
-                    <option key={v} value={v}>
-                      {l}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="ob-fajr" className="font-semibold">
-                  Jam Subuh
-                </label>
-                <input
-                  id="ob-fajr"
-                  type="time"
-                  className={fieldClass}
-                  value={fajr}
-                  onChange={(e) => setFajr(e.target.value)}
-                />
+                  Bukan, pilih sendiri
+                </Button>
               </div>
             </div>
+          ) : (
+            <Button size="lg" block onClick={useAutoLocation} loading={locating} disabled={regions.loading}>
+              Pakai lokasi otomatis
+            </Button>
           )}
+          {autoNote ? (
+            <p role="status" className="rounded-[var(--radius-control)] bg-surface-2 p-3" data-testid="auto-note">
+              {autoNote}
+            </p>
+          ) : null}
 
-          {error ? (
+          {found ? null : (
+            <>
+              <h2 className="pt-2 text-card-title font-semibold">Atau pilih wilayah sendiri</h2>
+              <RegionPicker regions={regions.data ?? []} value={regionId} onChange={setRegionId} />
+              {error ? (
+                <p role="alert" className="rounded-[var(--radius-control)] bg-error-soft p-3 text-error">
+                  {error}
+                </p>
+              ) : null}
+              <div className="flex flex-col gap-2">
+                <Button size="lg" block onClick={() => saveLocation()} loading={busy} disabled={!canContinue}>
+                  Lanjut
+                </Button>
+                <Button variant="ghost" onClick={() => setStep("welcome")}>
+                  Kembali
+                </Button>
+              </div>
+            </>
+          )}
+          {found && error ? (
             <p role="alert" className="rounded-[var(--radius-control)] bg-error-soft p-3 text-error">
               {error}
             </p>
           ) : null}
-          <div className="flex flex-col gap-2">
-            <Button size="lg" block onClick={saveLocation} loading={busy} disabled={!canContinue}>
-              Lanjut
-            </Button>
-            <Button variant="ghost" onClick={() => setStep("welcome")}>
-              Kembali
-            </Button>
-          </div>
         </>
       ) : null}
 
@@ -234,7 +278,13 @@ export function OnboardingFlow() {
             <Button size="lg" block onClick={finish} loading={busy} disabled={!prayer.available}>
               Mulai perjalanan
             </Button>
-            <Button variant="ghost" onClick={() => setStep("region")}>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setFound(null);
+                setStep("region");
+              }}
+            >
               Ubah wilayah
             </Button>
           </div>

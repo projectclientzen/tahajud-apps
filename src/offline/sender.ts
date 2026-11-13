@@ -1,6 +1,14 @@
 import { ApiError } from "@/data/contracts";
 import type { DataLayer } from "@/data/repositories";
-import type { CounterDeltaPayload, ChecklistPayload, QueueItem, QueueSender, SendOutcome } from "./types";
+import type {
+  CounterDeltaPayload,
+  ChecklistPayload,
+  KhatamMarkPayload,
+  KhatamSlotPayload,
+  QueueItem,
+  QueueSender,
+  SendOutcome,
+} from "./types";
 
 /** Errors worth retrying. Everything else is a refusal the user must see. */
 // INTERNAL_ERROR / FORBIDDEN_ORIGIN are retried: an unexpected 500 or a proxy origin glitch must never drop a user note.
@@ -24,7 +32,9 @@ function fromError(e: unknown): SendOutcome {
 }
 
 /** Sends queue items through a DataLayer (mock now, HTTP in S5). Needs no knowledge of either. */
-export function createLayerSender(layer: Pick<DataLayer, "session">): QueueSender {
+export function createLayerSender(
+  layer: Pick<DataLayer, "session"> & Partial<Pick<DataLayer, "khatam">>,
+): QueueSender {
   async function checklist(it: QueueItem): Promise<SendOutcome> {
     const p = it.payload as ChecklistPayload;
     let version = p.version;
@@ -45,6 +55,18 @@ export function createLayerSender(layer: Pick<DataLayer, "session">): QueueSende
       }
     }
     return { kind: "retry", error: "VERSION_CONFLICT" };
+  }
+
+  /** Khatam ops are sets, so there is nothing to merge: one call per item, in order. */
+  async function khatam(it: QueueItem): Promise<SendOutcome> {
+    if (!layer.khatam) return { kind: "retry", error: "NOT_AVAILABLE" };
+    try {
+      if (it.operation_type === "khatam_slot_set") await layer.khatam.setSlot(it.payload as KhatamSlotPayload);
+      else await layer.khatam.markPosition(it.payload as KhatamMarkPayload);
+      return { kind: "synced" };
+    } catch (e) {
+      return fromError(e);
+    }
   }
 
   async function counterBatch(batch: QueueItem[]): Promise<SendOutcome[]> {
@@ -88,11 +110,18 @@ export function createLayerSender(layer: Pick<DataLayer, "session">): QueueSende
           i++;
           continue;
         }
+        if (it.operation_type === "khatam_slot_set" || it.operation_type === "khatam_mark") {
+          out.push(await khatam(it));
+          i++;
+          continue;
+        }
         let j = i;
         while (
           j < items.length &&
           j - i < MAX_BATCH &&
           items[j]!.operation_type !== "checklist_set" &&
+          items[j]!.operation_type !== "khatam_slot_set" &&
+          items[j]!.operation_type !== "khatam_mark" &&
           items[j]!.entity_id === it.entity_id
         )
           j++;

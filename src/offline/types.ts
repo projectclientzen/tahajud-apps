@@ -1,5 +1,10 @@
 /** Offline mutation queue item (PRD §21.2). Stored in IndexedDB database `tahajud-<userId>`, store `queue`. */
-export type OperationType = "counter_delta" | "counter_set_zero" | "checklist_set";
+export type OperationType =
+  | "counter_delta"
+  | "counter_set_zero"
+  | "checklist_set"
+  | "khatam_slot_set"
+  | "khatam_mark";
 /** Synced items are deleted. Rejected ones stay until the user has seen them. */
 export type SyncStatus = "pending" | "syncing" | "rejected";
 
@@ -15,7 +20,22 @@ export interface ChecklistPayload {
   /** Version the user saw when they ticked it. */
   version: number;
 }
-export type QueuePayload = CounterDeltaPayload | CounterSetZeroPayload | ChecklistPayload;
+/** Tick or untick one khatam prayer slot. A set, so replaying it is harmless. */
+export interface KhatamSlotPayload {
+  day: number;
+  prayer: "subuh" | "dzuhur" | "ashar" | "maghrib" | "isya";
+  done: boolean;
+}
+/** "Read up to page X". Replaying it after it landed changes nothing. */
+export interface KhatamMarkPayload {
+  page: number;
+}
+export type QueuePayload =
+  | CounterDeltaPayload
+  | CounterSetZeroPayload
+  | ChecklistPayload
+  | KhatamSlotPayload
+  | KhatamMarkPayload;
 
 export interface QueueItem {
   /** Assigned by IndexedDB, gives the order. */

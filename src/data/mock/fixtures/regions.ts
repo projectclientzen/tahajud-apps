@@ -3,9 +3,9 @@ import type { Region } from "../../contracts";
 
 /** Sample regions only. The real list comes from the prayer-time provider (S7). */
 export const DEMO_REGIONS: Region[] = [
-  { id: "demo-jakarta", name: "Contoh: Jakarta (WIB)", timezone: "Asia/Jakarta" },
-  { id: "demo-makassar", name: "Contoh: Makassar (WITA)", timezone: "Asia/Makassar" },
-  { id: "demo-jayapura", name: "Contoh: Jayapura (WIT)", timezone: "Asia/Jayapura" },
+  { id: "demo-jakarta", name: "Contoh: Jakarta (WIB)", timezone: "Asia/Jakarta", place: "Kota Jakarta" },
+  { id: "demo-makassar", name: "Contoh: Makassar (WITA)", timezone: "Asia/Makassar", place: "Kota Makassar" },
+  { id: "demo-jayapura", name: "Contoh: Jayapura (WIT)", timezone: "Asia/Jayapura", place: "Kota Jayapura" },
 ];
 
 export const DEMO_SCHEDULE_NOTE = "Jadwal contoh, bukan dari Kemenag";
