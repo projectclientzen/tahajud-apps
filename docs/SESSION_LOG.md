@@ -177,3 +177,9 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Bug nyata ditemukan tes DB dan diperbaiki: "terakhir dibaca sampai halaman 604" dari posisi 0 menghasilkan 0.
 - Sisa: data khatam belum ada di `/me/data-export`; tabel `regions` live masih 3 wilayah demo (lokasi otomatis butuh 517 wilayah nyata); teks niat dari owner; baca-uji batas halaman terhadap mushaf cetak; E2E live untuk khatam belum ditulis.
 - Pertanyaan untuk owner: lihat `docs/sessions/U2.md` bagian "Pertanyaan untuk owner" (sisa 4N di hari ke-30, ganti N di tengah periode, bacaan sesi tidak dihitung, tautan enam bacaan dari sesi, merek dan logo Munaja, teks niat).
+
+## Merge U2 Munaja oleh orchestrator (2026-11-13)
+- Merge `claude/u2-munaja` (`09efd45`): rename Munaja, nav bawah (Beranda, Amalan, Al-Qur'an, Laporan), reader 114 surah + halaman/juz (metadata Tanzil), target khatam 30 hari + grafik + checklist 5 waktu (migration `20261117200000`), riwayat level, tombol niat, lokasi otomatis.
+- Perbaikan orchestrator: field `note` niat tampil, test niat memakai konten owner yang sudah published (5 langkah, Qabliyah tanpa tombol), label `upcoming` = "Belum waktunya".
+- Gerbang: typecheck 0, lint 0, unit 1446 + 3 skip, db 316, e2e mock 352 passed / 0 failed, e2e live 38 passed, audit bersih.
+- Sisa: data khatam belum di `/me/data-export`; tabel `regions` live masih 3 demo (impor 517 wilayah belum); migration khatam baru diuji di PGlite; batas halaman Tanzil perlu baca-uji terhadap mushaf cetak.
