@@ -158,3 +158,16 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Untuk merge T6 nanti: `housekeeping()` di migration T6 masih menghapus dari `login_otps` (tabel sudah dihapus) → ganti ke `auth_tokens`/`auth_events`.
 - Belum: webhook Scalev + worker (X3/X6), admin staff_comp/reset UI (X8 + T7), SMTP opsional.
 - Pertanyaan owner: password minimal 10 karakter dan batas percobaan (PROV) setuju?; format `customer.phone` order nyata (Hermes).
+
+## X2-A (branch `claude/x2a-jobs-scalev`, 2026-11-13)
+- Dikerjakan: T6 hijau di atas auth password (migration `20261117010000`, housekeeping tanpa `login_otps`, test TTL push, `send_email` no-op, env). Lalu X3 (webhook Scalev) dan X6 (worker, sweeper, purge) lewat server Scalev palsu lokal. Laporan: `docs/sessions/X2-A.md`; keputusan: `docs/DECISIONS.md` bagian X2-A.
+- Lingkup: orchestrator meminta berhenti setelah Tahap 1, pesannya tiba setelah Tahap 2/3 selesai. Tahap 1 = `b8598af` (terpisah), Tahap 2 = `122ee46`, Tahap 3 = `a0ce6b7`.
+- Gerbang: typecheck 0, lint 0, unit+DB 1331 lulus + 3 skip, test:db 299 lulus, e2e mock 288 lulus / 0 gagal / 46 skip, audit bersih.
+- Sisa: bentuk respons Scalev NEEDS_VERIFICATION (Hermes), kredensial dan produk Scalev, admin (X2-B/X8), Postgres nyata.
+- Pertanyaan owner: lihat X2-A.md (Q14, nominal minimum, refund, spam, retensi, urutan go-live webhook).
+
+## Merge X2-A (jobs + Scalev webhook/worker) oleh orchestrator (2026-11-13)
+- Merge `claude/x2a-jobs-scalev` (`69273a4`): T6 job runner + notifikasi (migration `20261117010000`), webhook Scalev (HMAC, 256 KB, AES-256-GCM, `20261117020000`), worker GET order + provisioning + karantina + sweeper (`20261117030000`). Scalev tidak aktif sampai secret dipasang (503). Setup dashboard Scalev ditunda owner sampai UI/UX selesai.
+- Gerbang orchestrator: typecheck 0, lint 0, unit 1331 + 3 skip, db 299, e2e mock 288 passed / 0 failed (46 skip), e2e live 38 passed, audit bersih.
+- NEEDS_VERIFICATION (Hermes): bungkus respons GET order, daftar order, `customer.phone` (Q14), net_revenue. SKIP LOCKED paralel di Postgres nyata belum terbukti.
+- Untuk X2-B: `Services` punya field wajib `scalev`; manual approve isi `verified_via='admin_manual'`.

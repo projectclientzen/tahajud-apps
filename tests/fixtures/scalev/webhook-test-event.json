@@ -1,0 +1,12 @@
+{
+  "_fixture": {
+    "status": "NEEDS_VERIFICATION",
+    "note": "Hand-written from dev.scalev.com docs read on 13 Nov 2026. Pseudonymised: names, emails, phones and ids are invented. Not a recording of a real Scalev response. Replace with a real sample from Hermes before launch (Q1, Q14)."
+  },
+  "event": "business.test_event",
+  "unique_id": "evt_test_0001",
+  "timestamp": "2026-11-13T08:15:42.000000Z",
+  "data": {
+    "message": "Test from Scalev"
+  }
+}
