@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, CalendarOff, ChartColumn, Settings, UserRound, type LucideIcon } from "lucide-react";
+import { Bell, CalendarOff, Settings, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { LoadGate } from "@/components/providers/load-gate";
 import { useData, useLoad } from "@/components/providers/data-provider";
@@ -18,12 +18,10 @@ import { ScheduleCard } from "./schedule-card";
 import { SetupCards } from "./setup-cards";
 import { SummaryCard } from "./summary-card";
 
-/** Header shortcuts (PRD §8.2 A): notifications, full report, settings, profile. */
+/** Header shortcuts: notifications and settings. Profile is in PageHeader; reports is in the bottom nav (M4). */
 const HEADER_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/notifications", label: "Notifikasi", icon: Bell },
-  { href: "/reports", label: "Laporan", icon: ChartColumn },
   { href: "/settings", label: "Pengaturan", icon: Settings },
-  { href: "/profile", label: "Profil", icon: UserRound },
 ];
 
 function ctaFor(s: NonNullable<Dashboard["current_session"]>): { label: string; href: string } {

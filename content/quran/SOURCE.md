@@ -13,6 +13,25 @@ Perubahan hanya lewat `pnpm import:quran --refresh` dan harus disetujui owner.
 - Jumlah ayat di uthmani.json: 399
 - Ayat yang diambil: surah 18, 36, 55, 56, 67 (semua ayat) dan 65:2-3
 
+
+## Metadata halaman dan juz (meta.json, public/quran/)
+
+- Sumber: Tanzil Quran Metadata, `quran-data.js`
+- URL unduh: https://tanzil.net/res/text/metadata/quran-data.js
+- Tanggal unduh: 2026-11-13
+- File sumber utuh: `source/quran-data.js`
+- SHA-256 file metadata: `9e9930c592aaa34b5c7a79ff4e99ffdc782263a266090bfe2c49e4ed4bac4ca4`
+- Lisensi: Creative Commons Attribution 3.0 (header file, disalin di bawah)
+- Isi yang dipakai: tabel surah (nama latin, jumlah ayat), awal 30 juz, awal 604 halaman (Mushaf Madinah). Hanya angka yang dibaca, file tidak dieksekusi
+- `content/quran/meta.json` dibuat oleh `pnpm import:quran`. Jangan diedit tangan
+- `public/quran/surah-001.json` sampai `surah-114.json`: seluruh ayat dari file sumber utuh, satu file per surah, teks tidak diubah
+
+```
+// Quran Metadata (ver 1.0)
+// Copyright (C) 2008-2009 Tanzil.info
+// License: Creative Commons Attribution 3.0
+```
+
 ## Atribusi
 
 Teks Qur'an: Tanzil Project (https://tanzil.net), lisensi Creative Commons Attribution 3.0.
@@ -50,10 +69,3 @@ Tampilkan sumber dan tautan ke tanzil.net di Reader (akhir surah).
 #
 #====================================================================
 ```
-
-## Basmalah (basmalah.json)
-
-`basmalah.json` berisi teks ayat 1:1 (Al-Fatihah ayat 1) dari file sumber utuh, disalin apa adanya dan dicek byte per byte
-oleh `tests/unit/data/quran-text.test.ts`. Reader memakainya untuk memisahkan basmalah sebagai baris pembuka, hanya jika
-awalan ayat 1 sama persis dengan teks ini ditambah satu spasi. Jika sumber diperbarui lewat `pnpm import:quran --refresh`,
-file ini harus dibuat ulang dari baris `1|1|` (checksum di dalamnya harus sama dengan checksum sumber).

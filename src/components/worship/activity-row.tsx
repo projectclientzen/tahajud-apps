@@ -5,6 +5,7 @@ import Link from "next/link";
 import * as React from "react";
 import { useData } from "@/components/providers/data-provider";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { hasNiat, NiatButton } from "./niat-sheet";
 import type { SessionActivity } from "@/data";
 import { cn } from "@/lib/cn";
 
@@ -133,7 +134,7 @@ export function ActivityRow({ activity: a, onChanged, onError }: RowProps) {
 
   const note = a.type === "quran" ? "Reader menyusul. Centang setelah selesai membaca." : a.guidance;
   return (
-    <li id={`act-${a.id}`}>
+    <li id={`act-${a.id}`} className="flex flex-col">
       <label
         className={cn(
           "flex min-h-16 items-start gap-3 rounded-[var(--radius-control)] p-3 hover:bg-surface-2",
@@ -158,6 +159,7 @@ export function ActivityRow({ activity: a, onChanged, onError }: RowProps) {
           {note ? <span className="text-helper text-text-muted">{note}</span> : null}
         </span>
       </label>
+      {a.type === "prayer" && hasNiat(a.key) ? <NiatButton activityKey={a.key} className="ml-9 w-fit" /> : null}
     </li>
   );
 }

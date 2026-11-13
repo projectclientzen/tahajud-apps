@@ -29,7 +29,7 @@ const STEPS: Record<Guide, string[]> = {
   ],
   desktop: [
     "Buka aplikasi ini di Chrome atau Edge.",
-    "Klik ikon pasang di ujung kanan kolom alamat. Atau buka menu titik tiga, lalu Instal Tahajud Tracker.",
+    "Klik ikon pasang di ujung kanan kolom alamat. Atau buka menu titik tiga, lalu Instal Munaja.",
     "Klik Instal.",
   ],
 };

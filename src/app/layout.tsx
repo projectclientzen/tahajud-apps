@@ -19,10 +19,10 @@ const amiriQuran = Amiri_Quran({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Tahajud Tracker", template: "%s | Tahajud Tracker" },
+  title: { default: "Munaja", template: "%s | Munaja" },
   description: "Pendamping ibadah malam dari NgajiGaes.",
-  applicationName: "Tahajud Tracker",
-  appleWebApp: { capable: true, title: "Tahajud", statusBarStyle: "default" },
+  applicationName: "Munaja",
+  appleWebApp: { capable: true, title: "Munaja", statusBarStyle: "default" },
   formatDetection: { telephone: false },
   icons: {
     icon: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],

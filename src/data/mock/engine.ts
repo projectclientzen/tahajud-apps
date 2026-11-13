@@ -5,6 +5,16 @@ import { addExcuse, cancelExcuse } from "@/domain/calendar/excuse";
 import { PROVISIONAL_SETTINGS, type DomainSettings, type LevelNumber } from "@/domain/config/provisional";
 import { applyBatch, type ServerContext } from "@/domain/dhikr/server";
 import type { CounterOperation } from "@/domain/dhikr/counter";
+import {
+  adjustmentFor,
+  dayNumber,
+  pagesRead,
+  positionAfterMark,
+  slotPages,
+  endDateOf,
+  KHATAM_DAYS,
+  totalPages,
+} from "@/domain/khatam";
 import { alKahfiWindow } from "@/domain/prayer/al-kahfi";
 import { chooseSchedule, manualSchedule, SCHEDULE_LABEL, type PrayerSchedule } from "@/domain/prayer/schedule";
 import { planWake } from "@/domain/prayer/wake-plan";
@@ -37,6 +47,9 @@ import {
   notificationPreferencesSchema,
   quranProgressUpdateSchema,
   checklistUpdateRequestSchema,
+  khatamCreateRequestSchema,
+  khatamMarkRequestSchema,
+  khatamSlotRequestSchema,
   type Access,
   type CalendarResponse,
   type ChecklistUpdateRequest,
@@ -45,6 +58,10 @@ import {
   type Dashboard,
   type ExcuseRequest,
   type ExcuseResponse,
+  type KhatamCreateRequest,
+  type KhatamMarkRequest,
+  type KhatamResponse,
+  type KhatamSlotRequest,
   type LevelProgressResponse,
   type LocationUpdate,
   type NightSession,
@@ -83,6 +100,13 @@ export interface EngineOptions {
   scenario?: ScenarioName;
   content?: AmalanContent;
   settings?: DomainSettings;
+}
+
+/** Same answer the server gives for a body the schema refuses. */
+function khatamInput<T>(schema: { safeParse(v: unknown): { success: true; data: T } | { success: false } }, raw: unknown): T {
+  const r = schema.safeParse(raw);
+  if (!r.success) throw new ApiError("VALIDATION_ERROR", "Data yang dikirim belum sesuai.");
+  return r.data;
 }
 
 const QURAN_SURAHS = new Set([18, 36, 55, 56, 67, 65]);
@@ -868,6 +892,94 @@ export class MockEngine {
     st.quranProgress[String(surah)] = p;
     await this.save();
     return p;
+  }
+
+  // ---------- Khatam target (M2). Same rules as supabase/migrations/20261117200000_khatam.sql. ----------
+  private khatamBody(st: MockState): KhatamResponse {
+    const k = st.khatam ?? { target: null, reads: [] };
+    return { target: k.target, reads: structuredClone(k.reads), server_now: this.now().toISOString() };
+  }
+
+  private khatamRunning(st: MockState) {
+    const t = st.khatam?.target ?? null;
+    if (!t) throw new ApiError("NOT_FOUND", "Target khatam belum dibuat.");
+    return t;
+  }
+
+  async getKhatam(): Promise<KhatamResponse> {
+    const st = await this.s();
+    this.requireActive(st);
+    return this.khatamBody(st);
+  }
+
+  async createKhatam(raw: KhatamCreateRequest): Promise<KhatamResponse> {
+    const req = khatamInput(khatamCreateRequestSchema, raw);
+    const st = await this.s();
+    this.requireActive(st);
+    this.requireOnline(st);
+    const cur = st.khatam?.target ?? null;
+    if (cur) {
+      const finished = pagesRead({ khatamCount: cur.khatam_count, adjustment: cur.adjustment, reads: st.khatam!.reads }) >= totalPages(cur.khatam_count);
+      const over = dayNumber(cur.start_date, this.now(), cur.timezone) > KHATAM_DAYS;
+      if (!finished && !over) throw new ApiError("VALIDATION_ERROR", "Target khatam masih berjalan.", { reason: "target_running" });
+    }
+    const start = localDate(this.now(), st.timezone);
+    st.khatam = {
+      target: {
+        id: crypto.randomUUID(),
+        khatam_count: req.khatam_count,
+        start_date: start,
+        end_date: endDateOf(start),
+        timezone: st.timezone,
+        adjustment: 0,
+        created_at: this.now().toISOString(),
+      },
+      reads: [],
+    };
+    await this.save();
+    return this.khatamBody(st);
+  }
+
+  async changeKhatam(raw: KhatamCreateRequest): Promise<KhatamResponse> {
+    const req = khatamInput(khatamCreateRequestSchema, raw);
+    const st = await this.s();
+    this.requireActive(st);
+    this.requireOnline(st);
+    const t = this.khatamRunning(st);
+    if (dayNumber(t.start_date, this.now(), t.timezone) > KHATAM_DAYS)
+      throw new ApiError("VALIDATION_ERROR", "Periode target sudah berakhir.", { reason: "period_over" });
+    t.khatam_count = req.khatam_count;
+    await this.save();
+    return this.khatamBody(st);
+  }
+
+  async setKhatamSlot(raw: KhatamSlotRequest): Promise<KhatamResponse> {
+    const req = khatamInput(khatamSlotRequestSchema, raw);
+    const st = await this.s();
+    this.requireActive(st);
+    this.requireOnline(st);
+    const t = this.khatamRunning(st);
+    if (req.day > dayNumber(t.start_date, this.now(), t.timezone))
+      throw new ApiError("VALIDATION_ERROR", "Hari itu belum tiba.", { reason: "future_day" });
+    const k = st.khatam!;
+    const i = k.reads.findIndex((r) => r.day === req.day && r.prayer === req.prayer);
+    if (req.done && i < 0) k.reads.push({ day: req.day, prayer: req.prayer, pages: slotPages(t.khatam_count, req.day, req.prayer) });
+    if (!req.done && i >= 0) k.reads.splice(i, 1);
+    await this.save();
+    return this.khatamBody(st);
+  }
+
+  async markKhatamPosition(raw: KhatamMarkRequest): Promise<KhatamResponse> {
+    const req = khatamInput(khatamMarkRequestSchema, raw);
+    const st = await this.s();
+    this.requireActive(st);
+    this.requireOnline(st);
+    const t = this.khatamRunning(st);
+    const k = st.khatam!;
+    const cur = pagesRead({ khatamCount: t.khatam_count, adjustment: t.adjustment, reads: k.reads });
+    t.adjustment = adjustmentFor(positionAfterMark(cur, req.page, t.khatam_count), k.reads);
+    await this.save();
+    return this.khatamBody(st);
   }
 
   // ---------- notification prefs ----------

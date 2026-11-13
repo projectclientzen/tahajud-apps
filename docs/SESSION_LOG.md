@@ -171,3 +171,9 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Gerbang orchestrator: typecheck 0, lint 0, unit 1331 + 3 skip, db 299, e2e mock 288 passed / 0 failed (46 skip), e2e live 38 passed, audit bersih.
 - NEEDS_VERIFICATION (Hermes): bungkus respons GET order, daftar order, `customer.phone` (Q14), net_revenue. SKIP LOCKED paralel di Postgres nyata belum terbukti.
 - Untuk X2-B: `Services` punya field wajib `scalev`; manual approve isi `verified_via='admin_manual'`.
+## U2: Munaja (branch `claude/u2-munaja`, 2026-11-13)
+- Dikerjakan: M1 rename Munaja, M4 navigasi, M2a Al-Qur'an 114 surah + halaman/juz Tanzil, M2b target khatam (domain, migration, API, mock, antrean offline, UI), M5 riwayat level, M6 tombol niat, M3 lokasi otomatis. Satu commit per tahap, semua di-push. Detail dan keluaran gerbang: `docs/sessions/U2.md`.
+- Gerbang: typecheck 0, lint 0, unit 1183 lulus + 3 skip, test:db 296 lulus, e2e mock 352 lulus + 46 skip (spesifikasi screenshot), `pnpm audit --prod` bersih. E2E live tidak dijalankan di sesi ini.
+- Bug nyata ditemukan tes DB dan diperbaiki: "terakhir dibaca sampai halaman 604" dari posisi 0 menghasilkan 0.
+- Sisa: data khatam belum ada di `/me/data-export`; tabel `regions` live masih 3 wilayah demo (lokasi otomatis butuh 517 wilayah nyata); teks niat dari owner; baca-uji batas halaman terhadap mushaf cetak; E2E live untuk khatam belum ditulis.
+- Pertanyaan untuk owner: lihat `docs/sessions/U2.md` bagian "Pertanyaan untuk owner" (sisa 4N di hari ke-30, ganti N di tengah periode, bacaan sesi tidak dihitung, tautan enam bacaan dari sesi, merek dan logo Munaja, teks niat).
