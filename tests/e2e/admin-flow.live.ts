@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Browser, type BrowserContext, type Page, type TestInfo } from "@playwright/test";
+import { expect, request as pwRequest, test, type Browser, type BrowserContext, type Page, type TestInfo } from "@playwright/test";
 import { base32Decode, totp } from "../../src/server/admin/rules/totp";
 import { BUYER_PHONE, ORDER_NUMBER, adminEmail, buyerEmail, staffEmail } from "./admin-fixtures";
 import { LIVE_PASSWORD } from "./live-auth";
@@ -128,8 +128,8 @@ test.describe.serial("super admin", () => {
 
   test("the audit log shows what was done, with who and why", async () => {
     await page.goto("/admin/audit-logs");
-    await expect(page.getByText("Akun staf dibuat")).toBeVisible();
-    await expect(page.getByText("Akses staf dicabut")).toBeVisible();
+    await expect(page.getByText("Akun staf dibuat").first()).toBeVisible();
+    await expect(page.getByText("Akses staf dicabut").first()).toBeVisible();
     await expect(page.getByText("Tautan atur password dibuat").first()).toBeVisible();
     await expect(page.getByText(REASON).first()).toBeVisible();
     await axeClean(page);
@@ -185,11 +185,19 @@ test.describe.serial("support admin (CS)", () => {
     await expect(page.getByText("Disetujui manual admin")).toBeVisible();
     await expect(page.getByText("Order disetujui manual").first()).toBeVisible();
 
-    const activate = () =>
-      page.request.post("/api/v1/auth/activate", {
-        data: { email: buyerEmail(p), phone: BUYER_PHONE, password: "kata-sandi-pembeli-uji-9" },
-        headers: { origin: new URL(page.url()).origin, "x-forwarded-for": `${ip.split(".").slice(0, 3).join(".")}.200` },
-      });
+    // The buyer is a different person: their own request context, so the CS cookie is not replaced by the buyer's session.
+    const origin = new URL(page.url()).origin;
+    const activate = async () => {
+      const buyer = await pwRequest.newContext({ baseURL: origin });
+      try {
+        return await buyer.post("/api/v1/auth/activate", {
+          data: { email: buyerEmail(p), phone: BUYER_PHONE, password: "kata-sandi-pembeli-uji-9" },
+          headers: { origin, "x-forwarded-for": `${ip.split(".").slice(0, 3).join(".")}.200` },
+        });
+      } finally {
+        await buyer.dispose();
+      }
+    };
 
     // Blocked: one generic failure.
     await page.getByLabel(/^Alasan/).last().fill(REASON);
