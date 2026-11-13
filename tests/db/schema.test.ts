@@ -57,6 +57,9 @@ const EXPECTED_TABLES = [
   // U2: khatam target + ticked prayer slots. Backend only for writes.
   "khatam_targets",
   "khatam_reads",
+  // X2-B (T7 admin): MFA factors and admin sessions. Backend only.
+  "admin_mfa_factors",
+  "admin_sessions",
 ];
 
 /** Structure of the public schema as text, so two databases can be compared. */
