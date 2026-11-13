@@ -2,11 +2,16 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import {
   DEMO_EMAIL,
+  DEMO_PASSWORD,
+  DEMO_PHONE,
+  NEW_BUYER_EMAIL,
+  NEW_BUYER_PHONE,
+  NEW_PASSWORD,
   NO_ACCESS_EMAIL,
   PENDING_EMAIL,
+  fillLogin,
   finishOnboarding,
-  readOtp,
-  requestCode,
+  makeResetLink,
   signIn,
 } from "./r3a-helpers";
 
@@ -34,26 +39,32 @@ test("signed-out visitors cannot open app pages", async ({ page }) => {
   }
 });
 
-test("AUTH-06: the screen after requesting a code is the same for any email", async ({ page }) => {
+test("AUTH-09: a wrong password and an unknown email give the same message", async ({ page }) => {
   const seen: string[] = [];
   for (const email of [DEMO_EMAIL, "tidak.terdaftar@contoh.test"]) {
-    await requestCode(page, email);
-    const text = (await page.locator("main").innerText()).split(email).join("EMAIL");
-    seen.push(text);
+    await page.goto("/login");
+    await fillLogin(page, email, "salah-salah-1");
+    await expect(page.locator("#login-error")).toBeVisible();
+    seen.push((await page.locator("#login-error").innerText()).trim());
+    await expect(page).toHaveURL(/\/login$/);
   }
-  expect(seen[0]).toBe(seen[1]);
-  expect(seen[0]).toContain("Jika email ini punya akses");
+  expect(seen[0]).toBe("Email atau password salah.");
+  expect(seen[1]).toBe(seen[0]);
 });
 
-test("AUTH-06: a wrong code gives one generic message", async ({ page }) => {
-  await requestCode(page, NO_ACCESS_EMAIL);
-  await page.getByLabel("Kode 6 digit").fill("000000");
-  await page.getByRole("button", { name: "Masuk", exact: true }).click();
-  await expect(page.locator("#otp-error")).toHaveText("Kode tidak valid atau sudah kedaluwarsa.");
-  await expect(page).toHaveURL(/\/auth\/verify$/);
+test("login: Enter in the password field signs in, and the show button reveals the password", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(DEMO_EMAIL);
+  const field = page.getByLabel("Password", { exact: true });
+  await field.fill(DEMO_PASSWORD);
+  await expect(field).toHaveAttribute("type", "password");
+  await page.getByRole("button", { name: "Tampilkan password" }).click();
+  await expect(field).toHaveAttribute("type", "text");
+  await field.press("Enter");
+  await expect(page).toHaveURL(/\/onboarding$/);
 });
 
-test("AUTH-07: sign in finishes inside the app, with the code typed in, no other page or tab", async ({
+test("AUTH-07: sign in finishes inside the app with a typed password, no other page or tab", async ({
   page,
   context,
 }) => {
@@ -63,14 +74,193 @@ test("AUTH-07: sign in finishes inside the app, with the code typed in, no other
   await expect(page).toHaveURL(/\/onboarding$/);
   expect(context.pages()).toHaveLength(1);
   expect([...origins]).toHaveLength(1);
-  await expect(page.getByLabel("Kode 6 digit")).toHaveCount(0);
+  await expect(page.getByLabel("Password", { exact: true })).toHaveCount(0);
 });
 
-test("resend is locked for 60 seconds and the help list is there", async ({ page }) => {
-  await requestCode(page, DEMO_EMAIL);
-  await page.getByText("Tidak menerima kode?").click();
-  await expect(page.getByText("Cek folder spam atau promosi.")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Kirim ulang kode \(\d+ detik\)/ })).toBeDisabled();
+test("login offers forgot password and activation, and the old code screen is gone", async ({ page }) => {
+  await page.goto("/login");
+  await expect(page.getByRole("link", { name: "Lupa password?" })).toHaveAttribute("href", "/forgot-password");
+  await expect(page.getByRole("link", { name: "Baru beli? Aktivasi akun" })).toHaveAttribute("href", "/activate");
+  await expect(page.getByText(/kode/i)).toHaveCount(0);
+  await page.goto("/auth/verify");
+  await expect(page).toHaveURL(/\/login$/);
+});
+
+test.describe("ACT: activation with email and phone of a paid order (DEMO order)", () => {
+  async function fillIdentity(page: Page, email: string, phone: string) {
+    await page.goto("/activate");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Nomor HP").fill(phone);
+    await page.getByRole("button", { name: "Lanjut" }).click();
+  }
+
+  test("ACT-01: email + phone, then a password, creates the account and signs in", async ({ page }) => {
+    await fillIdentity(page, NEW_BUYER_EMAIL, NEW_BUYER_PHONE);
+    await expect(page.getByRole("heading", { name: "Buat password", level: 1 })).toBeFocused();
+    await page.getByLabel("Password baru", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByLabel("Ulangi password", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByRole("button", { name: "Aktifkan akun" }).click();
+    await expect(page.getByTestId("activated-email")).toHaveText(NEW_BUYER_EMAIL);
+    await expect(page.getByRole("heading", { name: "Akun aktif", level: 1 })).toBeVisible();
+    await page.getByRole("button", { name: "Lanjut ke aplikasi" }).click();
+    await expect(page).toHaveURL(/\/onboarding$/);
+  });
+
+  test("ACT-01: the phone can be written as +62 and the new password works on the next login", async ({ page }) => {
+    await fillIdentity(page, NEW_BUYER_EMAIL, "+62 812-0000-0002");
+    await page.getByLabel("Password baru", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByLabel("Ulangi password", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByRole("button", { name: "Aktifkan akun" }).click();
+    await page.getByRole("button", { name: "Lanjut ke aplikasi" }).click();
+    await finishOnboarding(page);
+    // sign out, then the password that was just chosen opens the account again
+    await page.getByRole("button", { name: "Keluar" }).filter({ visible: true }).first().click();
+    await page
+      .getByRole("dialog", { name: "Keluar dari perangkat ini?" })
+      .getByRole("button", { name: "Keluar", exact: true })
+      .click();
+    await expect(page).toHaveURL(/\/login$/);
+    await fillLogin(page, NEW_BUYER_EMAIL, NEW_PASSWORD);
+    // Local demo data is cleared at sign-out, so the demo account walks through onboarding again.
+    await expect(page).toHaveURL(/\/(onboarding|dashboard)$/);
+  });
+
+  test("ACT-02: a wrong phone, an unknown email and an account that already exists give the same message", async ({
+    page,
+  }) => {
+    const seen: string[] = [];
+    for (const [email, phone] of [
+      [NEW_BUYER_EMAIL, "0812-9999-9999"],
+      ["tidak.ada@contoh.test", NEW_BUYER_PHONE],
+      [DEMO_EMAIL, DEMO_PHONE],
+    ] as const) {
+      await fillIdentity(page, email, phone);
+      await page.getByLabel("Password baru", { exact: true }).fill(NEW_PASSWORD);
+      await page.getByLabel("Ulangi password", { exact: true }).fill(NEW_PASSWORD);
+      await page.getByRole("button", { name: "Aktifkan akun" }).click();
+      const alert = page.getByRole("alert").filter({ hasText: "Data tidak cocok" });
+      await expect(alert).toBeVisible();
+      seen.push((await alert.innerText()).trim());
+      await expect(page.getByRole("link", { name: "Lupa password?" })).toBeVisible();
+    }
+    expect(new Set(seen).size).toBe(1);
+    expect(seen[0]).toContain("Data tidak cocok atau akun sudah aktif");
+  });
+
+  test("a weak password is explained before anything is sent", async ({ page }) => {
+    await fillIdentity(page, NEW_BUYER_EMAIL, NEW_BUYER_PHONE);
+    await page.getByLabel("Password baru", { exact: true }).fill("pendek");
+    await expect(page.getByText("Password minimal 10 karakter.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Aktifkan akun" })).toBeDisabled();
+    await page.getByLabel("Password baru", { exact: true }).fill("password123");
+    await expect(page.getByText(/terlalu umum/)).toBeVisible();
+    await page.getByLabel("Password baru", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByLabel("Ulangi password", { exact: true }).fill(`${NEW_PASSWORD}x`);
+    await expect(page.getByText("Password belum sama.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Aktifkan akun" })).toBeDisabled();
+  });
+
+  test("a phone that is not a phone is caught on the first step", async ({ page }) => {
+    await fillIdentity(page, NEW_BUYER_EMAIL, "bukan nomor");
+    await expect(page.locator("main").getByRole("alert")).toContainText("Nomor HP belum benar");
+    await expect(page.getByRole("heading", { name: "Aktivasi akun", level: 1 })).toBeVisible();
+  });
+
+  test("ACT-04: after 5 wrong tries the screen says to wait, without saying why", async ({ page }) => {
+    for (let i = 0; i < 5; i++) {
+      await fillIdentity(page, NEW_BUYER_EMAIL, `0812-9999-000${i}`);
+      await page.getByLabel("Password baru", { exact: true }).fill(NEW_PASSWORD);
+      await page.getByLabel("Ulangi password", { exact: true }).fill(NEW_PASSWORD);
+      await page.getByRole("button", { name: "Aktifkan akun" }).click();
+      await expect(page.getByRole("alert").filter({ hasText: "Data tidak cocok" })).toBeVisible();
+    }
+    await fillIdentity(page, NEW_BUYER_EMAIL, NEW_BUYER_PHONE);
+    await page.getByLabel("Password baru", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByLabel("Ulangi password", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByRole("button", { name: "Aktifkan akun" }).click();
+    const alert = page.getByRole("alert").filter({ hasText: "Terlalu sering mencoba" });
+    await expect(alert).toBeVisible();
+    await expect(alert).not.toContainText(/email|nomor|HP/i);
+  });
+});
+
+test.describe("forgot password without email (email + phone of the order)", () => {
+  test("ACT-06: sets a new password, all devices go out, and the old password stops working", async ({ page }) => {
+    await page.goto("/forgot-password");
+    await page.getByLabel("Email").fill(DEMO_EMAIL);
+    await page.getByLabel("Nomor HP").fill(DEMO_PHONE);
+    await page.getByLabel("Password baru", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByLabel("Ulangi password", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByRole("button", { name: "Ganti password" }).click();
+    await expect(page.getByRole("heading", { name: "Password diganti", level: 1 })).toBeFocused();
+    await expect(page.getByRole("status")).toContainText("Semua perangkat sudah keluar");
+    // no session was opened
+    await page.goto("/dashboard");
+    await expect(page).toHaveURL(/\/login$/);
+    await fillLogin(page, DEMO_EMAIL, DEMO_PASSWORD);
+    await expect(page.locator("#login-error")).toHaveText("Email atau password salah.");
+    await fillLogin(page, DEMO_EMAIL, NEW_PASSWORD);
+    await expect(page).toHaveURL(/\/onboarding$/);
+  });
+
+  test("a wrong phone gives the generic message and points to CS", async ({ page }) => {
+    await page.goto("/forgot-password");
+    await page.getByLabel("Email").fill(DEMO_EMAIL);
+    await page.getByLabel("Nomor HP").fill("0812-9999-9999");
+    await page.getByLabel("Password baru", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByLabel("Ulangi password", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByRole("button", { name: "Ganti password" }).click();
+    const alert = page.locator("main").getByRole("alert");
+    await expect(alert).toContainText("Data tidak cocok atau akun sudah aktif");
+    await expect(alert).toContainText("CS bisa mengirim tautan reset");
+  });
+});
+
+test.describe("reset link from CS (admin token)", () => {
+  test("ADMIN-RESET-01: the link works once, takes the token out of the address bar, and signs in", async ({ page }) => {
+    await page.goto("/login");
+    const link = await makeResetLink(page, DEMO_EMAIL);
+    await page.goto(link);
+    await expect(page.getByRole("heading", { name: "Buat password baru", level: 1 })).toBeVisible();
+    await expect(page).toHaveURL(/\/reset$/); // the fragment is gone from the address bar and the history
+    await page.getByLabel("Password baru", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByLabel("Ulangi password", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByRole("button", { name: "Simpan password" }).click();
+    await expect(page).toHaveURL(/\/onboarding$/);
+
+    // the same link again
+    await page.goto(link);
+    await page.getByLabel("Password baru", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByLabel("Ulangi password", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByRole("button", { name: "Simpan password" }).click();
+    await expect(page.getByRole("heading", { name: "Tautan tidak berlaku", level: 1 })).toBeVisible();
+  });
+
+  test("a page opened without a token, or with a made up one, says the link is not valid", async ({ page }) => {
+    await page.goto("/reset");
+    await expect(page.getByRole("heading", { name: "Tautan tidak berlaku", level: 1 })).toBeVisible();
+    await page.goto("/login"); // a fragment-only change would not reload the page, a real link opens a fresh one
+    await page.goto("/reset#t=abcdefghijklmnopqrstuvwxyz0123456789");
+    await page.getByLabel("Password baru", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByLabel("Ulangi password", { exact: true }).fill(NEW_PASSWORD);
+    await page.getByRole("button", { name: "Simpan password" }).click();
+    await expect(page.getByRole("heading", { name: "Tautan tidak berlaku", level: 1 })).toBeVisible();
+  });
+
+  test("the reset page sends no Referer", async ({ request }) => {
+    const res = await request.get("/reset");
+    expect(res.headers()["referrer-policy"]).toBe("no-referrer");
+  });
+});
+
+test("the payment success page grants nothing and sends the buyer to activation", async ({ page }) => {
+  await page.goto("/payment/success?order=123&token=abc");
+  await expect(page.getByRole("heading", { name: "Pembayaran diterima", level: 1 })).toBeVisible();
+  await expect(page.getByText("Pakai email dan nomor HP yang sama dengan saat order.")).toBeVisible();
+  await page.getByRole("link", { name: "Aktivasi akun" }).click();
+  await expect(page).toHaveURL(/\/activate$/);
+  await page.goto("/dashboard");
+  await expect(page).toHaveURL(/\/login$/);
 });
 
 test("onboarding takes at most 3 screens from first sign-in to the dashboard", async ({ page }) => {
@@ -131,16 +321,33 @@ test("access turned on later: the waiting screen moves on to onboarding", async 
   await expect(page).toHaveURL(/\/onboarding$/);
 });
 
-test("axe: sign in, verify, onboarding and access screens (no serious or critical)", async ({ page }) => {
+test("axe: login, activation, forgot password, reset and payment screens (no serious or critical)", async ({
+  page,
+}) => {
   const found: string[] = [];
   await page.goto("/login");
   await expect(page.getByLabel("Email")).toBeVisible();
   found.push(...(await serious(page, "/login")));
-  await requestCode(page, DEMO_EMAIL);
-  found.push(...(await serious(page, "/auth/verify")));
-  const code = await readOtp(page, DEMO_EMAIL);
-  await page.getByLabel("Kode 6 digit").fill(code);
-  await page.getByRole("button", { name: "Masuk", exact: true }).click();
+  await page.goto("/activate");
+  await expect(page.getByLabel("Nomor HP")).toBeVisible();
+  found.push(...(await serious(page, "/activate identity")));
+  await page.getByLabel("Email").fill(NEW_BUYER_EMAIL);
+  await page.getByLabel("Nomor HP").fill(NEW_BUYER_PHONE);
+  await page.getByRole("button", { name: "Lanjut" }).click();
+  await expect(page.getByLabel("Password baru", { exact: true })).toBeVisible();
+  found.push(...(await serious(page, "/activate password")));
+  await page.getByLabel("Password baru", { exact: true }).fill("pendek");
+  found.push(...(await serious(page, "/activate password error")));
+  await page.goto("/forgot-password");
+  await expect(page.getByLabel("Nomor HP")).toBeVisible();
+  found.push(...(await serious(page, "/forgot-password")));
+  await page.goto("/reset");
+  await expect(page.getByRole("heading", { name: "Tautan tidak berlaku" })).toBeVisible();
+  found.push(...(await serious(page, "/reset invalid")));
+  await page.goto("/payment/success");
+  await expect(page.getByRole("heading", { name: "Pembayaran diterima" })).toBeVisible();
+  found.push(...(await serious(page, "/payment/success")));
+  await signIn(page);
   await expect(page).toHaveURL(/\/onboarding$/);
   found.push(...(await serious(page, "/onboarding welcome")));
   await page.getByRole("button", { name: "Mulai", exact: true }).click();
@@ -161,12 +368,15 @@ test("axe: access status in light and dark", async ({ page }) => {
   expect(await serious(page, "/access-status dark")).toEqual([]);
 });
 
-test("phone width: sign in and onboarding do not overflow", async ({ page }) => {
+test("phone width: auth screens and onboarding do not overflow", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   const overflow = () =>
     page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  for (const path of ["/login", "/activate", "/forgot-password", "/reset", "/payment/success"]) {
+    await page.goto(path);
+    expect(await overflow(), path).toBeLessThanOrEqual(0);
+  }
   await page.goto("/login");
-  expect(await overflow()).toBeLessThanOrEqual(0);
   await signIn(page);
   expect(await overflow()).toBeLessThanOrEqual(0);
   await finishOnboardingAt320(page);

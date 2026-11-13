@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { AUTH_FILE, DEMO_EMAIL, NO_ACCESS_EMAIL, PENDING_EMAIL, readOtp, requestCode, signIn } from "./r3a-helpers";
+import { AUTH_FILE, DEMO_EMAIL, NO_ACCESS_EMAIL, PENDING_EMAIL, fillLogin, signIn } from "./r3a-helpers";
 import { loadScenario, openCounter, setDemoTime, startSession } from "./s3-helpers";
 
 /**
@@ -48,13 +48,13 @@ test.describe("@u1a-shots", () => {
         await settle(page);
         await shot(page, "login");
 
-        await requestCode(page, DEMO_EMAIL);
+        await page.goto("/activate");
         await settle(page);
-        await shot(page, "verify");
-        await page.getByLabel("Kode 6 digit").fill("000000");
-        await page.getByRole("button", { name: "Masuk", exact: true }).click();
-        await page.locator("#otp-error").waitFor();
-        await shot(page, "verify-error");
+        await shot(page, "activate");
+        await page.goto("/login");
+        await fillLogin(page, DEMO_EMAIL, "salah-salah-1");
+        await page.locator("#login-error").waitFor();
+        await shot(page, "login-error");
 
         // Access states
         for (const [email, name] of [
@@ -85,10 +85,7 @@ test.describe("@u1a-shots", () => {
         });
         const p3 = await c3.newPage();
         await p3.addInitScript((t) => localStorage.setItem("tt-theme", t), theme);
-        await requestCode(p3, DEMO_EMAIL);
-        const code = await readOtp(p3, DEMO_EMAIL);
-        await p3.getByLabel("Kode 6 digit").fill(code);
-        await p3.getByRole("button", { name: "Masuk", exact: true }).click();
+        await signIn(p3, DEMO_EMAIL);
         await expect(p3).toHaveURL(/\/onboarding$/);
         await settle(p3);
         await shot(p3, "onb-welcome");
