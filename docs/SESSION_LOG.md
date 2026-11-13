@@ -171,3 +171,10 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Gerbang orchestrator: typecheck 0, lint 0, unit 1331 + 3 skip, db 299, e2e mock 288 passed / 0 failed (46 skip), e2e live 38 passed, audit bersih.
 - NEEDS_VERIFICATION (Hermes): bungkus respons GET order, daftar order, `customer.phone` (Q14), net_revenue. SKIP LOCKED paralel di Postgres nyata belum terbukti.
 - Untuk X2-B: `Services` punya field wajib `scalev`; manual approve isi `verified_via='admin_manual'`.
+
+## X2-B (branch `claude/x2b-admin`, 2026-11-13)
+- Dikerjakan: T7 admin dipindah ke skema auth baru (migration `20261117100000..130000`), sisa test T7, X8 (migration `20261117140000_admin_staff.sql`: staf `staff_comp`, tautan reset, approve manual, blokir aktivasi, cek HP, bypass level staf, staf di luar agregat), script `admin-grant-role`, UI `/admin/**`, e2e admin. Laporan: `docs/sessions/X2-B.md`; keputusan: `docs/DECISIONS.md` X8-1..12.
+- Gerbang: typecheck 0, lint 0, unit+DB 1418 lulus + 3 skip, test:db 327 lulus, e2e mock 288 lulus / 0 gagal, e2e admin 20 lulus, audit bersih.
+- Menyentuh satu file di luar kepemilikan: `tests/db/auth-password.test.ts` (kasus `admin_manual` tidak lagi "harus gagal").
+- Sisa: edit konfigurasi level dari admin, jalur CS untuk order tanpa HP, Postgres nyata, uji perangkat.
+- Pertanyaan owner: Q-X2B-1..5 di laporan.

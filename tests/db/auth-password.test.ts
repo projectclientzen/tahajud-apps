@@ -138,7 +138,7 @@ describe("X4 schema: email + password, activation, admin reset links", () => {
       await order("d2@ngajigaes.test");
       await order("d2-nophone@ngajigaes.test", { phone: null });
       await order("d2-unpaid@ngajigaes.test", { payment: "unpaid" });
-      await order("d2-manual@ngajigaes.test", { verified: "admin_manual" });
+      // admin_manual orders can activate since X8 (an admin approved them with a reason and reference): see admin-staff.test.ts.
       await order("d2-unverified@ngajigaes.test", { verified: null });
       await order("d2-blocked@ngajigaes.test", { blocked: true });
       const before = Number((await rows<{ n: string }>(pg, "select count(*) as n from auth.users"))[0]!.n);
@@ -149,7 +149,6 @@ describe("X4 schema: email + password, activation, admin reset links", () => {
         await activate("nobody@ngajigaes.test"),
         await activate("d2-nophone@ngajigaes.test"),
         await activate("d2-unpaid@ngajigaes.test"),
-        await activate("d2-manual@ngajigaes.test"),
         await activate("d2-unverified@ngajigaes.test"),
         await activate("d2-blocked@ngajigaes.test"),
       ];

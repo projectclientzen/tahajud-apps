@@ -2,7 +2,8 @@
  * Text rules for what the CMS accepts. The database enforces the same rules again (admin_text, admin_template_text).
  * Owner content stays owner content: no Arabic from a form, no HTML, only two template variables (PRD §15.2, SEC-10).
  */
-const ARABIC = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/;
+// Written as escapes: the repo forbids Arabic script in src/ (only owner content files hold it).
+const ARABIC = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
 const CONTROL = /[\u0001-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 
 export const hasArabic = (s: string): boolean => ARABIC.test(s);
