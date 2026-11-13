@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
-import { LIVE_PASSWORD, LIVE_PHONE } from "./live-auth";
+import { LIVE_PASSWORD, livePhone } from "./live-auth";
 
 const mail = (kind: string, project: string) => `${kind}-${project}@ngajigaes.test`;
 
@@ -8,7 +8,7 @@ const mail = (kind: string, project: string) => `${kind}-${project}@ngajigaes.te
 async function activateUi(page: Page, email: string) {
   await page.goto("/activate");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Nomor HP").fill(LIVE_PHONE);
+  await page.getByLabel("Nomor HP").fill(livePhone(email));
   await page.getByRole("button", { name: "Lanjut" }).click();
   await page.getByLabel("Password baru", { exact: true }).fill(LIVE_PASSWORD);
   await page.getByLabel("Ulangi password", { exact: true }).fill(LIVE_PASSWORD);

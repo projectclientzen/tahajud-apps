@@ -1,5 +1,6 @@
+import { readFileSync } from "node:fs";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
-import { LIVE_PASSWORD, LIVE_PHONE } from "./live-auth";
+import { LIVE_PASSWORD, livePhone } from "./live-auth";
 
 /**
  * T3c: the endpoints added after T3b, called the way the browser calls them (same origin, cookie, Origin header)
@@ -48,7 +49,7 @@ async function signInAndOnboard(page: Page, email: string, project: string) {
   await page.goto("/login");
   const headers = { origin: new URL(page.url()).origin, "x-forwarded-for": nextIp(project) };
   const activate = await page.request.post("/api/v1/auth/activate", {
-    data: { email, phone: LIVE_PHONE, password: LIVE_PASSWORD, device_label: `Chrome ${project}` },
+    data: { email, phone: livePhone(email), password: LIVE_PASSWORD, device_label: `Chrome ${project}` },
     headers,
   });
   expect(activate.status()).toBe(200);

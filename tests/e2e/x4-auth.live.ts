@@ -1,5 +1,5 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
-import { LIVE_NEW_PASSWORD, LIVE_PASSWORD, LIVE_PHONE } from "./live-auth";
+import { LIVE_NEW_PASSWORD, LIVE_PASSWORD, livePhone } from "./live-auth";
 
 /**
  * X4 live: email + password, activation by email + phone of a paid order, reset and change password, against the real
@@ -27,8 +27,8 @@ test("live: activation needs the email AND the phone of the order, and gives one
   const bodies: string[] = [];
   for (const data of [
     { email, phone: "0899 9999 9999", password: strong }, // wrong phone
-    { email: mail("nobody", info.project.name), phone: LIVE_PHONE, password: strong }, // no such order
-    { email: mail("pending", info.project.name), phone: LIVE_PHONE, password: strong }, // account exists already
+    { email: mail("nobody", info.project.name), phone: livePhone(email), password: strong }, // no such order
+    { email: mail("pending", info.project.name), phone: livePhone(email), password: strong }, // account exists already
   ]) {
     const res = await post(page, "/auth/activate", data, ip);
     expect(res.status()).toBe(400);
@@ -38,12 +38,12 @@ test("live: activation needs the email AND the phone of the order, and gives one
   expect(new Set(bodies).size).toBe(1);
   expect(JSON.parse(bodies[0]!).error.code).toBe("ACTIVATION_FAILED");
   // a weak password is explained and creates nothing
-  const weak = await post(page, "/auth/activate", { email, phone: LIVE_PHONE, password: "pendek" }, ip);
+  const weak = await post(page, "/auth/activate", { email, phone: livePhone(email), password: "pendek" }, ip);
   expect(weak.status()).toBe(422);
   expect((await weak.json()).error.details.reason).toBe("too_short");
 
   // the right data, with the phone written another way
-  const ok = await post(page, "/auth/activate", { email, phone: "+62 812-3456-7890", password: strong }, ip);
+  const ok = await post(page, "/auth/activate", { email, phone: livePhone(email).replace(/^0/, "+62 "), password: strong }, ip);
   expect(ok.status()).toBe(200);
   expect(await ok.json()).toMatchObject({ status: "ok", user: { email }, access: { access_status: "active" } });
   expect((await page.context().cookies()).find((c) => c.name === "tt_session")).toMatchObject({
@@ -53,7 +53,7 @@ test("live: activation needs the email AND the phone of the order, and gives one
   expect(await (await page.request.get("/api/v1/me")).json()).toMatchObject({ authenticated: true });
 
   // one activation per entitlement
-  const again = await post(page, "/auth/activate", { email, phone: LIVE_PHONE, password: LIVE_NEW_PASSWORD }, nextIp(info.project.name));
+  const again = await post(page, "/auth/activate", { email, phone: livePhone(email), password: LIVE_NEW_PASSWORD }, nextIp(info.project.name));
   expect(again.status()).toBe(400);
   expect((await again.json()).error.code).toBe("ACTIVATION_FAILED");
 
@@ -76,7 +76,7 @@ test("live: the activation screen creates the account and lands on onboarding", 
   await page.goto("/activate");
   await expect(page.getByText("Data demo")).toHaveCount(0);
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Nomor HP").fill("081234567890");
+  await page.getByLabel("Nomor HP").fill(livePhone(email).split("-").join(" "));
   await page.getByRole("button", { name: "Lanjut" }).click();
   await page.getByLabel("Password baru", { exact: true }).fill(LIVE_PASSWORD);
   await page.getByLabel("Ulangi password", { exact: true }).fill(LIVE_PASSWORD);
@@ -89,7 +89,7 @@ test("live: the activation screen creates the account and lands on onboarding", 
 test("live: forgot password with email + phone, then the old password stops working", async ({ page }, info) => {
   const email = mail("reset", info.project.name);
   await page.goto("/login");
-  const act = await post(page, "/auth/activate", { email, phone: LIVE_PHONE, password: LIVE_PASSWORD }, nextIp(info.project.name));
+  const act = await post(page, "/auth/activate", { email, phone: livePhone(email), password: LIVE_PASSWORD }, nextIp(info.project.name));
   expect(act.status()).toBe(200);
 
   await page.goto("/forgot-password");
@@ -100,7 +100,7 @@ test("live: forgot password with email + phone, then the old password stops work
   await page.getByRole("button", { name: "Ganti password" }).click();
   await expect(page.locator("main").getByRole("alert")).toContainText("Data tidak cocok atau akun sudah aktif");
 
-  await page.getByLabel("Nomor HP").fill(LIVE_PHONE);
+  await page.getByLabel("Nomor HP").fill(livePhone(email));
   await page.getByRole("button", { name: "Ganti password" }).click();
   await expect(page.getByRole("heading", { name: "Password diganti", level: 1 })).toBeVisible();
   // every device was signed out, and no session was opened
@@ -115,13 +115,20 @@ test("live: forgot password with email + phone, then the old password stops work
 test("live: change password needs the current one and signs the other devices out", async ({ page, browser }, info) => {
   const email = mail("chpw", info.project.name);
   await page.goto("/login");
-  expect((await post(page, "/auth/activate", { email, phone: LIVE_PHONE, password: LIVE_PASSWORD }, nextIp(info.project.name))).status()).toBe(200);
+  expect((await post(page, "/auth/activate", { email, phone: livePhone(email), password: LIVE_PASSWORD }, nextIp(info.project.name))).status()).toBe(200);
 
   const ctx: BrowserContext = await browser.newContext({ baseURL: info.project.use.baseURL });
   const laptop = await ctx.newPage();
   try {
     await laptop.goto("/login");
     expect((await post(laptop, "/auth/login", { email, password: LIVE_PASSWORD, device_label: "Laptop" }, nextIp(info.project.name))).status()).toBe(200);
+
+    // The account page is behind onboarding: finish it through the API first.
+    const headers = { origin: new URL(page.url()).origin, "x-forwarded-for": nextIp(info.project.name) };
+    const regions = (await (await page.request.get("/api/v1/regions")).json()) as { id: string; name: string }[];
+    const jkt = regions.find((r) => r.name.startsWith("Jakarta"))!;
+    expect((await page.request.put("/api/v1/me/location", { data: { mode: "region", region_id: jkt.id }, headers })).status()).toBe(200);
+    expect((await page.request.post("/api/v1/me/onboarding/complete", { data: {}, headers })).status()).toBe(200);
 
     await page.goto("/settings/account");
     await page.getByLabel("Password sekarang", { exact: true }).fill("salah-salah-1");
@@ -146,7 +153,7 @@ test("live: change password needs the current one and signs the other devices ou
 test("live: a 4th device is refused after a right password, and the old OTP routes are gone", async ({ page, browser }, info) => {
   const email = mail("limit", info.project.name);
   await page.goto("/login");
-  expect((await post(page, "/auth/activate", { email, phone: LIVE_PHONE, password: LIVE_PASSWORD, device_label: "HP 1" }, nextIp(info.project.name))).status()).toBe(200);
+  expect((await post(page, "/auth/activate", { email, phone: livePhone(email), password: LIVE_PASSWORD, device_label: "HP 1" }, nextIp(info.project.name))).status()).toBe(200);
   const contexts: BrowserContext[] = [];
   try {
     for (const label of ["HP 2", "HP 3"]) {
@@ -184,10 +191,20 @@ test("live: the login limit counts the address the proxy saw, not what the clien
       // the client invents a new first entry each time, our proxy appends the real address last
       headers: { origin: new URL(page.url()).origin, "x-forwarded-for": `10.0.0.${i}, ${proxyIp}` },
     });
-  for (let i = 0; i < 30; i++) expect((await attempt(i)).status()).toBe(401);
-  const blocked = await attempt(99);
-  expect(blocked.status()).toBe(429);
-  expect(blocked.headers()["retry-after"]).toBeTruthy();
+  // 30 attempts per 10 minute window. The window is fixed, so a run that straddles two windows needs a few more.
+  let firstBlock = -1;
+  for (let i = 0; i < 70 && firstBlock < 0; i++) {
+    const res = await attempt(i);
+    if (res.status() === 429) {
+      firstBlock = i;
+      expect(res.headers()["retry-after"]).toBeTruthy();
+    } else {
+      expect(res.status()).toBe(401);
+    }
+  }
+  // Blocked after about 30 tries even though every try named a different first address.
+  expect(firstBlock).toBeGreaterThanOrEqual(1);
+  expect(firstBlock).toBeLessThanOrEqual(60);
 });
 
 test("live: the payment page is public, static and never shows demo data", async ({ page }) => {
