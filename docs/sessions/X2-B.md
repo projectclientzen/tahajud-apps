@@ -55,6 +55,18 @@ pnpm audit --prod             No known vulnerabilities found
 ```
 Catatan: `pnpm test` sudah memuat test DB. Run pertama gagal 2 test (guard "tanpa aksara Arab di src/" kena regex literal di `rules/text.ts`, dan test X4 di atas); keduanya diperbaiki, lalu semua gerbang diulang (angka di atas dari run kedua, kecuali e2e mock yang dijalankan sebelum dua perbaikan kecil itu dan tidak menyentuh `/admin`). Live e2e lama (`test:e2e:live`) tidak dijalankan.
 
+### Gerbang ulang setelah merge main @ `52aee2e` (U2 Munaja, migration `20261117200000`)
+Konflik hanya di `DECISIONS.md`, `SESSION_LOG.md`, `schema.test.ts` (daftar tabel); keduanya dipertahankan.
+```
+pnpm typecheck                exit 0
+pnpm lint                     exit 0
+pnpm test                     Test Files 81 passed (81) · Tests 1533 passed | 3 skipped (1536)
+pnpm test:db                  Test Files 15 passed (15) · Tests 344 passed (344)
+pnpm test:e2e --trace off     352 passed, 46 skipped, 0 failed (5.9m, mode mock)
+pnpm test:e2e:admin --trace off   20 passed (1.4m)
+pnpm audit --prod             No known vulnerabilities found
+```
+
 ## Keputusan
 `docs/DECISIONS.md` bagian "X2-B" (X8-1 sampai X8-12). Satu ketidaksepakatan dengan brief: brief meminta HP "tampil hanya dua peran + audit", tetapi yang tersimpan cuma hash (X4-5), jadi admin hanya bisa mengecek nomor, bukan melihatnya.
 
