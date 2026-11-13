@@ -183,3 +183,10 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Perbaikan orchestrator: field `note` niat tampil, test niat memakai konten owner yang sudah published (5 langkah, Qabliyah tanpa tombol), label `upcoming` = "Belum waktunya".
 - Gerbang: typecheck 0, lint 0, unit 1446 + 3 skip, db 316, e2e mock 352 passed / 0 failed, e2e live 38 passed, audit bersih.
 - Sisa: data khatam belum di `/me/data-export`; tabel `regions` live masih 3 demo (impor 517 wilayah belum); migration khatam baru diuji di PGlite; batas halaman Tanzil perlu baca-uji terhadap mushaf cetak.
+
+## X2-B (branch `claude/x2b-admin`, 2026-11-13)
+- Dikerjakan: T7 admin dipindah ke skema auth baru (migration `20261117100000..130000`), sisa test T7, X8 (migration `20261117140000_admin_staff.sql`: staf `staff_comp`, tautan reset, approve manual, blokir aktivasi, cek HP, bypass level staf, staf di luar agregat), script `admin-grant-role`, UI `/admin/**`, e2e admin. Laporan: `docs/sessions/X2-B.md`; keputusan: `docs/DECISIONS.md` X8-1..12.
+- Gerbang: typecheck 0, lint 0, unit+DB 1418 lulus + 3 skip, test:db 327 lulus, e2e mock 288 lulus / 0 gagal, e2e admin 20 lulus, audit bersih.
+- Menyentuh satu file di luar kepemilikan: `tests/db/auth-password.test.ts` (kasus `admin_manual` tidak lagi "harus gagal").
+- Sisa: edit konfigurasi level dari admin, jalur CS untuk order tanpa HP, Postgres nyata, uji perangkat.
+- Pertanyaan owner: Q-X2B-1..5 di laporan.
