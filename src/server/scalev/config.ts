@@ -61,7 +61,7 @@ function parseApiBase(raw: string | undefined, env: Record<string, string | unde
   if (!v) return DEFAULT_SCALEV_API_BASE;
   const isTest = env.NODE_ENV !== "production" || env.TAHAJUD_ALLOW_TEST_DB === "true";
   // A fake Scalev server on localhost is allowed outside production. A real deployment talks https only.
-  if (!/^https:\/\//i.test(v) && !(isTest && /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?/i.test(v))) {
+  if (!/^https:\/\//i.test(v) && !(isTest && /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?(\/|$)/i.test(v))) {
     throw new Error("SCALEV_API_BASE must be an https URL.");
   }
   return v;
