@@ -10,6 +10,7 @@ export const JOB_TYPES = {
   sendEmail: "send_email",
   scalevEvent: "scalev_event",
   scalevSweep: "scalev_sweep",
+  scalevSweepDeep: "scalev_sweep_deep",
   scalevPurge: "scalev_purge",
 } as const;
 export type JobType = (typeof JOB_TYPES)[keyof typeof JOB_TYPES];
@@ -34,6 +35,8 @@ export class JobError extends Error {
   constructor(
     message: string,
     readonly retryable: boolean = true,
+    /** Wait at least this long before the next try (for example a rate limit told us). Overrides the default backoff. */
+    readonly retryAfterSeconds?: number,
   ) {
     super(message);
     this.name = "JobError";

@@ -3,6 +3,7 @@ import { createPgliteDb, type PgliteDb } from "@/server/db/pglite";
 import type { PushSender, PushSubscriptionRecord, SendOutcome, NotificationPayload } from "@/server/push";
 import type { Services } from "@/server/jobs/services";
 import { silentLogger } from "@/server/jobs/log";
+import { loadScalevConfig } from "@/server/scalev/config";
 
 /** A fresh PostgreSQL (PGlite) with every migration and the seed. Takes a few seconds, so tests share one per file. */
 export async function createJobsDb(): Promise<PgliteDb> {
@@ -37,7 +38,13 @@ export async function addUser(db: PgliteDb, o: AddUserOptions = {}): Promise<Tes
   await db.exec(
     `insert into public.profiles (user_id, email_normalized, display_name, region_id, manual_schedule, onboarding_completed, program_start_date)
      values ($1, $2, $3, (select id from public.regions where provider_region_code = $4), $5::jsonb, true, '2026-11-01')`,
-    [id, email, o.displayName === undefined ? "Zen Tester" : o.displayName, region, o.manual ? JSON.stringify(o.manual) : null],
+    [
+      id,
+      email,
+      o.displayName === undefined ? "Zen Tester" : o.displayName,
+      region,
+      o.manual ? JSON.stringify(o.manual) : null,
+    ],
   );
   if ((o.entitlement ?? "active") !== "none") {
     await db.exec(
@@ -46,7 +53,10 @@ export async function addUser(db: PgliteDb, o: AddUserOptions = {}): Promise<Tes
     );
   }
   if (o.level && o.level > 1) {
-    await db.exec("insert into public.user_level_state (user_id, current_level, level_1_unlocked_at) values ($1, $2, now())", [id, o.level]);
+    await db.exec(
+      "insert into public.user_level_state (user_id, current_level, level_1_unlocked_at) values ($1, $2, now())",
+      [id, o.level],
+    );
   }
   let subscriptionId: string | null = null;
   if (o.subscribed ?? true) {
@@ -60,7 +70,14 @@ export async function addUser(db: PgliteDb, o: AddUserOptions = {}): Promise<Tes
 }
 
 /** Fajr 04:06 and Maghrib 17:51 Jakarta time (21:06Z the day before, 10:51Z) for each date in [from, to], cached by the provider. */
-export async function addPrayerTimes(db: PgliteDb, from: string, to: string, region = "DEMO-JKT", fajr = "04:06", maghrib = "17:51"): Promise<void> {
+export async function addPrayerTimes(
+  db: PgliteDb,
+  from: string,
+  to: string,
+  region = "DEMO-JKT",
+  fajr = "04:06",
+  maghrib = "17:51",
+): Promise<void> {
   await db.exec(
     `insert into public.prayer_times (region_id, local_date, fajr_at, maghrib_at, provider, fetched_at, valid_until, verification, attribution)
      select r.id, d::date,
@@ -108,8 +125,18 @@ export interface SentCall {
 /** Scripted push sender. `answer(endpoint)` picks the outcome; the default is a 201. */
 export class FakeSender implements PushSender {
   readonly calls: SentCall[] = [];
-  constructor(private readonly answer: (sub: PushSubscriptionRecord) => SendOutcome = () => ({ status: "sent", statusCode: 201, attempts: 1 })) {}
-  async send(sub: PushSubscriptionRecord, payload: NotificationPayload, opts?: { ttlSeconds?: number }): Promise<SendOutcome> {
+  constructor(
+    private readonly answer: (sub: PushSubscriptionRecord) => SendOutcome = () => ({
+      status: "sent",
+      statusCode: 201,
+      attempts: 1,
+    }),
+  ) {}
+  async send(
+    sub: PushSubscriptionRecord,
+    payload: NotificationPayload,
+    opts?: { ttlSeconds?: number },
+  ): Promise<SendOutcome> {
     this.calls.push({ sub, payload, ttlSeconds: opts?.ttlSeconds });
     return this.answer(sub);
   }
@@ -124,6 +151,7 @@ export function makeServices(db: PgliteDb, over: Partial<Services> = {}): Servic
     config: { cronSecret: null, allowDemoBank: false, prayerProvider: null },
     sender: null,
     prayerProvider: null,
+    scalev: { config: loadScalevConfig({}), client: null, pepper: null },
     ...over,
   };
 }

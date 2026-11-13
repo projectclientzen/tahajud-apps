@@ -54,7 +54,9 @@ async function runOne(ctx: JobContext, handlers: JobHandlers, job: JobRow, out: 
   } catch (e) {
     const retryable = e instanceof JobError ? e.retryable : true;
     const message = e instanceof Error ? e.message : String(e);
-    const status = await queue.fail(ctx.db, job.id, ctx.workerId, message, backoffSeconds(job.attempt_count), retryable, ctx.now());
+    // A handler can say how long to wait (a rate limit told it). Otherwise the exponential backoff applies.
+    const wait = e instanceof JobError && e.retryAfterSeconds ? Math.min(3600, Math.max(1, Math.ceil(e.retryAfterSeconds))) : backoffSeconds(job.attempt_count);
+    const status = await queue.fail(ctx.db, job.id, ctx.workerId, message, wait, retryable, ctx.now());
     if (status === "queued") out.retried += 1;
     else if (status === "dead") out.dead += 1;
     else if (status === "failed") out.failed += 1;

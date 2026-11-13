@@ -40,7 +40,13 @@ describe("/api/internal/cron", () => {
 
   it("rejects a missing or wrong secret with 401 and does no work", async () => {
     vi.stubEnv("CRON_SECRET", SECRET);
-    for (const headers of [{} as Record<string, string>, { authorization: "Bearer nope" }, { "x-cron-secret": "nope" }, { authorization: SECRET }, { authorization: `Bearer ${SECRET}x` }]) {
+    for (const headers of [
+      {} as Record<string, string>,
+      { authorization: "Bearer nope" },
+      { "x-cron-secret": "nope" },
+      { authorization: SECRET },
+      { authorization: `Bearer ${SECRET}x` },
+    ]) {
       const res = await call("POST", headers);
       expect(res.status).toBe(401);
       expect(await res.json()).toEqual({ error: { code: "UNAUTHENTICATED", message: "Tidak diizinkan." } });
@@ -68,8 +74,18 @@ describe("/api/internal/cron", () => {
     expect(text).not.toContain(SECRET);
     const body = JSON.parse(text);
     expect(body.ok).toBe(true);
-    expect(body.enqueued.sort()).toEqual(["housekeeping", "notification_schedule", "prayer_sync"]);
-    expect(body.run.claimed).toBe(3);
+    expect(body.enqueued.sort()).toEqual([
+      "housekeeping",
+      "notification_schedule",
+      "prayer_sync",
+      "scalev_purge",
+      "scalev_sweep",
+      "scalev_sweep_deep",
+    ]);
+    expect(body.run.claimed).toBe(6);
+    // Scalev is not configured here: the sweep still self-heals and says it did not poll, and nothing fails.
+    expect((await jobsByType(db, "scalev_sweep"))[0]).toMatchObject({ status: "done" });
+    expect((await jobsByType(db, "scalev_purge"))[0]).toMatchObject({ status: "done" });
     // prayer_sync has no provider configured: it fails with a clear, stored message and is not retried.
     const [sync] = await jobsByType(db, "prayer_sync");
     expect(sync).toMatchObject({ status: "failed" });
@@ -81,12 +97,18 @@ describe("/api/internal/cron", () => {
     vi.stubEnv("CRON_SECRET", SECRET);
     const h = { authorization: `Bearer ${SECRET}` };
     await Promise.all([call("POST", h), call("POST", h)]);
-    for (const t of ["notification_schedule", "prayer_sync", "housekeeping"]) expect(await jobsByType(db, t)).toHaveLength(1);
+    for (const t of ["notification_schedule", "prayer_sync", "housekeeping", "scalev_sweep", "scalev_purge"])
+      expect(await jobsByType(db, t)).toHaveLength(1);
   });
 
   it("does not leak internals when the database is down", async () => {
     vi.stubEnv("CRON_SECRET", SECRET);
-    setServicesForTests(makeServices({ ...db, asService: () => Promise.reject(new Error("password authentication failed for user postgres")) } as unknown as PgliteDb));
+    setServicesForTests(
+      makeServices({
+        ...db,
+        asService: () => Promise.reject(new Error("password authentication failed for user postgres")),
+      } as unknown as PgliteDb),
+    );
     const err = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const res = await call("POST", { authorization: `Bearer ${SECRET}` });
     expect(res.status).toBe(500);

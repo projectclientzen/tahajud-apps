@@ -14,6 +14,10 @@ export const RECURRING = {
   dispatchUnconfigured: 15 * 60,
   prayerSync: 6 * 3600,
   housekeeping: 24 * 3600,
+  /** Scalev safety net: self-heal always, polling when configured (SCALEV-AUTH-PLAN §4.6). */
+  scalevSweep: 10 * 60,
+  scalevSweepDeep: 24 * 3600,
+  scalevPurge: 24 * 3600,
 } as const;
 
 export interface TickResult {
@@ -35,6 +39,9 @@ export async function tick(svc: Services, opts: RunOptions = {}): Promise<TickRe
   await add(JOB_TYPES.notificationSchedule, RECURRING.notificationSchedule);
   await add(JOB_TYPES.prayerSync, RECURRING.prayerSync);
   await add(JOB_TYPES.housekeeping, RECURRING.housekeeping);
+  await add(JOB_TYPES.scalevSweep, RECURRING.scalevSweep);
+  await add(JOB_TYPES.scalevSweepDeep, RECURRING.scalevSweepDeep);
+  await add(JOB_TYPES.scalevPurge, RECURRING.scalevPurge);
 
   const due = await svc.db.asService((q) =>
     one<boolean>(q, "exists (select 1 from public.notification_jobs where status = 'pending' and scheduled_at <= $1::timestamptz)", [now.toISOString()]),
