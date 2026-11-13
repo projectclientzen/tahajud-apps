@@ -1,0 +1,14 @@
+{
+  "_comment": "Bacaan niat salat di sesi tahajud. Teks Arab, Latin, dan terjemahan HANYA diisi owner. Agen/AI dilarang mengisi atau mengubah field ini. null = belum tersedia, UI menampilkan empty state.",
+  "content_version": "0.1.0",
+  "review_status": "draft",
+  "approved_by": null,
+  "niat": [
+    { "activity_key": "salat_taubat", "title": "Salat Taubat", "arabic": null, "latin": null, "translation": null },
+    { "activity_key": "salat_tahajud", "title": "Salat Tahajud", "arabic": null, "latin": null, "translation": null },
+    { "activity_key": "salat_hajat", "title": "Salat Hajat", "arabic": null, "latin": null, "translation": null },
+    { "activity_key": "salat_witir_1", "title": "Salat Witir (1 rakaat)", "arabic": null, "latin": null, "translation": null },
+    { "activity_key": "salat_witir_2", "title": "Salat Witir (2 rakaat)", "arabic": null, "latin": null, "translation": null },
+    { "activity_key": "salat_qabliyah_subuh", "title": "Salat sunnah Qabliyah Subuh", "arabic": null, "latin": null, "translation": null }
+  ]
+}

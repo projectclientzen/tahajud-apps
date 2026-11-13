@@ -51,3 +51,7 @@ Detail dan bukti: `docs/sessions/X-part1.md`. Semua angka berlabel PROVISIONAL s
 | X4-15 | Mode mock: satu password demo (`demo-password-aman`) di `fixtures/auth.ts`, hash SHA-256 khusus demo, order demo dengan HP demo, dev panel menampilkannya berlabel "Data demo". State mock versi lama (OTP) dibuang saat dibaca | Pengecualian aturan (a) untuk demo saja (Q9, default PROV) | Tanpa mode demo |
 | X4-16 | `entitlement_type` boleh `staff_comp` (tanpa order, `granted_by`); fungsi level BELUM bypass untuk staff, agregat BELUM mengecualikan staff | Itu lingkup X8 (rencana §8.6) | Mengerjakan semuanya di sini |
 | X4-17 | Fungsi SQL pembuat akun dan token admin `security definer` | Role backend tidak diberi tulis `auth.users` | Grant tulis ke `auth.users` |
+
+## 2026-11-13: perubahan mayor owner (Munaja)
+- Nama app "Munaja". Niat di salat sesi tahajud saja. Periode khatam 30 hari sejak mulai. Riwayat level hanya untuk level yang sudah dicapai. Detail: `docs/CHANGE-2026-11-13-MUNAJA.md`.
+- Default orchestrator (PROVISIONAL): sisa 4N halaman masuk hari terakhir; bacaan di sesi tidak dihitung ke khatam; kota terdekat dihitung di perangkat, GPS tidak dikirim.
