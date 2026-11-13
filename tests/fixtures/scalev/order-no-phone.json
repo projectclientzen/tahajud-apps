@@ -1,0 +1,35 @@
+{
+  "_fixture": {
+    "status": "NEEDS_VERIFICATION",
+    "note": "Hand-written from dev.scalev.com docs read on 13 Nov 2026. Pseudonymised: names, emails, phones and ids are invented. Not a recording of a real Scalev response. Replace with a real sample from Hermes before launch (Q1, Q14)."
+  },
+  "code": 200,
+  "status": "success",
+  "data": {
+    "id": "0192f3a0-7b1c-7d2e-8a41-5c6d7e8f9a01",
+    "order_id": "ORD-DEMO-0001",
+    "status": "confirmed",
+    "payment_status": "paid",
+    "is_probably_spam": false,
+    "net_revenue": "99000.00",
+    "currency": "IDR",
+    "customer": {
+      "name": "Pembeli Demo",
+      "email": "pembeli.demo@example.test",
+      "phone": null
+    },
+    "destination_address": {
+      "name": "Pembeli Demo",
+      "email": "pembeli.demo@example.test",
+      "phone": null
+    },
+    "orderlines": [
+      {
+        "variant": 5550001,
+        "variant_sku": "TT-LIFETIME",
+        "variant_price": "99000.00",
+        "quantity": 1
+      }
+    ]
+  }
+}
