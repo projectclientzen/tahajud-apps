@@ -4,6 +4,7 @@ import { buildPayload } from "./payload";
 import {
   PushConfigError,
   type NotificationPayload,
+  type PushSender,
   type PushSubscriptionRecord,
   type SendOutcome,
 } from "./types";
@@ -42,7 +43,7 @@ export interface SenderOptions {
 
 const RETRYABLE = (code: number) => code === 429 || code >= 500;
 
-export class WebPushSender {
+export class WebPushSender implements PushSender {
   private readonly o: Required<Omit<SenderOptions, "agent">> & { agent?: Agent };
 
   constructor(opts: SenderOptions) {
@@ -58,8 +59,13 @@ export class WebPushSender {
     setVapidDetails(opts.vapid.subject, opts.vapid.publicKey, opts.vapid.privateKey);
   }
 
-  async send(sub: PushSubscriptionRecord, payload: NotificationPayload): Promise<SendOutcome> {
+  async send(
+    sub: PushSubscriptionRecord,
+    payload: NotificationPayload,
+    opts: { ttlSeconds?: number } = {},
+  ): Promise<SendOutcome> {
     const body = buildPayload(payload);
+    const ttl = Math.max(1, Math.floor(opts.ttlSeconds ?? this.o.ttlSeconds));
     let lastCode: number | null = null;
     let lastError = "";
 
@@ -74,7 +80,7 @@ export class WebPushSender {
               publicKey: this.o.vapid.publicKey,
               privateKey: this.o.vapid.privateKey,
             },
-            TTL: this.o.ttlSeconds,
+            TTL: ttl,
             timeout: this.o.timeoutMs,
             ...(this.o.agent ? { agent: this.o.agent } : {}),
           },

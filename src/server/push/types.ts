@@ -24,6 +24,12 @@ export type SendOutcome =
   /** Retries exhausted or a non-retryable error. Caller increments failure_count. */
   | { status: "failed"; statusCode: number | null; attempts: number; error: string };
 
+/** What the dispatcher needs from a sender. WebPushSender is the real one; tests pass a fake. */
+export interface PushSender {
+  /** `ttlSeconds` overrides the sender default for this one message (T6: the notification type's expiry). */
+  send(sub: PushSubscriptionRecord, payload: NotificationPayload, opts?: { ttlSeconds?: number }): Promise<SendOutcome>;
+}
+
 export class PushConfigError extends Error {
   readonly code = "PUSH_NOT_CONFIGURED";
   constructor(message: string) {

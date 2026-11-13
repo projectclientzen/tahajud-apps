@@ -95,7 +95,7 @@ describe("migrations", () => {
     const files = migrationFiles();
     expect(files.length).toBeGreaterThanOrEqual(8);
     expect([...files].sort()).toEqual(files);
-    for (const f of files) expect(f).toMatch(/^\d{14}_[a-z_]+\.sql$/);
+    for (const f of files) expect(f).toMatch(/^\d{14}_[a-z0-9_]+\.sql$/);
   });
 
   it("create every table of PRD v1.2 §17", async () => {
