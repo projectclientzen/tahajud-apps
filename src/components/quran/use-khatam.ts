@@ -1,5 +1,6 @@
 "use client";
 
+import { uuidV4 } from "@/lib/uuid";
 import * as React from "react";
 import { errorMessage, useData } from "@/components/providers/data-provider";
 import type { KhatamResponse } from "@/data";
@@ -156,7 +157,7 @@ export function useKhatam(): KhatamHook {
     async setSlot(day, prayer, done) {
       if (!queue) return;
       await queue.enqueue({
-        operation_id: crypto.randomUUID(),
+        operation_id: uuidV4(),
         entity_id: `khatam:${day}:${prayer}`,
         operation_type: "khatam_slot_set",
         payload: { day, prayer, done },
@@ -165,7 +166,7 @@ export function useKhatam(): KhatamHook {
     async markPage(page) {
       if (!queue) return;
       await queue.enqueue({
-        operation_id: crypto.randomUUID(),
+        operation_id: uuidV4(),
         entity_id: "khatam:position",
         operation_type: "khatam_mark",
         payload: { page },

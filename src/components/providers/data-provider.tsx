@@ -103,7 +103,8 @@ export function useData(): DataContextValue {
 }
 
 export const errorCode = (e: unknown) => (e instanceof ApiError ? e.code : null);
-export const errorMessage = (e: unknown) => (e instanceof Error ? e.message : "Terjadi kesalahan. Coba lagi.");
+/** Only messages written for users (ApiError) reach the screen; a raw JS error never does. */
+export const errorMessage = (e: unknown) => (e instanceof ApiError ? e.message : "Terjadi kesalahan. Coba lagi.");
 
 interface LoadState<T> {
   data: T | null;

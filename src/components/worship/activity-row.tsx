@@ -1,5 +1,6 @@
 "use client";
 
+import { uuidV4 } from "@/lib/uuid";
 import { ChevronRight, Circle, CircleCheck } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
@@ -119,7 +120,7 @@ export function ActivityRow({ activity: a, onChanged, onError }: RowProps) {
     try {
       // Into the offline queue first, then out. The server dedupes by operation_id and resolves version clashes.
       await queue.enqueue({
-        operation_id: crypto.randomUUID(),
+        operation_id: uuidV4(),
         entity_id: a.id,
         operation_type: "checklist_set",
         payload: { checked: next, version: a.version },

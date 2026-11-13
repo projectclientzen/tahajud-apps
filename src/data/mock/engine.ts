@@ -1,3 +1,4 @@
+import { uuidV4 } from "@/lib/uuid";
 import { getAmalan, type AmalanContent } from "@/domain/content/amalan";
 import { createSessionSnapshot } from "@/domain/content/snapshot";
 import { buildCalendar, type CalendarDay, type SessionRecord } from "@/domain/calendar/calendar";
@@ -926,7 +927,7 @@ export class MockEngine {
     const start = localDate(this.now(), st.timezone);
     st.khatam = {
       target: {
-        id: crypto.randomUUID(),
+        id: uuidV4(),
         khatam_count: req.khatam_count,
         start_date: start,
         end_date: endDateOf(start),

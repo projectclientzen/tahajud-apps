@@ -1,5 +1,6 @@
 "use client";
 
+import { uuidV4 } from "@/lib/uuid";
 import { Check, CloudOff, Minus } from "lucide-react";
 import * as React from "react";
 import { useData, useOnline } from "@/components/providers/data-provider";
@@ -161,7 +162,7 @@ export function CounterScreen({
 
   const sendBuffer = React.useCallback(() => {
     if (!queue || !isOpen()) return;
-    const r = flush(stateRef.current, crypto.randomUUID(), Date.now());
+    const r = flush(stateRef.current, uuidV4(), Date.now());
     if (!r.operation) return;
     update(r.state);
     queuing.current += 1;
@@ -209,7 +210,7 @@ export function CounterScreen({
 
   function onReset() {
     if (!queue || !isOpen()) return;
-    const r = reset(stateRef.current, crypto.randomUUID(), Date.now());
+    const r = reset(stateRef.current, uuidV4(), Date.now());
     update(r.state);
     queuing.current += 1;
     void queue.enqueue(toQueueItem(a.id, r.operation!)).finally(() => {

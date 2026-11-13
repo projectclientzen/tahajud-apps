@@ -1,4 +1,5 @@
 import { openDB } from "idb";
+import { sha256Hex } from "@/lib/sha256";
 import { PENDING_LOGIN_TTL_MS, checkDeviceLimit, checkPendingLogin, type PendingLogin } from "@/domain/auth/devices";
 import { isPlausibleEmail, normalizeEmail } from "@/domain/auth/email";
 import { normalizePhone } from "@/domain/auth/phone";
@@ -112,11 +113,7 @@ const FAIL_WINDOW_MS = 15 * 60_000;
 
 /** Demo hashing only. Real hashing is scrypt on the server (src/server/auth/password.ts). */
 async function demoHash(password: string): Promise<string> {
-  const buf = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(`tt-demo-only:${normalizePassword(password)}`),
-  );
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  return sha256Hex(new TextEncoder().encode(`tt-demo-only:${normalizePassword(password)}`));
 }
 
 const cryptoInt = (max: number): number => {
