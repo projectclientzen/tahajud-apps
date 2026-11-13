@@ -28,18 +28,7 @@ language sql stable set search_path = '' as $$
   select coalesce(nullif(pg_catalog.current_setting('tt.test_now', true), '')::timestamptz, pg_catalog.now())
 $$;
 grant execute on function app_private.server_now() to service_role;
-
--- Stands in for Supabase Auth creating a user. Exists only on this test database, never in a migration.
-create or replace function app_private.local_auth_user(p_email text) returns uuid
-language plpgsql security definer set search_path = '' as $$
-declare v uuid;
-begin
-  select id into v from auth.users where email = p_email;
-  if v is null then insert into auth.users (id, email) values (gen_random_uuid(), p_email) returning id into v; end if;
-  return v;
-end $$;
-revoke all on function app_private.local_auth_user(text) from public;
-grant execute on function app_private.local_auth_user(text) to service_role;`;
+`;
 
 export async function createPgliteDb(opts: PgliteOptions = {}): Promise<PgliteDb> {
   // webpackIgnore: PGlite loads WASM files by path, which a bundler would break. Node loads it directly.

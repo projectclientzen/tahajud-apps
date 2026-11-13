@@ -47,10 +47,13 @@ const EXPECTED_TABLES = [
   "rate_limits",
   "data_deletion_requests",
   "admin_audit_logs",
-  // T3b (not in §17): per-date excuses, device cookies, OTP codes, pending 4th-device logins. All backend only.
+  // T3b (not in §17): per-date excuses, device cookies, pending 4th-device logins. All backend only.
   "device_sessions",
-  "login_otps",
   "pending_logins",
+  // X4: email + password accounts. Backend only.
+  "auth_credentials",
+  "auth_tokens",
+  "auth_events",
 ];
 
 /** Structure of the public schema as text, so two databases can be compared. */

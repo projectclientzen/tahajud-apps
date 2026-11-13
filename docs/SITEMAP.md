@@ -16,8 +16,12 @@ Bottom nav di mobile dan tablet, sidebar di desktop (>= 1024px). Laporan lengkap
 | Route | Halaman | Sesi | Ada |
 |-------|---------|------|-----|
 | `/` | Halaman masuk ringan: info singkat, tombol Masuk, link beli ke Scalev. Sudah login diarahkan ke `/dashboard` | S1, S4 | ya (tanpa redirect, belum ada auth) |
-| `/login` | Input email | S4 | belum |
-| `/auth/verify` | Input OTP 6 digit; konfirmasi magic link (tombol, bukan auto) | S4 | belum |
+| `/login` | Email + password, tautan "Lupa password?" dan "Aktivasi akun" | S4, X4/X5 | ya |
+| `/activate` | Aktivasi akun: email + nomor HP order (langkah 1), lalu buat password (langkah 2). Server menerima semuanya dalam satu request | X5 | ya |
+| `/forgot-password` | Email + nomor HP order + password baru. Semua perangkat keluar, tanpa sesi baru | X5 | ya |
+| `/reset` | Tautan reset dari CS (token di fragmen `#t=`, sekali pakai, 60 menit). Berhasil = masuk | X5 | ya |
+| `/payment/success` | Tujuan redirect Scalev setelah bayar. Publik dan statis, tidak membaca query, tidak memberi akses | X5 | ya |
+| `/auth/verify` | DIHAPUS (OTP diganti password). Hanya mengalihkan ke `/login` untuk bookmark lama | X5 | alihan |
 | `/access-status` | Purchase pending, no active access, session expired | S4 | belum (state UI ada di gallery) |
 | `/onboarding` | Onboarding | S4 | belum |
 | `/levels` | Perjalanan level | S3 | belum |
@@ -29,7 +33,7 @@ Bottom nav di mobile dan tablet, sidebar di desktop (>= 1024px). Laporan lengkap
 | `/notifications` | Pusat notifikasi | S4 | belum |
 | `/settings` | Tema, font, durasi, notifikasi, jadwal manual | S4 | belum (tema ada di `/profile`) |
 | `/settings/devices` | Perangkat aktif | S4 | belum |
-| `/settings/account` | Hapus akun, unduh data | S4 | belum |
+| `/settings/account` | Ganti password, unduh data, hapus data lewat CS | S4, X5 | ya |
 | `/help` | Bantuan, referensi, kontak CS WhatsApp | S4 | belum |
 
 Route bantu, bukan bagian PRD:

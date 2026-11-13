@@ -1,8 +1,6 @@
-import type { Metadata } from "next";
-import { VerifyForm } from "@/components/auth/verify-form";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Masukkan kode" };
-
+// The 6 digit code screen is gone (login is email + password). Old bookmarks and open tabs land on /login.
 export default function Page() {
-  return <VerifyForm />;
+  redirect("/login");
 }

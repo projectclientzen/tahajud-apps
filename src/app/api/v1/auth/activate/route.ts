@@ -3,4 +3,4 @@ import { h } from "@/server/api/routes";
 // Never prerender or cache: every answer is per user.
 export const dynamic = "force-dynamic";
 
-export const POST = h.verifyOtp;
+export const POST = h.activate;

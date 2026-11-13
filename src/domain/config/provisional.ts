@@ -79,11 +79,32 @@ export const PROVISIONAL_ITEMS = [
   "alKahfiFallbackMaghrib",
 ] as const;
 
-/** Auth settings still waiting for approval (PRD §24.1, §30.2). OTP rules themselves are fixed, see domain/auth/otp.ts. */
+/**
+ * Auth settings still waiting for approval (CLAUDE.md auth rules, SCALEV-AUTH-PLAN §3.7, §3.8, §8.9).
+ * Defaults chosen by the planning session until the owner changes them. Every number here is PROVISIONAL.
+ */
 export const PROVISIONAL_AUTH = {
   provisional: true,
   /** User session lifetime with refresh, days. */
   sessionDays: 30,
   /** Active devices per user. */
   maxActiveDevices: 3,
+  passwordMinLength: 10,
+  passwordMaxLength: 128,
+  /** Admin reset link lifetime, minutes. Also seeded as app_settings.reset_token_minutes. */
+  adminResetTokenMinutes: 60,
+  /** Windows are fixed windows in seconds. `fails` counts failures only, `hits` counts every attempt. */
+  limits: {
+    loginIpPer10Min: 30,
+    loginFailsPerEmail: 10,
+    loginFailWindowSeconds: 900,
+    activateFailsPerEmail: 5,
+    activateFailsPerPhone: 5,
+    activateFailWindowSeconds: 900,
+    activateIpPerHour: 20,
+    activatePairPerHour: 3,
+    tokenIpPer10Min: 30,
+    tokenPerHour: 10,
+    changePasswordFailsPer15Min: 5,
+  },
 } as const;

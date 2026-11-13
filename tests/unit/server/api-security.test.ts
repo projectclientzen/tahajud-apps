@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { setDbForTests } from "@/server/db";
-import { createApiEnv, type ApiEnv, type TestBrowser } from "./api-harness";
+import { createApiEnv, TEST_PASSWORD, type ApiEnv, type TestBrowser } from "./api-harness";
 
 const ID = "00000000-0000-4000-8000-0000000000aa";
 
@@ -225,7 +225,7 @@ describe("SECURITY over HTTP", () => {
       expect((await b.data().session.getSession(s.id)).id).toBe(s.id);
     });
 
-    it("a paid purchase made before the account existed is linked when the email is proven, not before", async () => {
+    it("a paid purchase made before the account existed is linked when the account is created, not before", async () => {
       await env.grant("ent-late@ngajigaes.test");
       expect(
         (
@@ -241,10 +241,10 @@ describe("SECURITY over HTTP", () => {
     it("nothing the client sends can grant access", async () => {
       const email = "ent-forge@ngajigaes.test";
       const b = env.browser();
-      await b.auth().requestOtp(email);
-      const res = await b.json("/auth/verify-otp", "POST", {
+      await env.createAccount(email);
+      const res = await b.json("/auth/login", "POST", {
         email,
-        code: env.readCode(email),
+        password: TEST_PASSWORD,
         access: {
           authenticated: true,
           access_status: "active",
@@ -381,7 +381,7 @@ describe("SECURITY over HTTP", () => {
         await send(anon, PRIVATE[0]!),
         await b.json("/me/profile", "PATCH", { display_name: 5 }),
         await b.raw("/does/not/exist"),
-        await b.raw("/auth/request-otp", { method: "POST", headers: { origin: "https://evil.example" } }),
+        await b.raw("/auth/login", { method: "POST", headers: { origin: "https://evil.example" } }),
         await b.raw("/me"),
         await b.json("/auth/logout", "POST", {}),
       ];

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { PENDING_LOGIN_TTL_MS, checkDeviceLimit, checkPendingLogin } from "@/domain/auth/devices";
 import { isPlausibleEmail, normalizeEmail } from "@/domain/auth/email";
-import { OTP_RULES, checkOtp, decideOtpRequest, generateOtp, isValidOtpFormat, newOtpRecord } from "@/domain/auth/otp";
+import { checkPassword, normalizePassword } from "@/domain/auth/password-policy";
+import { normalizePhone, phoneTail } from "@/domain/auth/phone";
+import { addAttempt, isThrottled, recentCount } from "@/domain/auth/throttle";
 import { PROVISIONAL_AUTH } from "@/domain/config/provisional";
 
 const MIN = 60_000;
@@ -19,71 +21,97 @@ describe("email", () => {
   });
 });
 
-describe("OTP rules (PRD §24.1, fixed numbers)", () => {
-  it("snapshot of the fixed rules", () => {
-    expect(OTP_RULES).toEqual({
-      length: 6,
-      ttlMs: 600_000,
-      maxAttemptsPerCode: 5,
-      maxRequestsPerHour: 5,
-      windowMs: 3_600_000,
-      resendCooldownMs: 60_000,
+describe("phone normalization (activation proof)", () => {
+  it.each([
+    ["081234567890", "6281234567890"],
+    ["0812-3456-7890", "6281234567890"],
+    ["+62 812 3456 7890", "6281234567890"],
+    ["+62-812-3456-7890", "6281234567890"],
+    ["(0812) 3456.7890", "6281234567890"],
+    ["6281234567890", "6281234567890"],
+    ["81234567890", "6281234567890"],
+    ["  0812 3456 7890  ", "6281234567890"],
+    ["+14155550123", "14155550123"],
+    ["0014155550123", "14155550123"],
+  ])("%s becomes %s", (raw, out) => {
+    expect(normalizePhone(raw)).toBe(out);
+  });
+
+  it.each(["", "   ", "abc", "0812-ABC-7890", "081234", "+0812345678", "00", "0".repeat(20), "+62 812 3456 7890 12345678", "08123456789012345"])(
+    "%j is not a phone number",
+    (raw) => {
+      expect(normalizePhone(raw)).toBeNull();
+    },
+  );
+
+  it("equal numbers written differently match (the point of the function)", () => {
+    const forms = ["0812-3456-7890", "+6281234567890", "62 812 3456 7890", "812 3456 7890"];
+    expect(new Set(forms.map(normalizePhone)).size).toBe(1);
+  });
+
+  it("shows at most the last 4 digits", () => {
+    expect(phoneTail("6281234567890")).toBe("7890");
+    expect(phoneTail("12")).toBe("");
+  });
+});
+
+describe("password policy (provisional numbers)", () => {
+  it("snapshot of the provisional numbers", () => {
+    expect(PROVISIONAL_AUTH.passwordMinLength).toBe(10);
+    expect(PROVISIONAL_AUTH.passwordMaxLength).toBe(128);
+    expect(PROVISIONAL_AUTH.adminResetTokenMinutes).toBe(60);
+    expect(PROVISIONAL_AUTH.limits).toMatchObject({
+      loginFailsPerEmail: 10,
+      loginFailWindowSeconds: 900,
+      activateFailsPerEmail: 5,
+      activateFailsPerPhone: 5,
+      activateIpPerHour: 20,
+      activatePairPerHour: 3,
     });
-  });
-  it("generates a zero padded 6 digit code", () => {
-    expect(generateOtp(() => 42)).toBe("000042");
-    expect(generateOtp(() => 999_999)).toBe("999999");
-    expect(isValidOtpFormat("000042")).toBe(true);
-    expect(isValidOtpFormat("12345")).toBe(false);
-    expect(isValidOtpFormat("12345a")).toBe(false);
+    expect(PROVISIONAL_AUTH.provisional).toBe(true);
   });
 
-  it("allows the first request, then makes the user wait 60 seconds", () => {
-    expect(decideOtpRequest([], 1000)).toEqual({ ok: true });
-    expect(decideOtpRequest([0], 59_000)).toEqual({ ok: false, reason: "cooldown", retryAfterSeconds: 1 });
-    expect(decideOtpRequest([0], 60_000)).toEqual({ ok: true });
+  it("accepts a long passphrase without composition rules", () => {
+    expect(checkPassword("kopi susu gula aren pagi")).toBeNull();
+    expect(checkPassword("abcdefghij1")).toBeNull();
+    expect(checkPassword("a".repeat(9))).toBe("too_short");
+    expect(checkPassword("a-b_c.d!e@")).toBeNull();
   });
-  it("AUTH-06 allows 5 requests per hour and refuses the 6th", () => {
-    const sent = [0, 1, 2, 3, 4].map((i) => i * 61_000);
-    const at = 5 * 61_000;
-    const d = decideOtpRequest(sent, at);
-    expect(d).toMatchObject({ ok: false, reason: "hourly_limit" });
-    // frees when the first send leaves the 1 hour window
-    expect(d.ok === false && d.retryAfterSeconds).toBe(Math.ceil((OTP_RULES.windowMs - at) / 1000));
-    expect(decideOtpRequest(sent, OTP_RULES.windowMs + 1)).toEqual({ ok: true });
+  it("counts characters, not bytes, and normalizes with NFKC", () => {
+    expect(checkPassword("ｋｏｐｉｓｕｓｕ１２３")).toBeNull(); // full width letters fold to ASCII
+    expect(normalizePassword("ｐａｓｓ")).toBe("pass");
+    expect(checkPassword("éèêëàâäôöü")).toBeNull();
+    expect(checkPassword("😀🙂😎🤔😴🥳🤩😇🧐😋")).toBeNull(); // 10 characters, 40 bytes
+    expect(checkPassword("😀🙂😎🤔😴🥳🤩😇🧐")).toBe("too_short"); // 9 characters
+    expect(checkPassword("kopi".repeat(32))).toBeNull();
+    expect(checkPassword("kopi".repeat(32) + "x")).toBe("too_long");
   });
-  it("ignores sends older than one hour", () => {
-    expect(
-      decideOtpRequest(
-        [0, 1, 2, 3, 4].map((i) => i * 1000),
-        2 * OTP_RULES.windowMs,
-      ),
-    ).toEqual({ ok: true });
-  });
-
-  it("accepts the right code once, within 10 minutes", () => {
-    const rec = newOtpRecord("123456", 0);
-    const ok = checkOtp(rec, "123456", 9 * MIN);
-    expect(ok.ok).toBe(true);
-    const again = checkOtp(ok.ok ? ok.record : null, "123456", 9 * MIN);
-    expect(again).toMatchObject({ ok: false, reason: "invalid" });
-  });
-  it("expires after 10 minutes", () => {
-    expect(checkOtp(newOtpRecord("123456", 0), "123456", 10 * MIN + 1)).toMatchObject({ ok: false, reason: "expired" });
-    expect(checkOtp(newOtpRecord("123456", 0), "123456", 10 * MIN).ok).toBe(true);
-  });
-  it("counts wrong attempts and locks the code after 5, even for the right code", () => {
-    let rec = newOtpRecord("123456", 0);
-    for (let i = 1; i <= 5; i++) {
-      const r = checkOtp(rec, "000000", MIN);
-      expect(r).toMatchObject({ ok: false, reason: "invalid" });
-      rec = r.record!;
-      expect(rec.attempts).toBe(i);
+  it("rejects common and trivial passwords, ignoring case", () => {
+    for (const p of ["password123", "PASSWORD123", "1234567890", "bismillah123", "qwertyuiop", "aaaaaaaaaa", "abcdefghij"]) {
+      expect(checkPassword(p), p).toBe("common");
     }
-    expect(checkOtp(rec, "123456", MIN)).toMatchObject({ ok: false, reason: "too_many" });
   });
-  it("reports 'none' when no code was requested", () => {
-    expect(checkOtp(null, "123456", 0)).toEqual({ ok: false, reason: "none", record: null });
+  it("rejects the email, its local part, and the phone", () => {
+    expect(checkPassword("zen.ngaji@gmail.com", { email: "Zen.Ngaji@Gmail.com" })).toBe("same_as_email");
+    expect(checkPassword("zen.ngaji", { email: "zen.ngaji@gmail.com" })).toBe("too_short");
+    expect(checkPassword("zenngajigaes", { email: "zenngajigaes@gmail.com" })).toBe("same_as_email");
+    expect(checkPassword("081234567890", { phone: "0812-3456-7890" })).toBe("same_as_phone");
+    expect(checkPassword("6281234567890", { phone: "081234567890" })).toBe("same_as_phone");
+    expect(checkPassword("kata sandi yang lain", { email: "a@b.id", phone: "081234567890" })).toBeNull();
+  });
+});
+
+describe("demo sign-in throttle", () => {
+  const W = 15 * MIN;
+  it("counts attempts in the window and forgets older ones", () => {
+    const t = [0, MIN, 2 * MIN];
+    expect(recentCount(t, 3 * MIN, W)).toBe(3);
+    expect(recentCount(t, 16 * MIN, W)).toBe(1);
+    expect(isThrottled(t, 3 * MIN, W, 3)).toBe(true);
+    expect(isThrottled(t, 16 * MIN, W, 3)).toBe(false);
+  });
+  it("addAttempt drops old entries so saved state stays small", () => {
+    expect(addAttempt([0, MIN], 20 * MIN, W)).toEqual([20 * MIN]);
   });
 });
 

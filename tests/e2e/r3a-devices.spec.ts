@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { DEMO_EMAIL, finishOnboarding, readOtp, requestCode } from "./r3a-helpers";
+import { DEMO_EMAIL, finishOnboarding, signIn } from "./r3a-helpers";
 import { startSession, withDevPanel } from "./s3-helpers";
 
 /** Picks a sign-in scenario in the demo tools on the sign-in screens. */
@@ -15,19 +15,11 @@ async function loadAuthScenario(page: Page, label: string) {
   await expect(dialog).toBeHidden();
 }
 
-/** Types the code and presses Masuk. */
-async function submitCode(page: Page, email: string) {
-  const code = await readOtp(page, email);
-  await page.getByLabel("Kode 6 digit").fill(code);
-  await page.getByRole("button", { name: "Masuk", exact: true }).click();
-}
-
-/** Signed out, and the demo account already has 3 active devices. Ends on the screen after the right code. */
+/** Signed out, and the demo account already has 3 active devices. Ends on the screen after the right password. */
 async function reachDeviceLimit(page: Page) {
   await page.goto("/login");
   await loadAuthScenario(page, "Belum masuk, akun sudah di 3 perangkat");
-  await requestCode(page, DEMO_EMAIL);
-  await submitCode(page, DEMO_EMAIL);
+  await signIn(page, DEMO_EMAIL);
   await expect(
     page.getByRole("heading", { name: "Akunmu sudah aktif di 3 perangkat (maksimal)", level: 1 }),
   ).toBeVisible();
@@ -36,7 +28,7 @@ async function reachDeviceLimit(page: Page) {
 test.describe("batas 3 perangkat (PRD §24.1)", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test("AUTH-DEVICE: perangkat ke-4 ditolak setelah kode benar, daftar tampil, tidak ada yang dikeluarkan otomatis", async ({
+  test("AUTH-DEVICE: perangkat ke-4 ditolak setelah password benar, daftar tampil, tidak ada yang dikeluarkan otomatis", async ({
     page,
   }) => {
     await reachDeviceLimit(page);

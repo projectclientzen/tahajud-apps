@@ -6,7 +6,7 @@ export interface DeviceRef {
 }
 
 /**
- * Device limit (PRD §24.1, owner decision v1.2.3). The 4th login is refused after the OTP is correct.
+ * Device limit (PRD §24.1, owner decision v1.2.3). The 4th login is refused after the password is correct.
  * Nothing is signed out automatically: the user picks one device to remove, or cancels.
  */
 export type DeviceLimitDecision = { ok: true } | { ok: false; max: number };

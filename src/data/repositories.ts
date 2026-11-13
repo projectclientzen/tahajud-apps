@@ -5,9 +5,8 @@ import type {
   PreferencesUpdate,
   Profile,
   ProfileUpdate,
-  RequestOtpResponse,
-  VerifyOtpResponse,
-  VerifyOtpResult,
+  SignInResponse,
+  SignInResult,
   CalendarResponse,
   ChecklistUpdateRequest,
   CounterOperationsRequest,
@@ -126,12 +125,21 @@ export interface ProfileRepository {
 
 /** Sign-in side. Lives outside DataLayer because it exists before a user id does. */
 export interface AuthRepository {
-  /** POST /auth/request-otp. The answer never depends on whether the email has access. */
-  requestOtp(email: string): Promise<RequestOtpResponse>;
-  /** POST /auth/verify-otp. With 3 active devices the answer is `device_limit` and no session is created. */
-  verifyOtp(email: string, code: string, deviceLabel?: string): Promise<VerifyOtpResult>;
+  /** POST /auth/login. With 3 active devices the answer is `device_limit` and no session is created. */
+  login(email: string, password: string, deviceLabel?: string): Promise<SignInResult>;
+  /**
+   * POST /auth/activate. One step: email + phone of the paid order + a new password. Every failure is one
+   * `ACTIVATION_FAILED` answer that does not say why.
+   */
+  activate(input: { email: string; phone: string; password: string; deviceLabel?: string }): Promise<SignInResult>;
+  /** POST /auth/reset-password. Same proof as activation. Signs every device out and opens no session. */
+  resetPassword(input: { email: string; phone: string; newPassword: string }): Promise<void>;
+  /** POST /auth/set-password. A reset link made by an admin. Signs in on success. */
+  setPasswordWithToken(token: string, password: string, deviceLabel?: string): Promise<SignInResult>;
+  /** POST /me/password. Other devices are signed out. */
+  changePassword(currentPassword: string, newPassword: string): Promise<void>;
   /** POST /auth/complete-pending-login. Removes one device, then signs in. The token works once. */
-  completePendingLogin(pendingToken: string, revokeDeviceId: string, deviceLabel?: string): Promise<VerifyOtpResponse>;
+  completePendingLogin(pendingToken: string, revokeDeviceId: string, deviceLabel?: string): Promise<SignInResponse>;
   /** GET /me, auth part */
   getSession(): Promise<AuthSession>;
   /** POST /auth/logout. This device only. */

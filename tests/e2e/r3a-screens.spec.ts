@@ -1,5 +1,5 @@
 import { test } from "@playwright/test";
-import { AUTH_FILE, NO_ACCESS_EMAIL, readOtp, requestCode, signIn } from "./r3a-helpers";
+import { AUTH_FILE, DEMO_PASSWORD, NO_ACCESS_EMAIL, fillLogin, signIn } from "./r3a-helpers";
 import { openCounter, startSession, withDevPanel } from "./s3-helpers";
 
 const SIGNED_OUT = { cookies: [], origins: [] };
@@ -26,11 +26,11 @@ test.describe("@t1screens", () => {
         await a.getByLabel("Email").waitFor();
         await a.evaluate(() => document.fonts.ready);
         await shot("login");
-        await requestCode(a, "demo@ngajigaes.test");
-        await a.getByText("Tidak menerima kode?").click();
-        await shot("verify");
-        await a.getByLabel("Kode 6 digit").fill(await readOtp(a, "demo@ngajigaes.test"));
-        await a.getByRole("button", { name: "Masuk", exact: true }).click();
+        await a.goto("/activate");
+        await a.getByLabel("Nomor HP").waitFor();
+        await shot("activate");
+        await a.goto("/login");
+        await fillLogin(a, "demo@ngajigaes.test", DEMO_PASSWORD);
         await a.getByRole("button", { name: "Mulai", exact: true }).click();
         await a.getByRole("radio", { name: /Jakarta/ }).check();
         await shot("onboarding-region");

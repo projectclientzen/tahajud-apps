@@ -1,17 +1,18 @@
 import { DbConfigError } from "@/server/db";
-
-export type ProviderName = "local" | "supabase";
+import { DEFAULT_SCRYPT, type ScryptParams } from "./password";
 
 export interface AuthConfig {
-  provider: ProviderName;
-  /** Secret mixed into every hash we store (codes, cookie secrets, rate limit keys). Server only. */
+  /** Secret mixed into every hash we store (cookie secrets, phone proof, rate limit keys). Server only. */
   pepper: string;
   /** Extra origins allowed to send mutating requests, besides the one the request itself targets. */
   allowedOrigins: string[];
-  /** Local provider only: folder where "emails" are written as files. */
-  mailDir: string | null;
-  supabaseUrl: string | null;
-  supabaseAnonKey: string | null;
+  /**
+   * Proxies we trust between the internet and this server. The client address is the entry that many places from the
+   * end of X-Forwarded-For. 0 means no trusted proxy: the header is ignored and every caller shares one IP bucket.
+   */
+  trustedProxyHops: number;
+  /** Settings for new password hashes. Existing hashes keep the settings stored inside them. */
+  scrypt: ScryptParams;
 }
 
 const DEV_PEPPER = "local-test-pepper-not-for-production-0123456789";
@@ -21,35 +22,41 @@ const DEV_PEPPER = "local-test-pepper-not-for-production-0123456789";
  * server never starts half configured. No default can open a production deployment.
  */
 export function loadAuthConfig(env: Record<string, string | undefined> = process.env): AuthConfig {
-  const provider = (env.AUTH_PROVIDER ?? "supabase") as ProviderName;
-  if (provider !== "local" && provider !== "supabase") {
-    throw new DbConfigError(`AUTH_PROVIDER must be "supabase" or "local", got "${provider}".`);
+  const isTestDb = env.DB_DRIVER === "pglite" && env.TAHAJUD_ALLOW_TEST_DB === "true";
+  const production = env.NODE_ENV === "production" && !isTestDb;
+
+  // Activation proves ownership by email + order phone. Turning the phone check off would remove the proof.
+  const phoneRequired = env.ACTIVATION_PHONE_REQUIRED?.trim().toLowerCase();
+  if (phoneRequired !== undefined && phoneRequired !== "" && phoneRequired !== "true") {
+    throw new DbConfigError("ACTIVATION_PHONE_REQUIRED cannot be turned off. Remove it or set it to true.");
   }
-  if (provider === "local") {
-    if (env.TAHAJUD_ALLOW_LOCAL_AUTH !== "true" || env.DB_DRIVER !== "pglite" || env.TAHAJUD_ALLOW_TEST_DB !== "true") {
-      throw new DbConfigError(
-        "AUTH_PROVIDER=local is for tests only. It needs TAHAJUD_ALLOW_LOCAL_AUTH=true, DB_DRIVER=pglite and TAHAJUD_ALLOW_TEST_DB=true.",
-      );
-    }
-  } else if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
-    throw new DbConfigError("SUPABASE_URL and SUPABASE_ANON_KEY are required for AUTH_PROVIDER=supabase.");
-  }
+
   let pepper = env.SESSION_PEPPER ?? "";
   if (!pepper) {
-    if (provider === "local") pepper = DEV_PEPPER;
+    if (isTestDb) pepper = DEV_PEPPER;
     else throw new DbConfigError("SESSION_PEPPER is not set. Use at least 32 random characters.");
   } else if (pepper.length < 32) {
     throw new DbConfigError("SESSION_PEPPER must be at least 32 characters.");
   }
+
+  let hops = 1;
+  const rawHops = env.TRUSTED_PROXY_HOPS?.trim();
+  if (rawHops) {
+    if (!/^[0-5]$/.test(rawHops)) throw new DbConfigError("TRUSTED_PROXY_HOPS must be a whole number from 0 to 5.");
+    hops = Number(rawHops);
+  } else if (production) {
+    throw new DbConfigError(
+      "TRUSTED_PROXY_HOPS is not set. Use the number of reverse proxies in front of the app (1 for Caddy or nginx).",
+    );
+  }
+
   return {
-    provider,
     pepper,
     allowedOrigins: (env.APP_ORIGINS ?? "")
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean),
-    mailDir: provider === "local" ? (env.TAHAJUD_MAIL_DIR ?? null) : null,
-    supabaseUrl: env.SUPABASE_URL?.replace(/\/+$/, "") ?? null,
-    supabaseAnonKey: env.SUPABASE_ANON_KEY ?? null,
+    trustedProxyHops: hops,
+    scrypt: DEFAULT_SCRYPT,
   };
 }

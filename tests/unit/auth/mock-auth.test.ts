@@ -5,22 +5,21 @@ import {
   authSessionSchema,
   deviceLimitResponseSchema,
   deviceSchema,
-  requestOtpResponseSchema,
-  verifyOtpResponseSchema,
+  signInResponseSchema,
+  type SignInResponse,
 } from "@/data/contracts";
 import { createAuthLayer, createMockAuth, AUTH_SCENARIOS, type MockAuthLayer } from "@/data";
 import { memoryAuthStorage, idbAuthStorage } from "@/data/mock/auth";
-import { DEMO_EMAILS, userIdFor } from "@/data/mock/fixtures/auth";
+import { DEMO_EMAILS, DEMO_PASSWORD, DEMO_PHONES, userIdFor } from "@/data/mock/fixtures/auth";
 import { wib } from "../domain/helpers";
-import type { VerifyOtpResponse } from "@/data/contracts";
 
 const clock = { now: () => wib("2026-11-12 08:00") };
-const make = (scenario: (typeof AUTH_SCENARIOS)[number] = "logged_out", code = 123456): MockAuthLayer =>
-  createMockAuth({ scenario, clock, storage: memoryAuthStorage(), randomInt: () => code });
+const make = (scenario: (typeof AUTH_SCENARIOS)[number] = "logged_out"): MockAuthLayer =>
+  createMockAuth({ scenario, clock, storage: memoryAuthStorage(), randomInt: () => 123456 });
 
-/** Verify and expect a normal sign-in (not the device limit). */
-async function signIn(a: MockAuthLayer, email: string, code = "123456", label?: string): Promise<VerifyOtpResponse> {
-  const r = await a.verifyOtp(email, code, label);
+/** Log in and expect a normal sign-in (not the device limit). */
+async function signIn(a: MockAuthLayer, email: string, password = DEMO_PASSWORD, label?: string): Promise<SignInResponse> {
+  const r = await a.login(email, password, label);
   if (r.status !== "ok") throw new Error(`expected sign-in, got ${r.status}`);
   return r;
 }
@@ -35,67 +34,13 @@ async function err(p: Promise<unknown>): Promise<ApiError> {
   throw new Error("expected ApiError");
 }
 
-describe("mock auth: request OTP", () => {
-  it("AUTH-06 gives the identical answer for an email with access and one without", async () => {
-    const a = make();
-    const known = await a.requestOtp(DEMO_EMAILS.active);
-    const unknown = await a.requestOtp("stranger@example.test");
-    requestOtpResponseSchema.parse(known);
-    expect(unknown).toEqual(known);
-    expect(known).toMatchObject({ ok: true, resend_after_seconds: 60 });
-  });
+const NEW_PW = "kata-sandi-baru-yang-panjang";
 
-  it("AUTH-06 refuses the 6th request within an hour with RATE_LIMITED", async () => {
+describe("mock auth: login (DEMO data, demo password)", () => {
+  it("signs in with the demo password and returns access", async () => {
     const a = make();
-    for (let i = 0; i < 5; i++) {
-      await a.requestOtp(DEMO_EMAILS.active);
-      await a.dev.advance(61_000);
-    }
-    const e = await err(a.requestOtp(DEMO_EMAILS.active));
-    expect(e.code).toBe("RATE_LIMITED");
-    expect(e.details).toMatchObject({ reason: "hourly_limit" });
-    // the same limit applies to an email nobody owns, so the limit leaks nothing
-    for (let i = 0; i < 5; i++) {
-      await a.requestOtp("ghost@example.test");
-      await a.dev.advance(61_000);
-    }
-    expect((await err(a.requestOtp("ghost@example.test"))).details).toMatchObject({ reason: "hourly_limit" });
-  });
-
-  it("makes the user wait 60 seconds before asking again", async () => {
-    const a = make();
-    await a.requestOtp(DEMO_EMAILS.active);
-    const e = await err(a.requestOtp(DEMO_EMAILS.active));
-    expect(e).toMatchObject({ code: "RATE_LIMITED", details: { reason: "cooldown", retry_after_seconds: 60 } });
-    await a.dev.advance(60_000);
-    await expect(a.requestOtp(DEMO_EMAILS.active)).resolves.toMatchObject({ ok: true });
-  });
-
-  it("treats Upper.Case and spaces as the same email for the limit", async () => {
-    const a = make();
-    await a.requestOtp("Demo@Ngajigaes.test ");
-    expect((await err(a.requestOtp(DEMO_EMAILS.active))).code).toBe("RATE_LIMITED");
-  });
-
-  it("rejects a malformed email as validation, not as a rate limit", async () => {
-    expect((await err(make().requestOtp("not-an-email"))).code).toBe("VALIDATION_ERROR");
-  });
-
-  it("exposes the code only through dev tools", async () => {
-    const a = make();
-    await a.requestOtp(DEMO_EMAILS.active);
-    expect(await a.dev.peekOtp(DEMO_EMAILS.active)).toBe("123456");
-    expect(await a.dev.peekOtp("nobody@example.test")).toBeNull();
-    expect((await a.dev.outbox())[0]).toMatchObject({ to: DEMO_EMAILS.active, code: "123456" });
-  });
-});
-
-describe("mock auth: verify OTP", () => {
-  it("signs in with the right code and returns access", async () => {
-    const a = make();
-    await a.requestOtp(DEMO_EMAILS.active);
-    const r = await signIn(a, DEMO_EMAILS.active, "123456", "Chrome Android");
-    verifyOtpResponseSchema.parse({ ...r, status: undefined });
+    const r = await signIn(a, DEMO_EMAILS.active, DEMO_PASSWORD, "Chrome Android");
+    signInResponseSchema.parse({ ...r, status: undefined });
     expect(r.user).toEqual({ id: userIdFor(DEMO_EMAILS.active), email: DEMO_EMAILS.active });
     expect(r.access).toMatchObject({
       access_status: "active",
@@ -103,38 +48,38 @@ describe("mock auth: verify OTP", () => {
       authenticated: true,
       onboarding_completed: false,
     });
-    const s = authSessionSchema.parse(await a.getSession());
-    expect(s).toMatchObject({ authenticated: true, reason: null, device_id: r.device_id });
+    expect(authSessionSchema.parse(await a.getSession())).toMatchObject({
+      authenticated: true,
+      reason: null,
+      device_id: r.device_id,
+    });
   });
 
-  it("uses one generic error for wrong, expired, reused, and malformed codes", async () => {
-    const a = make();
-    await a.requestOtp(DEMO_EMAILS.active);
-    const wrong = await err(a.verifyOtp(DEMO_EMAILS.active, "000000"));
-    expect(wrong).toMatchObject({ code: "INVALID_OTP", message: "Kode tidak valid atau sudah kedaluwarsa." });
-    expect((await err(a.verifyOtp(DEMO_EMAILS.active, "12ab"))).message).toBe(wrong.message);
-    expect((await err(a.verifyOtp("nobody@example.test", "123456"))).message).toBe(wrong.message);
-    await a.dev.advance(10 * 60_000 + 1000);
-    expect((await err(a.verifyOtp(DEMO_EMAILS.active, "123456"))).message).toBe(wrong.message);
+  it("treats Upper.Case and spaces in the email as the same account", async () => {
+    expect((await signIn(make(), " Demo@Ngajigaes.test ")).user.email).toBe(DEMO_EMAILS.active);
   });
 
-  it("locks the code after 5 wrong tries, then even the right code fails", async () => {
+  it("uses one generic error for a wrong password, an unknown email and a bad shape", async () => {
     const a = make();
-    await a.requestOtp(DEMO_EMAILS.active);
-    for (let i = 0; i < 5; i++) await err(a.verifyOtp(DEMO_EMAILS.active, "000000"));
-    expect((await err(a.verifyOtp(DEMO_EMAILS.active, "123456"))).code).toBe("INVALID_OTP");
+    const wrong = await err(a.login(DEMO_EMAILS.active, "salah-salah-1"));
+    expect(wrong).toMatchObject({ code: "INVALID_CREDENTIALS", message: "Email atau password salah." });
+    expect((await err(a.login("nobody@example.test", DEMO_PASSWORD))).message).toBe(wrong.message);
+    expect((await err(a.login("not-an-email", DEMO_PASSWORD))).message).toBe(wrong.message);
+    expect((await err(a.login(DEMO_EMAILS.newBuyer, DEMO_PASSWORD))).message).toBe(wrong.message); // paid, but no account yet
     expect((await a.getSession()).authenticated).toBe(false);
-    // asking for a new code starts fresh
-    await a.dev.advance(61_000);
-    await a.requestOtp(DEMO_EMAILS.active);
-    await expect(a.verifyOtp(DEMO_EMAILS.active, "123456")).resolves.toBeTruthy();
   });
 
-  it("a code works once", async () => {
+  it("locks an email after 10 failures in 15 minutes, a right password does not bypass it, then it frees", async () => {
     const a = make();
-    await a.requestOtp(DEMO_EMAILS.active);
-    await a.verifyOtp(DEMO_EMAILS.active, "123456");
-    expect((await err(a.verifyOtp(DEMO_EMAILS.active, "123456"))).code).toBe("INVALID_OTP");
+    for (let i = 0; i < 10; i++) await err(a.login(DEMO_EMAILS.active, "salah-salah-1"));
+    expect((await err(a.login(DEMO_EMAILS.active, DEMO_PASSWORD))).code).toBe("RATE_LIMITED");
+    await a.dev.advance(15 * 60_000 + 1000);
+    await expect(a.login(DEMO_EMAILS.active, DEMO_PASSWORD)).resolves.toMatchObject({ status: "ok" });
+  });
+
+  it("successful logins do not count toward the limit", async () => {
+    const a = make();
+    for (let i = 0; i < 12; i++) await a.login(DEMO_EMAILS.active, DEMO_PASSWORD, `P${i}`);
   });
 
   it("maps entitlements to access states: pending, none, suspended", async () => {
@@ -142,30 +87,137 @@ describe("mock auth: verify OTP", () => {
       [DEMO_EMAILS.pending, "awaiting_order_verification"],
       [DEMO_EMAILS.noAccess, "none"],
       [DEMO_EMAILS.suspended, "suspended"],
-      ["someone.else@example.test", "none"],
     ] as const) {
-      const a = make();
-      await a.requestOtp(email);
-      expect((await signIn(a, email)).access).toMatchObject({
-        access_status: status,
-        entitlement_type: null,
-      });
+      expect((await signIn(make(), email)).access).toMatchObject({ access_status: status, entitlement_type: null });
     }
-    const a = make();
-    await a.dev.setEntitlement("Late.Buyer@Example.test", "active");
-    await a.requestOtp("late.buyer@example.test");
-    expect((await signIn(a, "late.buyer@example.test")).access.access_status).toBe("active");
   });
 
   it("asks the app whether onboarding is done", async () => {
-    const a = createMockAuth({
-      clock,
-      storage: memoryAuthStorage(),
-      randomInt: () => 1,
-      onboardingCompleted: async () => true,
-    });
-    await a.requestOtp(DEMO_EMAILS.active);
-    expect((await signIn(a, DEMO_EMAILS.active, "000001")).access.onboarding_completed).toBe(true);
+    const a = createMockAuth({ clock, storage: memoryAuthStorage(), onboardingCompleted: async () => true });
+    expect((await signIn(a, DEMO_EMAILS.active)).access.onboarding_completed).toBe(true);
+  });
+});
+
+describe("mock auth: activation (DEMO order, demo phone)", () => {
+  const act = (a: MockAuthLayer, email: string, phone: string, password = NEW_PW) =>
+    a.activate({ email, phone, password, deviceLabel: "HP baru" });
+
+  it("creates the account from the demo order and signs in", async () => {
+    const a = make();
+    const r = await act(a, DEMO_EMAILS.newBuyer, DEMO_PHONES.newBuyer);
+    expect(r).toMatchObject({ status: "ok", user: { email: DEMO_EMAILS.newBuyer }, access: { access_status: "active" } });
+    expect((await a.getSession()).authenticated).toBe(true);
+    // the chosen password now works from a new device (a second instance sharing nothing but the same state)
+    await a.logout();
+    expect(await signIn(a, DEMO_EMAILS.newBuyer, NEW_PW)).toMatchObject({ user: { email: DEMO_EMAILS.newBuyer } });
+  });
+
+  it("accepts the phone in any common form", async () => {
+    for (const phone of ["081200000002", "+62 812-0000-0002", "6281200000002", "0812 0000 0002"]) {
+      expect((await act(make(), DEMO_EMAILS.newBuyer, phone)).status).toBe("ok");
+    }
+  });
+
+  it("every failure is one ACTIVATION_FAILED answer", async () => {
+    const answers = new Set<string>();
+    for (const [email, phone] of [
+      ["nobody@example.test", DEMO_PHONES.newBuyer],
+      [DEMO_EMAILS.newBuyer, "081299999999"],
+      [DEMO_EMAILS.newBuyer, "bukan nomor"],
+      [DEMO_EMAILS.active, DEMO_PHONES.active], // already has an account
+      [DEMO_EMAILS.pending, DEMO_PHONES.active],
+    ] as const) {
+      const e = await err(act(make(), email, phone));
+      expect(e.code).toBe("ACTIVATION_FAILED");
+      answers.add(e.message);
+    }
+    expect(answers.size).toBe(1);
+  });
+
+  it("works once: a second activation is refused", async () => {
+    const a = make();
+    await act(a, DEMO_EMAILS.newBuyer, DEMO_PHONES.newBuyer);
+    expect((await err(act(a, DEMO_EMAILS.newBuyer, DEMO_PHONES.newBuyer, "sandi-lain-yang-panjang"))).code).toBe(
+      "ACTIVATION_FAILED",
+    );
+  });
+
+  it("a weak password is refused with the reason and creates nothing", async () => {
+    const a = make();
+    const e = await err(act(a, DEMO_EMAILS.newBuyer, DEMO_PHONES.newBuyer, "pendek"));
+    expect(e).toMatchObject({ code: "WEAK_PASSWORD", details: { reason: "too_short" } });
+    expect((await err(a.login(DEMO_EMAILS.newBuyer, "pendek"))).code).toBe("INVALID_CREDENTIALS");
+    expect((await act(a, DEMO_EMAILS.newBuyer, DEMO_PHONES.newBuyer)).status).toBe("ok");
+  });
+
+  it("5 failures per email lock it, and 429 does not say which counter ran out", async () => {
+    const a = make();
+    for (let i = 0; i < 5; i++) await err(act(a, DEMO_EMAILS.newBuyer, `08120000009${i}`));
+    const e = await err(act(a, DEMO_EMAILS.newBuyer, DEMO_PHONES.newBuyer));
+    expect(e).toMatchObject({ code: "RATE_LIMITED" });
+    expect(JSON.stringify(e.details)).not.toMatch(/email|phone|ip/i);
+  });
+
+  it("respects the entitlement: a demo order that is not active cannot activate", async () => {
+    const a = make();
+    await a.dev.setEntitlement(DEMO_EMAILS.newBuyer, "none");
+    expect((await err(act(a, DEMO_EMAILS.newBuyer, DEMO_PHONES.newBuyer))).code).toBe("ACTIVATION_FAILED");
+  });
+});
+
+describe("mock auth: reset, admin link and change password", () => {
+  it("self reset needs email + phone, signs every device out and opens no session", async () => {
+    const a = make("logged_in");
+    await a.resetPassword({ email: DEMO_EMAILS.active, phone: DEMO_PHONES.active, newPassword: NEW_PW });
+    expect(await a.getSession()).toMatchObject({ authenticated: false, reason: "revoked" });
+    expect((await err(a.login(DEMO_EMAILS.active, DEMO_PASSWORD))).code).toBe("INVALID_CREDENTIALS");
+    expect((await signIn(a, DEMO_EMAILS.active, NEW_PW)).user.email).toBe(DEMO_EMAILS.active);
+  });
+
+  it("self reset is refused for a wrong phone, a missing account and an account without an order", async () => {
+    const a = make();
+    for (const [email, phone] of [
+      [DEMO_EMAILS.active, "081299999999"],
+      ["nobody@example.test", DEMO_PHONES.active],
+      [DEMO_EMAILS.pending, DEMO_PHONES.active],
+    ] as const) {
+      expect((await err(a.resetPassword({ email, phone, newPassword: NEW_PW }))).code).toBe("ACTIVATION_FAILED");
+    }
+    expect((await signIn(a, DEMO_EMAILS.active)).user.email).toBe(DEMO_EMAILS.active); // password unchanged
+  });
+
+  it("an admin link works once, expires, and signs in", async () => {
+    const a = make();
+    const token = (await a.dev.issueResetToken(DEMO_EMAILS.active))!;
+    const r = await a.setPasswordWithToken(token, NEW_PW, "HP CS");
+    expect(r).toMatchObject({ status: "ok", user: { email: DEMO_EMAILS.active } });
+    expect((await err(a.setPasswordWithToken(token, "sandi-lain-yang-panjang"))).code).toBe("INVALID_TOKEN");
+    const t2 = (await a.dev.issueResetToken(DEMO_EMAILS.active))!;
+    await a.dev.advance(61 * 60_000);
+    expect((await err(a.setPasswordWithToken(t2, NEW_PW))).code).toBe("INVALID_TOKEN");
+    expect((await err(a.setPasswordWithToken("made-up", NEW_PW))).code).toBe("INVALID_TOKEN");
+    expect(await a.dev.issueResetToken("nobody@example.test")).toBeNull();
+  });
+
+  it("a newer admin link revokes the older one", async () => {
+    const a = make();
+    const t1 = (await a.dev.issueResetToken(DEMO_EMAILS.active))!;
+    const t2 = (await a.dev.issueResetToken(DEMO_EMAILS.active))!;
+    expect((await err(a.setPasswordWithToken(t1, NEW_PW))).code).toBe("INVALID_TOKEN");
+    expect((await a.setPasswordWithToken(t2, NEW_PW)).status).toBe("ok");
+  });
+
+  it("change password needs the current one, keeps this device and signs the others out", async () => {
+    const a = make("logged_in");
+    expect((await err(a.changePassword("salah-salah-1", NEW_PW))).code).toBe("INVALID_CREDENTIALS");
+    await a.changePassword(DEMO_PASSWORD, NEW_PW);
+    expect((await a.getSession()).authenticated).toBe(true);
+    expect((await a.listDevices()).map((d) => d.id)).toEqual(["dev_current"]);
+    expect((await err(a.changePassword(NEW_PW, "pendek"))).code).toBe("WEAK_PASSWORD");
+  });
+
+  it("change password needs a session", async () => {
+    expect((await err(make().changePassword(DEMO_PASSWORD, NEW_PW))).code).toBe("UNAUTHENTICATED");
   });
 });
 
@@ -178,13 +230,11 @@ describe("mock auth: sessions and devices", () => {
     ["session_expired", { authenticated: false, reason: "expired" }],
     ["device_limit", { authenticated: false, reason: "none" }],
   ] as const)("scenario %s", async (name, expected) => {
-    const s = authSessionSchema.parse(await make(name).getSession());
-    expect(s).toMatchObject(expected);
+    expect(authSessionSchema.parse(await make(name).getSession())).toMatchObject(expected);
   });
 
   it("session expires after 30 days (provisional)", async () => {
     const a = make();
-    await a.requestOtp(DEMO_EMAILS.active);
     await signIn(a, DEMO_EMAILS.active);
     await a.dev.advance(29 * 86_400_000);
     expect((await a.getSession()).authenticated).toBe(true);
@@ -215,10 +265,9 @@ describe("mock auth: sessions and devices", () => {
     expect((await err(a.revokeDevice("dev_current"))).code).toBe("VALIDATION_ERROR");
   });
 
-  it("AUTH-DEVICE: a 4th login after a right code is refused with the device list and a pending token", async () => {
+  it("AUTH-14: a 4th login after a right password is refused with the device list and a pending token", async () => {
     const a = make("device_limit"); // signed out, 3 active devices for the demo user
-    await a.requestOtp(DEMO_EMAILS.active);
-    const r = await a.verifyOtp(DEMO_EMAILS.active, "123456", "Tablet baru");
+    const r = await a.login(DEMO_EMAILS.active, DEMO_PASSWORD, "Tablet baru");
     expect(r.status).toBe("device_limit");
     if (r.status !== "device_limit") return;
     deviceLimitResponseSchema.parse(r);
@@ -229,13 +278,12 @@ describe("mock auth: sessions and devices", () => {
     expect(await a.getSession()).toMatchObject({ authenticated: false });
   });
 
-  it("AUTH-DEVICE: removing one device lets the login continue, and the token works once", async () => {
+  it("AUTH-14: removing one device lets the login continue, and the token works once", async () => {
     const a = make("device_limit");
-    await a.requestOtp(DEMO_EMAILS.active);
-    const r = await a.verifyOtp(DEMO_EMAILS.active, "123456");
+    const r = await a.login(DEMO_EMAILS.active, DEMO_PASSWORD);
     if (r.status !== "device_limit") throw new Error("expected device_limit");
     const done = await a.completePendingLogin(r.pending_token, "dev_old_2", "Tablet baru");
-    verifyOtpResponseSchema.parse(done);
+    signInResponseSchema.parse(done);
     const ids = (await a.listDevices()).map((d) => d.id);
     expect(ids).toHaveLength(3);
     expect(ids).toContain(done.device_id);
@@ -244,10 +292,9 @@ describe("mock auth: sessions and devices", () => {
     expect((await err(a.completePendingLogin(r.pending_token, "dev_old_1"))).code).toBe("PENDING_LOGIN_INVALID");
   });
 
-  it("AUTH-DEVICE: the pending token expires after 10 minutes and a wrong device id does not burn it", async () => {
+  it("AUTH-14: the pending token expires after 10 minutes and a wrong device id does not burn it", async () => {
     const a = make("device_limit");
-    await a.requestOtp(DEMO_EMAILS.active);
-    const r = await a.verifyOtp(DEMO_EMAILS.active, "123456");
+    const r = await a.login(DEMO_EMAILS.active, DEMO_PASSWORD);
     if (r.status !== "device_limit") throw new Error("expected device_limit");
     expect((await err(a.completePendingLogin(r.pending_token, "dev_nope"))).code).toBe("NOT_FOUND");
     await a.dev.advance(10 * 60_000 + 1000);
@@ -255,10 +302,9 @@ describe("mock auth: sessions and devices", () => {
     expect((await err(a.completePendingLogin("pl_made_up", "dev_old_1"))).code).toBe("PENDING_LOGIN_INVALID");
   });
 
-  it("a wrong code never reveals the device list", async () => {
+  it("a wrong password never reveals the device list", async () => {
     const a = make("device_limit");
-    await a.requestOtp(DEMO_EMAILS.active);
-    expect((await err(a.verifyOtp(DEMO_EMAILS.active, "000000"))).code).toBe("INVALID_OTP");
+    expect((await err(a.login(DEMO_EMAILS.active, "salah-salah-1"))).code).toBe("INVALID_CREDENTIALS");
   });
 
   it("reports a revoked current device as signed out with reason 'revoked'", async () => {
@@ -285,7 +331,7 @@ describe("auth layer selection", () => {
   it("live mode talks to /api/v1: with no server in reach it reports OFFLINE, never a fake answer (T3b)", async () => {
     const live = createAuthLayer({ mode: "live" });
     expect(live).not.toHaveProperty("dev");
-    expect((await err(live.requestOtp("a@b.id"))).code).toBe("OFFLINE");
+    expect((await err(live.login("a@b.id", "apa-saja-1234"))).code).toBe("OFFLINE");
   });
   it("mock mode returns the mock", () =>
     expect(createAuthLayer({ mode: "mock", storage: memoryAuthStorage() })).toHaveProperty("dev"));
@@ -293,15 +339,23 @@ describe("auth layer selection", () => {
 });
 
 describe("auth persistence in IndexedDB", () => {
-  it("survives a new instance", async () => {
-    const mk = () => createMockAuth({ clock, storage: idbAuthStorage(), randomInt: () => 123456 });
+  it("survives a new instance (accounts made by activation are remembered)", async () => {
+    const mk = () => createMockAuth({ clock, storage: idbAuthStorage() });
     const a = mk();
     await a.dev.reset();
-    await a.requestOtp(DEMO_EMAILS.active);
+    await a.activate({ email: DEMO_EMAILS.newBuyer, phone: DEMO_PHONES.newBuyer, password: NEW_PW });
     const b = mk();
-    expect((await err(b.requestOtp(DEMO_EMAILS.active))).code).toBe("RATE_LIMITED"); // cooldown remembered
-    await b.verifyOtp(DEMO_EMAILS.active, "123456");
-    expect((await mk().getSession()).authenticated).toBe(true);
+    expect((await b.getSession()).authenticated).toBe(true);
+    await b.logout();
+    expect((await mk().login(DEMO_EMAILS.newBuyer, NEW_PW)).status).toBe("ok");
     await mk().dev.reset();
+  });
+
+  it("saved state from the OTP version is dropped, not misread", async () => {
+    const storage = memoryAuthStorage();
+    await storage.save({ schemaVersion: 1, scenario: "logged_in", otps: {}, session: { userId: "u_old" } } as never);
+    const a = createMockAuth({ clock, storage });
+    expect(await a.getSession()).toMatchObject({ authenticated: false, reason: "none" });
+    expect((await a.login(DEMO_EMAILS.active, DEMO_PASSWORD)).status).toBe("ok");
   });
 });

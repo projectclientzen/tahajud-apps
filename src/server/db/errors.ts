@@ -20,7 +20,7 @@ const MESSAGES: Record<string, string> = {
   VALIDATION_ERROR: "Data yang dikirim belum sesuai.",
   LOCATION_REQUIRED: "Pilih wilayah atau atur jadwal manual dulu.",
   UNAUTHENTICATED: "Masuk dulu untuk melanjutkan.",
-  PENDING_LOGIN_INVALID: "Waktu untuk melanjutkan sudah habis. Masuk lagi dengan kode baru.",
+  PENDING_LOGIN_INVALID: "Waktu untuk melanjutkan sudah habis. Masuk lagi dengan password.",
 };
 
 function parseDetail(detail: unknown): unknown {
@@ -42,7 +42,10 @@ export const HTTP_STATUS: Record<ApiErrorCode, number> = {
   NOT_AVAILABLE: 503,
   RATE_LIMITED: 429,
   UNAUTHENTICATED: 401,
-  INVALID_OTP: 401,
+  INVALID_CREDENTIALS: 401,
+  ACTIVATION_FAILED: 400,
+  INVALID_TOKEN: 400,
+  WEAK_PASSWORD: 422,
   PENDING_LOGIN_INVALID: 400,
   FORBIDDEN_ORIGIN: 403,
   INTERNAL_ERROR: 500,

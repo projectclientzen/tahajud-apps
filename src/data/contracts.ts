@@ -22,7 +22,14 @@ export const API_ERROR_CODES = [
   "NOT_AVAILABLE",
   "RATE_LIMITED",
   "UNAUTHENTICATED",
-  "INVALID_OTP",
+  /** Wrong email or password, or no account. One answer for all three. 401. */
+  "INVALID_CREDENTIALS",
+  /** Activation or self reset refused: data does not match, account already active, order not verified. One answer. 400. */
+  "ACTIVATION_FAILED",
+  /** An admin reset link that is wrong, expired, used or revoked. One answer. 400. */
+  "INVALID_TOKEN",
+  /** The new password breaks the policy. `details.reason` says which rule. 422. */
+  "WEAK_PASSWORD",
   "PENDING_LOGIN_INVALID",
   /** A mutation from an origin that is not the app (PRD §24.1, SEC-11). 403. */
   "FORBIDDEN_ORIGIN",
@@ -322,31 +329,62 @@ export const notificationPreferencesSchema = z.object({
 });
 export type NotificationPreferences = z.infer<typeof notificationPreferencesSchema>;
 
-// ---- auth (§19.1, §24.1) ----
-export const requestOtpRequestSchema = z.object({ email: z.string().trim().min(3).max(254) });
-export type RequestOtpRequest = z.infer<typeof requestOtpRequestSchema>;
-/** Identical for registered and unregistered emails (anti enumeration). */
-export const requestOtpResponseSchema = z.object({
-  ok: z.literal(true),
-  message: z.string(),
-  resend_after_seconds: z.number().int(),
-});
-export type RequestOtpResponse = z.infer<typeof requestOtpResponseSchema>;
+// ---- auth (CLAUDE.md auth rules, SCALEV-AUTH-PLAN §3 and §8) ----
+const emailField = z.string().trim().min(3).max(254);
+const passwordField = z.string().min(1).max(256);
+const deviceLabelField = z.string().max(120).optional();
 
-export const verifyOtpRequestSchema = z.object({
-  email: z.string().trim().min(3).max(254),
-  code: z.string().regex(/^\d{6}$/),
+/** POST /auth/login */
+export const loginRequestSchema = z.object({
+  email: emailField,
+  password: passwordField,
+  device_label: deviceLabelField,
 });
-export type VerifyOtpRequest = z.infer<typeof verifyOtpRequestSchema>;
+export type LoginRequest = z.infer<typeof loginRequestSchema>;
+
+/** POST /auth/activate. One step: email + phone of the paid order + the password the buyer chooses. */
+export const activateRequestSchema = z.object({
+  email: emailField,
+  phone: z.string().trim().min(5).max(32),
+  password: passwordField,
+  device_label: deviceLabelField,
+});
+export type ActivateRequest = z.infer<typeof activateRequestSchema>;
+
+/** POST /auth/reset-password. Same proof as activation, for an account that already has a password. No session. */
+export const resetPasswordRequestSchema = z.object({
+  email: emailField,
+  phone: z.string().trim().min(5).max(32),
+  new_password: passwordField,
+});
+export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>;
+
+/** POST /auth/set-password. Only for a reset link made by an admin (CS sends it by hand). */
+export const setPasswordRequestSchema = z.object({
+  token: z.string().min(20).max(256),
+  password: passwordField,
+  device_label: deviceLabelField,
+});
+export type SetPasswordRequest = z.infer<typeof setPasswordRequestSchema>;
+
+/** POST /me/password */
+export const changePasswordRequestSchema = z.object({
+  current_password: passwordField,
+  new_password: passwordField,
+});
+export type ChangePasswordRequest = z.infer<typeof changePasswordRequestSchema>;
+
+export const okResponseSchema = z.object({ ok: z.literal(true) });
+export type OkResponse = z.infer<typeof okResponseSchema>;
 
 export const authUserSchema = z.object({ id: z.string(), email: z.string() });
-export const verifyOtpResponseSchema = z.object({
+export const signInResponseSchema = z.object({
   user: authUserSchema,
   device_id: z.string(),
   expires_at: isoInstant,
   access: accessSchema,
 });
-export type VerifyOtpResponse = z.infer<typeof verifyOtpResponseSchema>;
+export type SignInResponse = z.infer<typeof signInResponseSchema>;
 
 export const deviceSchema = z.object({
   id: z.string(),
@@ -357,7 +395,7 @@ export const deviceSchema = z.object({
 export type Device = z.infer<typeof deviceSchema>;
 
 /**
- * 4th device (PRD §24.1): the code was right, but 3 devices are already active. No session is created.
+ * 4th device (PRD §24.1): the password was right, but 3 devices are already active. No session is created.
  * `pending_token` lets the user remove one device and continue. It lasts 10 minutes and works once.
  */
 export const deviceLimitResponseSchema = z.object({
@@ -369,8 +407,8 @@ export const deviceLimitResponseSchema = z.object({
 });
 export type DeviceLimitResponse = z.infer<typeof deviceLimitResponseSchema>;
 
-/** POST /auth/verify-otp answer: signed in, or blocked by the device limit. */
-export type VerifyOtpResult = ({ status: "ok" } & VerifyOtpResponse) | DeviceLimitResponse;
+/** Answer of login, activate and set-password: signed in, or blocked by the device limit (login only). */
+export type SignInResult = ({ status: "ok" } & SignInResponse) | DeviceLimitResponse;
 
 /** POST /auth/complete-pending-login */
 export const completePendingLoginRequestSchema = z.object({

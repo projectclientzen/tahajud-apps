@@ -424,130 +424,17 @@ describe("access", () => {
     const r = await as(pg, "authenticated", u, () => attempt(pg, "select public.get_access()"));
     expect(r.ok).toBe(true);
   });
-
-  it("links a purchase made before the account existed, once the email is proven", async () => {
-    await pg.query(
-      "insert into auth.users (id, email) values ('00000000-0000-4000-8000-00000000aaaa', 'late@ngajigaes.test')",
-    );
-    await pg.query(
-      "insert into public.access_entitlements (user_id, email_normalized, status, starts_at) values (null, 'late@ngajigaes.test', 'active', '2026-01-01T00:00:00Z')",
-    );
-    await pg.query("select app_private.provision_user($1::uuid, $2, $3::timestamptz)", [
-      "00000000-0000-4000-8000-00000000aaaa",
-      "late@ngajigaes.test",
-      NOW,
-    ]);
-    expect(await q(pg, "00000000-0000-4000-8000-00000000aaaa", NOW, "get_access")).toMatchObject({
-      access_status: "active",
-    });
-    // running it again changes nothing
-    await pg.query("select app_private.provision_user($1::uuid, $2, $3::timestamptz)", [
-      "00000000-0000-4000-8000-00000000aaaa",
-      "late@ngajigaes.test",
-      NOW,
-    ]);
-    expect(
-      Number(
-        (
-          await rows<{ n: string }>(
-            pg,
-            "select count(*) as n from public.profiles where email_normalized = 'late@ngajigaes.test'",
-          )
-        )[0]!.n,
-      ),
-    ).toBe(1);
-  });
-
-  it("does not hand a purchase to someone with a different email", async () => {
-    await pg.query(
-      "insert into auth.users (id, email) values ('00000000-0000-4000-8000-00000000bbbb', 'other@ngajigaes.test')",
-    );
-    await pg.query(
-      "insert into public.access_entitlements (user_id, email_normalized, status, starts_at) values (null, 'owner@ngajigaes.test', 'active', '2026-01-01T00:00:00Z')",
-    );
-    await pg.query("select app_private.provision_user($1::uuid, $2, $3::timestamptz)", [
-      "00000000-0000-4000-8000-00000000bbbb",
-      "other@ngajigaes.test",
-      NOW,
-    ]);
-    expect(await q(pg, "00000000-0000-4000-8000-00000000bbbb", NOW, "get_access")).toMatchObject({
-      access_status: "none",
-    });
-  });
 });
 
-describe("OTP codes and rate limits (AUTH-05, AUTH-06)", () => {
+describe("rate limits (AUTH-06r)", () => {
   let pg: PGlite;
   beforeAll(async () => {
     pg = await createTestDb();
   });
   afterAll(async () => pg.close());
 
-  const issue = async (email: string, code: string, now: string) =>
-    (
-      await rows<{ r: { ok: boolean; reason?: string; retry_after_seconds?: number } }>(
-        pg,
-        "select app_private.otp_issue($1, $2, $3::timestamptz) as r",
-        [email, code, now],
-      )
-    )[0]!.r;
-  const verify = async (email: string, code: string, now: string) =>
-    (
-      await rows<{ r: boolean }>(pg, "select app_private.otp_verify($1, $2, $3::timestamptz) as r", [email, code, now])
-    )[0]!.r;
   const T0 = Date.parse("2026-11-12T10:00:00Z");
   const t = (secs: number) => new Date(T0 + secs * 1000).toISOString();
-
-  it("a right code works once", async () => {
-    await issue("e1", "h-right", t(0));
-    expect(await verify("e1", "h-right", t(5))).toBe(true);
-    expect(await verify("e1", "h-right", t(6))).toBe(false);
-  });
-
-  it("a wrong code costs an attempt, five kill the code even if the right one comes later", async () => {
-    await issue("e2", "h-ok", t(0));
-    for (let i = 0; i < 5; i++) expect(await verify("e2", "h-bad", t(1 + i))).toBe(false);
-    expect(await verify("e2", "h-ok", t(10))).toBe(false);
-  });
-
-  it("the attempt count survives a failed check (it is not rolled back)", async () => {
-    await issue("e3", "h-ok", t(0));
-    await verify("e3", "h-bad", t(1));
-    expect(
-      (await rows<{ attempts: number }>(pg, "select attempts from public.login_otps where email_hash = 'e3'"))[0]!
-        .attempts,
-    ).toBe(1);
-  });
-
-  it("expires after 10 minutes", async () => {
-    await issue("e4", "h-ok", t(0));
-    expect(await verify("e4", "h-ok", t(601))).toBe(false);
-    await issue("e5", "h-ok", t(0));
-    expect(await verify("e5", "h-ok", t(599))).toBe(true);
-  });
-
-  it("an unknown email fails exactly like a wrong code", async () => {
-    expect(await verify("nobody", "h-x", t(0))).toBe(false);
-  });
-
-  it("a new code replaces the old one and resets attempts", async () => {
-    await issue("e6", "h-old", t(0));
-    await verify("e6", "h-bad", t(1));
-    await issue("e6", "h-new", t(100));
-    expect(await verify("e6", "h-old", t(101))).toBe(false);
-    expect(await verify("e6", "h-new", t(102))).toBe(true);
-  });
-
-  it("waits 60 seconds before another code, then allows 5 per hour per email", async () => {
-    const first = await issue("e7", "h1", t(0));
-    expect(first.ok).toBe(true);
-    const wait = await issue("e7", "h2", t(30));
-    expect(wait).toMatchObject({ ok: false, reason: "cooldown", retry_after_seconds: 30 });
-    for (let i = 1; i < 5; i++) expect((await issue("e7", `h${i}`, t(i * 61))).ok).toBe(true);
-    const sixth = await issue("e7", "h6", t(5 * 61));
-    expect(sixth).toMatchObject({ ok: false, reason: "hourly_limit" });
-    expect(sixth.retry_after_seconds).toBeGreaterThan(0);
-  });
 
   it("rate_hit counts per key and window, and reports when to try again", async () => {
     const hit = async (key: string, secs: number) =>
@@ -566,8 +453,18 @@ describe("OTP codes and rate limits (AUTH-05, AUTH-06)", () => {
     expect((await hit("ip:a", 3600 * 2)).allowed).toBe(true); // next window
   });
 
-  it("the OTP and rate tables are closed to the browser roles", async () => {
-    for (const table of ["login_otps", "rate_limits", "pending_logins", "device_sessions"]) {
+  it("rate_count reads the window without counting, so a failure budget can be checked before the attempt", async () => {
+    const count = async (key: string, secs: number) =>
+      (await rows<{ r: number }>(pg, "select app_private.rate_count($1, $2::timestamptz, 900) as r", [key, t(secs)]))[0]!.r;
+    expect(await count("fail:x", 0)).toBe(0);
+    for (let i = 0; i < 3; i++) await pg.query("select app_private.rate_hit('fail:x', $1::timestamptz, 900, 1000000)", [t(i)]);
+    expect(await count("fail:x", 10)).toBe(3);
+    expect(await count("fail:x", 10)).toBe(3); // reading does not add
+    expect(await count("fail:x", 1000)).toBe(0); // next window
+  });
+
+  it("the rate and session tables are closed to the browser roles", async () => {
+    for (const table of ["rate_limits", "pending_logins", "device_sessions"]) {
       for (const role of ["authenticated", "anon"] as const) {
         const r = await as(pg, role, "00000000-0000-4000-8000-000000000001", () =>
           attempt(pg, `select * from public.${table}`),
