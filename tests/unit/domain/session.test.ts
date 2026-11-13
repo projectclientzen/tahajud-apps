@@ -202,7 +202,7 @@ describe("shared contract: session-status (used by StatusChip)", () => {
       partial: "Sebagian",
       missed: "Terlewat",
       excused: "Berhalangan",
-      upcoming: "Akan datang",
+      upcoming: "Belum waktunya",
     });
   });
 });

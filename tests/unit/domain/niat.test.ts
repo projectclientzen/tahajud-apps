@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { getAmalan, getNiat, niatFor, niatView, parseNiat } from "@/domain/content";
 
-const file = JSON.parse(readFileSync("content/niat.v1.json", "utf8")) as { niat: { activity_key: string }[] };
+const file = JSON.parse(readFileSync("content/niat.v1.json", "utf8")) as { niat: { activity_key: string; arabic: string | null; latin: string | null }[] };
 const base = {
   content_version: "1.0.0",
   review_status: "published",
@@ -11,21 +11,25 @@ const base = {
 };
 
 describe("NIAT konten niat salat", () => {
-  it("memuat enam langkah salat dan setiap kuncinya ada di konten amalan", () => {
+  it("memuat lima langkah salat (Qabliyah Subuh tanpa niat, keputusan owner) dan setiap kuncinya ada di konten amalan", () => {
     const keys = getNiat().entries.map((e) => e.activityKey);
     expect(keys).toEqual(file.niat.map((e) => e.activity_key));
-    expect(keys).toHaveLength(6);
+    expect(keys).toHaveLength(5);
+    expect(keys).not.toContain("salat_qabliyah_subuh");
     const amalanKeys = new Set(
       [1, 2, 3].flatMap((lv) => getAmalan().levels[lv as 1 | 2 | 3].activities.map((a) => a.key)),
     );
     for (const k of keys) expect(amalanKeys.has(k), k).toBe(true);
   });
 
-  it("selama owner belum mengisi: semua langkah tidak tersedia dan tidak ada teks buatan", () => {
+  it("konten owner published: setiap langkah punya Arab dan Latin, tanpa badge review", () => {
+    expect(getNiat().reviewStatus).toBe("published");
     for (const e of getNiat().entries) {
-      expect(e.arabic).toBeNull();
+      const raw = file.niat.find((r) => r.activity_key === e.activityKey)!;
+      expect(e.arabic).toBe(raw.arabic);
+      expect(e.latin).toBe(raw.latin);
       const v = niatView(getNiat(), e);
-      expect(v).toMatchObject({ state: "unavailable", arabic: null, latin: null, translation: null, needsReview: false });
+      expect(v).toMatchObject({ state: "available", needsReview: false });
     }
   });
 

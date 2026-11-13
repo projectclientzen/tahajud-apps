@@ -12,6 +12,7 @@ const entrySchema = z.object({
   arabic: z.string().nullable(),
   latin: z.string().nullable(),
   translation: z.string().nullable(),
+  note: z.string().nullable().optional(),
 });
 
 const fileSchema = z.object({
@@ -27,6 +28,8 @@ export interface NiatEntry {
   arabic: string | null;
   latin: string | null;
   translation: string | null;
+  /** Owner's extra remark shown under the Latin text (for example an alternative wording). */
+  note: string | null;
 }
 
 export interface NiatContent {
@@ -46,6 +49,7 @@ export function parseNiat(raw: unknown): NiatContent {
       arabic: e.arabic,
       latin: e.latin,
       translation: e.translation,
+      note: e.note ?? null,
     })),
   };
 }

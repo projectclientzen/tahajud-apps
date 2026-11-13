@@ -2,32 +2,36 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { loadScenario, startSession } from "./s3-helpers";
 
-test("Level 1: tombol Lihat niat di empat langkah salat, sheet berisi empty state selama teks belum diisi owner", async ({ page }) => {
+test("Level 1: tombol Lihat niat di tiga langkah salat, sheet berisi teks Arab dan Latin dari owner", async ({ page }) => {
   await startSession(page);
   const buttons = page.getByRole("button", { name: /^Lihat niat/ });
-  await expect(buttons).toHaveCount(4);
+  await expect(buttons).toHaveCount(3);
   const tahajud = page.getByRole("button", { name: "Lihat niat Salat Tahajud" });
   const box = page.getByRole("checkbox").first();
   const before = await box.isChecked();
   await tahajud.click();
   const dialog = page.getByRole("dialog", { name: "Niat Salat Tahajud" });
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByText("Bacaan niat belum tersedia")).toBeVisible();
-  await expect(dialog.locator(".arabic")).toHaveCount(0);
+  await expect(dialog.getByTestId("niat-text")).toBeVisible();
+  await expect(dialog.locator(".arabic")).toHaveCount(1);
+  await expect(dialog.getByText("Bacaan niat belum tersedia")).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   // Opening the sheet must not tick anything.
   expect(await box.isChecked()).toBe(before);
 });
 
-test("Level 2: enam langkah salat punya tombol niat", async ({ page }) => {
+test("Level 2: lima langkah salat punya tombol niat, Qabliyah Subuh tidak", async ({ page }) => {
   await page.goto("/dashboard");
   await loadScenario(page, "Level 2 aktif");
   await startSession(page);
-  await expect(page.getByRole("button", { name: /^Lihat niat/ })).toHaveCount(6);
-  for (const name of ["Taubat", "Tahajud", "Hajat", "Witir (1 rakaat)", "Witir (2 rakaat)", "Qabliyah Subuh"]) {
+  await expect(page.getByRole("button", { name: /^Lihat niat/ })).toHaveCount(5);
+  await expect(page.getByRole("button", { name: /Lihat niat .*Qabliyah/ })).toHaveCount(0);
+  for (const name of ["Taubat", "Tahajud", "Hajat", "Witir (1 rakaat)", "Witir (2 rakaat)"]) {
     await expect(page.getByRole("button", { name: new RegExp(`Lihat niat .*${name.replace(/[()]/g, "\\$&")}`) })).toBeVisible();
   }
+  await page.getByRole("button", { name: /Lihat niat .*Witir \(2 rakaat\)/ }).click();
+  await expect(page.getByRole("dialog").getByText(/menghadap kiblat/)).toBeVisible();
 });
 
 test("dzikir dan salat Subuh tidak punya tombol niat", async ({ page }) => {

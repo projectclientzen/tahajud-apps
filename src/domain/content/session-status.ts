@@ -8,7 +8,7 @@ export const SESSION_STATUS_LABEL: Record<SessionStatus, string> = {
   partial: "Sebagian",
   missed: "Terlewat",
   excused: "Berhalangan",
-  upcoming: "Akan datang",
+  upcoming: "Belum waktunya",
 };
 
 /** Active-session UI state that has no stored status. Owner decision 12 Nov 2026: label "Sedang berjalan" (PRD v1.2.3 §7.7). */

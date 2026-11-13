@@ -51,6 +51,7 @@ export function NiatButton({ activityKey, className }: { activityKey: string; cl
             </p>
           ) : null}
           {v.latin ? <p className="italic">{v.latin}</p> : null}
+          {entry.note ? <p className="text-helper text-text-muted">{entry.note}</p> : null}
           {v.translation ? <p className="text-text-muted">{v.translation}</p> : null}
         </div>
       )}
