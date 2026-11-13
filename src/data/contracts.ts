@@ -108,7 +108,16 @@ export const locationUpdateSchema = z.discriminatedUnion("mode", [
 ]);
 export type LocationUpdate = z.infer<typeof locationUpdateSchema>;
 
-export const regionSchema = z.object({ id: z.string(), name: z.string(), timezone: z.string() });
+export const regionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  timezone: z.string(),
+  /**
+   * The provider's regency or city name (for example "Kota Bandung") when `name` is not exactly that. Used to match a
+   * GPS point to a region on the device. Absent means `name` is the provider name.
+   */
+  place: z.string().nullable().optional(),
+});
 export type Region = z.infer<typeof regionSchema>;
 
 export const wakePlanSchema = z.object({

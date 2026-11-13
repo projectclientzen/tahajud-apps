@@ -7,6 +7,7 @@ export * from "./khatam";
 export * from "./notifications";
 export * from "./prayer";
 export * from "./quran";
+export * from "./regions";
 export * from "./progression";
 export * from "./reporting";
 export * from "./session";
