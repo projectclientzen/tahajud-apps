@@ -23,7 +23,7 @@ afterAll(async () => {
 beforeEach(async () => {
   // Later than the real clock, so the jobs the webhook route files (stamped with the real time) are already due.
   await env.setNow(new Date(Date.now() + 3600_000).toISOString());
-  await env.db.exec("delete from public.rate_limits");
+  await env.db.exec("with g as (delete from public.auth_fail_state) delete from public.rate_limits");
   fake.reset();
   vi.stubEnv("SCALEV_WEBHOOK_SIGNING_SECRET", SECRET);
   vi.stubEnv("SCALEV_PAYLOAD_KEY", PAYLOAD_KEY);
@@ -50,7 +50,7 @@ function services() {
   const config = loadScalevConfig(scalevEnv({ SCALEV_API_BASE: fake.url }));
   const svc = makeServices(env.db, {
     now: () => env.now(),
-    scalev: { config, client: new ScalevClient({ baseUrl: fake.url, apiKey: config.apiKey! }), pepper: env.cfg.pepper },
+    scalev: { config, client: new ScalevClient({ baseUrl: fake.url, apiKey: config.apiKey! }), pepper: env.cfg.phoneKey },
   });
   setServicesForTests(svc);
   return svc;
@@ -125,7 +125,7 @@ describe("a paid Scalev order to a working account", () => {
     expect(login.status).toBe("ok");
 
     // One activation per entitlement. (The failed tries above used up the per-pair limit, so start the counters again.)
-    await env.db.exec("delete from public.rate_limits");
+    await env.db.exec("with g as (delete from public.auth_fail_state) delete from public.rate_limits");
     expect((await activate(EMAIL, "081234560001")).status).toBe(400);
   });
 

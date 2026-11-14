@@ -33,6 +33,10 @@ describe("phone normalization (activation proof)", () => {
     ["  0812 3456 7890  ", "6281234567890"],
     ["+14155550123", "14155550123"],
     ["0014155550123", "14155550123"],
+    // T9 F8: country code plus the zero typed anyway
+    ["6208123456789", "628123456789"],
+    ["+62 0812 3456 7890", "6281234567890"],
+    ["62 0812-3456-7890", "6281234567890"],
   ])("%s becomes %s", (raw, out) => {
     expect(normalizePhone(raw)).toBe(out);
   });

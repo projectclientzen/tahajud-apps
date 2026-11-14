@@ -34,6 +34,7 @@ const BAD_LOGIN = "Email atau password salah.";
 const ACTIVATION_FAILED = "Data tidak cocok atau akun sudah aktif. Coba masuk, atau hubungi CS.";
 const BAD_TOKEN = "Tautan tidak berlaku atau sudah dipakai. Minta tautan baru ke CS.";
 const L = PROVISIONAL_AUTH.limits;
+const G = PROVISIONAL_AUTH.gate;
 
 /** What one request needs to know about its caller. The IP is hashed before it becomes a key. */
 export interface Caller {
@@ -44,9 +45,10 @@ export interface Caller {
 /**
  * The client address is the entry `trustedHops` places from the END of X-Forwarded-For: that is the one our own
  * proxy appended. Entries to the left are whatever the client sent, so they are never used as the address.
- * With 0 trusted proxies the header is ignored.
+ * With 0 trusted proxies the header is ignored. An unknown address is never shared as one bucket: the IP limits are
+ * skipped for it (see `ipReserve`).
  */
-export function callerOf(req: Request, trustedHops = 1): Caller {
+export function callerOf(req: Request, trustedHops = 1, forceSecure = false): Caller {
   const entries =
     req.headers
       .get("x-forwarded-for")
@@ -59,7 +61,10 @@ export function callerOf(req: Request, trustedHops = 1): Caller {
     if (picked) ip = picked.slice(0, 64);
   }
   const proto = req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
-  return { ip, secure: proto ? proto === "https" : new URL(req.url).protocol === "https:" };
+  // In production the cookie is always Secure (ALLOW_INSECURE_COOKIES is the only way out). A proxy that forgets
+  // X-Forwarded-Proto must not turn Secure off.
+  const secure = forceSecure || (proto ? proto === "https" : new URL(req.url).protocol === "https:");
+  return { ip, secure };
 }
 
 const tooMany = (retry: number) =>
@@ -78,6 +83,57 @@ async function hit(d: AuthDeps, key: string, windowSeconds: number, limit: numbe
   );
   if (!res.allowed) throw tooMany(res.retry_after_seconds);
 }
+
+const refund = (d: AuthDeps, key: string, windowSeconds: number): Promise<unknown> =>
+  d.db.asService((q) =>
+    q.query("select app_private.rate_refund($1, $2::timestamptz, $3)", [key, d.now().toISOString(), windowSeconds]),
+  );
+
+/**
+ * The per-IP limit counts FAILED attempts only (T9 F3), so many buyers behind one operator address do not use each
+ * other up. The slot is taken before the slow hash (atomic, F1) and given back when the attempt turns out good.
+ * An unknown address skips the limit and logs a warning: the email and phone gates still apply.
+ */
+let lastUnknownIpWarning = 0;
+interface IpSlot {
+  key: string | null;
+  windowSeconds: number;
+}
+async function ipReserve(d: AuthDeps, scope: string, caller: Caller, windowSeconds: number, limit: number): Promise<IpSlot> {
+  if (caller.ip === "unknown") {
+    const t = d.now().getTime();
+    if (t - lastUnknownIpWarning > 60_000) {
+      lastUnknownIpWarning = t;
+      console.warn(
+        "[auth] Client IP is unknown, so the per-IP limit is skipped. Check TRUSTED_PROXY_HOPS and that the proxy sends X-Forwarded-For.",
+      );
+    }
+    return { key: null, windowSeconds };
+  }
+  const key = keyOf(d, scope, "ip", caller.ip);
+  await hit(d, key, windowSeconds, limit);
+  return { key, windowSeconds };
+}
+const ipRelease = (d: AuthDeps, slot: IpSlot): Promise<unknown> =>
+  slot.key ? refund(d, slot.key, slot.windowSeconds) : Promise.resolve();
+
+/** Stepped delay per key, taken before the slow hash. See PROVISIONAL_AUTH.gate and app_private.auth_gate. */
+async function gateReserve(d: AuthDeps, key: string): Promise<void> {
+  const res = await d.db.asService((q) =>
+    one<Hit>(q, "app_private.auth_gate($1, $2::timestamptz, $3, $4::int[], $5)", [
+      key,
+      d.now().toISOString(),
+      G.freeAttempts,
+      `{${G.delaySeconds.join(",")}}`,
+      G.idleResetSeconds,
+    ]),
+  );
+  if (!res.allowed) throw tooMany(res.retry_after_seconds);
+}
+const gateClear = (d: AuthDeps, key: string): Promise<unknown> =>
+  d.db.asService((q) => q.query("select app_private.auth_gate_clear($1)", [key]));
+const gateRefund = (d: AuthDeps, key: string): Promise<unknown> =>
+  d.db.asService((q) => q.query("select app_private.auth_gate_refund($1, $2::timestamptz)", [key, d.now().toISOString()]));
 
 /** Refuses when the failure counter is already full, without counting this attempt. */
 async function assertFailBudget(d: AuthDeps, key: string, windowSeconds: number, limit: number): Promise<void> {
@@ -190,17 +246,23 @@ async function startSignIn(
 
 /**
  * POST /auth/login. Wrong email, wrong password and "no such account" give the same answer after the same work
- * (a hash check always runs). Only failures count toward the per-email limit: a correct login never locks anyone out.
+ * (a hash check always runs). The slot per email and per IP is taken BEFORE the hash, so 30 parallel guesses cannot
+ * all slip past a count of zero (T9 F1). A correct login gives the slots back and clears the delay.
  */
 export async function login(
   d: AuthDeps,
   input: { email: string; password: string; deviceLabel?: string },
   caller: Caller,
 ): Promise<SignInOutcome> {
-  await hit(d, keyOf(d, "login", "ip", caller.ip), 600, L.loginIpPer10Min);
   const email = normalizeEmail(input.email);
-  const failKey = keyOf(d, "loginfail", "email", email);
-  await assertFailBudget(d, failKey, L.loginFailWindowSeconds, L.loginFailsPerEmail);
+  const gateKey = keyOf(d, "logingate", "email", email);
+  const ip = await ipReserve(d, "loginfail", caller, 600, L.loginIpPer10Min);
+  try {
+    await gateReserve(d, gateKey);
+  } catch (e) {
+    await ipRelease(d, ip); // a refused attempt did not guess anything
+    throw e;
+  }
 
   const cred = isPlausibleEmail(email)
     ? await d.db.asService((q) =>
@@ -209,10 +271,9 @@ export async function login(
     : null;
   const stored = cred?.password_hash ?? (await dummyHash(d.cfg.scrypt));
   const matches = await verifyPassword(input.password, stored);
-  if (!cred || !matches) {
-    await recordFail(d, failKey, L.loginFailWindowSeconds);
-    throw new ApiError("INVALID_CREDENTIALS", BAD_LOGIN);
-  }
+  if (!cred || !matches) throw new ApiError("INVALID_CREDENTIALS", BAD_LOGIN);
+  await gateClear(d, gateKey);
+  await ipRelease(d, ip);
   if (needsRehash(cred.password_hash, d.cfg.scrypt)) {
     const fresh = await hashPassword(input.password, d.cfg.scrypt);
     await d.db.asService((q) =>
@@ -230,32 +291,56 @@ export async function login(
 interface Proof {
   email: string;
   phoneHash: string | null;
-  failKeys: string[];
+  gateKeys: string[];
+  ip: IpSlot;
 }
 
 /**
  * Limits shared by activation and the buyer's own reset (CLAUDE.md: per email, per phone, per IP, answers that do
- * not say which one). Returns the normalized proof. The caller then hashes the new password and asks the database.
+ * not say which one). The slots are taken before the slow hash. Returns the normalized proof.
+ * A policy problem with the new password is reported first: it says nothing about the account and costs no slot.
  */
 async function proveWithLimits(
   d: AuthDeps,
   scope: "act" | "rst",
   input: { email: string; phone: string },
   caller: Caller,
+  password: string,
 ): Promise<Proof> {
   if (!isPlausibleEmail(input.email)) throw new ApiError("VALIDATION_ERROR", "Format email belum benar.");
   const email = normalizeEmail(input.email);
-  const phoneHash = hashPhone(d.cfg.pepper, input.phone);
-  await hit(d, keyOf(d, scope, "ip", caller.ip), 3600, L.activateIpPerHour);
-  await hit(d, keyOf(d, `${scope}pair`, "pair", `${email}|${phoneHash ?? "none"}`), 3600, L.activatePairPerHour);
-  const failKeys = [keyOf(d, `${scope}fail`, "email", email)];
-  if (phoneHash) failKeys.push(keyOf(d, `${scope}fail`, "phone", phoneHash));
-  for (const k of failKeys) await assertFailBudget(d, k, L.activateFailWindowSeconds, L.activateFailsPerEmail);
-  return { email, phoneHash, failKeys };
+  assertPolicy(password, { email, phone: input.phone });
+  const phoneHash = hashPhone(d.cfg.phoneKey, input.phone);
+  const ip = await ipReserve(d, `${scope}fail`, caller, 3600, L.activateIpPerHour);
+  const gateKeys: string[] = [];
+  try {
+    await hit(d, keyOf(d, `${scope}pair`, "pair", `${email}|${phoneHash ?? "none"}`), 3600, L.activatePairPerHour);
+    const keys = [keyOf(d, `${scope}gate`, "email", email)];
+    if (phoneHash) keys.push(keyOf(d, `${scope}gate`, "phone", phoneHash));
+    for (const k of keys) {
+      await gateReserve(d, k);
+      gateKeys.push(k);
+    }
+  } catch (e) {
+    await ipRelease(d, ip);
+    for (const k of gateKeys) await gateRefund(d, k);
+    throw e;
+  }
+  return { email, phoneHash, gateKeys, ip };
 }
 
-const failProof = async (d: AuthDeps, p: Proof): Promise<never> => {
-  for (const k of p.failKeys) await recordFail(d, k, L.activateFailWindowSeconds);
+/**
+ * Settles the slots after the database answered. A success clears them. A refusal where email and phone belonged to
+ * the same order (`matched`) gives them back: whoever knows both is not guessing (T9 F2). Everything else stays counted.
+ */
+async function settleProof(d: AuthDeps, p: Proof, outcome: "ok" | "matched" | "failed"): Promise<void> {
+  if (outcome === "failed") return;
+  await ipRelease(d, p.ip);
+  for (const k of p.gateKeys) await (outcome === "ok" ? gateClear(d, k) : gateRefund(d, k));
+}
+
+const failProof = async (d: AuthDeps, p: Proof, matched: boolean | undefined): Promise<never> => {
+  await settleProof(d, p, matched ? "matched" : "failed");
   throw new ApiError("ACTIVATION_FAILED", ACTIVATION_FAILED);
 };
 
@@ -269,17 +354,17 @@ export async function activate(
   input: { email: string; phone: string; password: string; deviceLabel?: string },
   caller: Caller,
 ): Promise<SignInOutcome> {
-  const proof = await proveWithLimits(d, "act", input, caller);
-  assertPolicy(input.password, { email: proof.email, phone: input.phone });
+  const proof = await proveWithLimits(d, "act", input, caller, input.password);
   const passwordHash = await hashPassword(input.password, d.cfg.scrypt);
   const res = await d.db.asService((q) =>
-    one<{ ok: boolean; user_id?: string }>(
+    one<{ ok: boolean; user_id?: string; matched?: boolean }>(
       q,
       "app_private.activate_account($1, $2, $3, $4, $5::timestamptz)",
       [proof.email, proof.phoneHash, passwordHash, ipHashOf(d, caller), d.now().toISOString()],
     ),
   );
-  if (!res.ok || !res.user_id) return failProof(d, proof);
+  if (!res.ok || !res.user_id) return failProof(d, proof, res.matched);
+  await settleProof(d, proof, "ok");
   return startSignIn(d, res.user_id, proof.email, input.deviceLabel, caller);
 }
 
@@ -292,11 +377,10 @@ export async function resetPasswordSelf(
   input: { email: string; phone: string; newPassword: string },
   caller: Caller,
 ): Promise<void> {
-  const proof = await proveWithLimits(d, "rst", input, caller);
-  assertPolicy(input.newPassword, { email: proof.email, phone: input.phone });
+  const proof = await proveWithLimits(d, "rst", input, caller, input.newPassword);
   const passwordHash = await hashPassword(input.newPassword, d.cfg.scrypt);
   const res = await d.db.asService((q) =>
-    one<{ ok: boolean }>(q, "app_private.reset_password_self($1, $2, $3, $4, $5::timestamptz)", [
+    one<{ ok: boolean; matched?: boolean }>(q, "app_private.reset_password_self($1, $2, $3, $4, $5::timestamptz)", [
       proof.email,
       proof.phoneHash,
       passwordHash,
@@ -304,7 +388,8 @@ export async function resetPasswordSelf(
       d.now().toISOString(),
     ]),
   );
-  if (!res.ok) await failProof(d, proof);
+  if (!res.ok) await failProof(d, proof, res.matched);
+  await settleProof(d, proof, "ok");
 }
 
 /** POST /auth/set-password. Only for a reset link an admin made. The link works once and then expires. */
@@ -313,7 +398,7 @@ export async function setPasswordWithToken(
   input: { token: string; password: string; deviceLabel?: string },
   caller: Caller,
 ): Promise<SignInOutcome> {
-  await hit(d, keyOf(d, "tok", "ip", caller.ip), 600, L.tokenIpPer10Min);
+  if (caller.ip !== "unknown") await hit(d, keyOf(d, "tok", "ip", caller.ip), 600, L.tokenIpPer10Min);
   const tokenHash = hmacHex(d.cfg.pepper, "pwtoken", input.token);
   await hit(d, `tok:token:${tokenHash}`, 3600, L.tokenPerHour);
   assertPolicy(input.password);
@@ -370,7 +455,7 @@ export async function completePendingLogin(
   input: { pendingToken: string; revokeDeviceId: string; deviceLabel?: string },
   caller: Caller,
 ): Promise<{ body: SignInResponse; cookie: string }> {
-  await hit(d, keyOf(d, "pend", "ip", caller.ip), 600, L.loginIpPer10Min);
+  if (caller.ip !== "unknown") await hit(d, keyOf(d, "pend", "ip", caller.ip), 600, L.loginIpPer10Min);
   if (!UUID_RE.test(input.revokeDeviceId)) throw new ApiError("NOT_FOUND", "Perangkat tidak ditemukan.");
   const now = d.now();
   const secret = newSecret();

@@ -52,6 +52,7 @@ const EXPECTED_TABLES = [
   "pending_logins",
   // X4: email + password accounts. Backend only.
   "auth_credentials",
+  "auth_fail_state",
   "auth_tokens",
   "auth_events",
   // U2: khatam target + ticked prayer slots. Backend only for writes.

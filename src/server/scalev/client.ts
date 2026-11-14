@@ -51,8 +51,13 @@ export interface ScalevOrder {
   addressEmail: string | null;
   addressPhone: string | null;
   orderlines: ScalevOrderline[];
-  /** ISO time the order was created, when Scalev says. Used only to stop a sweep early. */
+  /** ISO time the order was created, when Scalev says. */
   createdAt: string | null;
+  /**
+   * ISO time the order was paid. NEEDS_VERIFICATION: the field name is not in the Scalev docs we have, so the parser
+   * tries `paid_time`, `payment_time` and `paid_at`. The sweep window uses this, and falls back to `createdAt`.
+   */
+  paidAt: string | null;
 }
 
 export interface ScalevOrderPage {
@@ -127,6 +132,7 @@ function orderFrom(o: Record<string, unknown>): ScalevOrder | null {
       return [{ variantId: str(line.variant), sku: str(line.variant_sku), quantity: num(line.quantity) ?? 1 }];
     }),
     createdAt: str(o.created_at) ?? str(o.created_time),
+    paidAt: str(o.paid_time) ?? str(o.payment_time) ?? str(o.paid_at),
   };
 }
 

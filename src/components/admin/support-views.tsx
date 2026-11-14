@@ -182,7 +182,8 @@ function History({ rows }: { rows: any[] }) {
 }
 
 export const ACTION_LABEL: Record<string, string> = {
-  "order.approved_manual": "Order disetujui manual",
+  "order.recheck_requested": "Order dicek ulang ke Scalev",
+  "order.approved_manual": "Order disetujui manual (lama)",
   "order.activation_blocked": "Aktivasi diblokir",
   "order.activation_unblocked": "Blokir aktivasi dibuka",
   "order.phone_checked": "Nomor HP dicek",
@@ -281,7 +282,11 @@ export function OrderDetailView({ id }: { id: string }) {
               <Notice tone="warn" role="status">
                 <p className="font-semibold">Order ditahan: {QUARANTINE_LABEL[o.quarantine_reason] ?? o.quarantine_reason}</p>
                 <p className="mt-1">
-                  {o.quarantine_reason === "post_payment_change" ? "Akses pembeli tetap aktif. Putuskan apakah akses perlu ditangguhkan di halaman Akses." : "Tidak ada akses yang dibuat sampai admin menyetujui."}
+                  {o.quarantine_reason === "post_payment_change"
+                    ? "Akses pembeli tetap aktif. Putuskan apakah akses perlu ditangguhkan di halaman Akses."
+                    : o.quarantine_reason === "needs_cs_review"
+                      ? "Email order ini sudah punya akun, tapi nomor HP-nya tidak cocok dengan order milik akun itu. Tidak ada akses yang dibuat. Cek ke pembeli lewat CS dan pastikan siapa pemilik emailnya."
+                      : "Tidak ada akses yang dibuat sampai data order di Scalev lengkap dan lolos pengecekan. Pakai Cek ulang ke Scalev setelah data diperbaiki di dashboard Scalev."}
                 </p>
               </Notice>
             ) : null}
@@ -354,18 +359,16 @@ function OrderActions({ d, onChanged }: { d: any; onChanged: () => void }) {
   const reload = onChanged;
   return (
     <>
-      {d.can_approve ? (
-        <Section title="Setujui manual" description="Pakai kalau pembayaran sudah kamu cek di luar sistem (misalnya bukti transfer) atau kamu memutuskan melepas order yang ditahan. Akses aktif setelah ini dan order tidak ditimpa lagi oleh data Scalev.">
+      {d.can_recheck ? (
+        <Section title="Cek ulang ke Scalev" description="Pakai kalau pembeli sudah bayar tapi akses belum muncul, atau data order sudah diperbaiki di dashboard Scalev. Sistem membaca ulang order ini langsung dari Scalev. Akses hanya dibuat kalau Scalev mengonfirmasi pembayarannya. Admin tidak bisa menyetujui order secara manual.">
           <ReasonForm
-            id="order-approve"
-            buttonLabel="Setujui dan beri akses"
-            fields={[{ key: "ref", label: "Referensi persetujuan", hint: "Contoh: ID bukti transfer atau nomor tiket CS.", required: true }]}
-            onSubmit={async ({ reason, extra }) => {
-              await adminFetch("POST", `/orders/${o.id}/approve`, { reason, approval_reference: extra.ref });
+            id="order-recheck"
+            buttonLabel="Cek ulang ke Scalev"
+            onSubmit={async ({ reason }) => {
+              await adminFetch("POST", `/orders/${o.id}/recheck`, { reason });
             }}
             onDone={reload}
           />
-          {!o.phone_on_file ? <p className="text-helper text-text-muted">Order ini tanpa nomor HP: pembeli tidak bisa aktivasi sendiri setelah disetujui.</p> : null}
         </Section>
       ) : null}
       <Section
@@ -490,18 +493,14 @@ function EntitlementManage({ e, onChanged }: { e: any; onChanged: () => void }) 
     e.status === "active" ? [{ to: "suspended", label: "Tangguhkan" }, { to: "revoked", label: "Cabut akses", danger: true }]
     : e.status === "suspended" ? [{ to: "active", label: "Aktifkan lagi" }, { to: "revoked", label: "Cabut akses", danger: true }]
     : e.status === "pending_verification" ? [{ to: "revoked", label: "Cabut akses", danger: true }] : [];
-  const [tab, setTab] = React.useState<string>(e.status === "pending_verification" ? "approve" : moves[0]?.to ?? "transfer");
+  const [tab, setTab] = React.useState<string>(moves[0]?.to ?? "transfer");
   const canTransfer = e.status === "active" || e.status === "pending_verification";
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap gap-2" role="tablist" aria-label="Tindakan">
-        {e.status === "pending_verification" ? <TabBtn id="approve" tab={tab} setTab={setTab}>Setujui</TabBtn> : null}
         {moves.map((m) => <TabBtn key={m.to} id={m.to} tab={tab} setTab={setTab}>{m.label}</TabBtn>)}
         {canTransfer ? <TabBtn id="transfer" tab={tab} setTab={setTab}>Pindah email</TabBtn> : null}
       </div>
-      {tab === "approve" ? (
-        <ReasonForm id={`ent-${e.id}-approve`} buttonLabel="Setujui akses" fields={[{ key: "ref", label: "Referensi persetujuan", required: true, hint: "Contoh: ID bukti transfer." }]} onSubmit={async ({ reason, extra }) => { await adminFetch("POST", `/entitlements/${e.id}/approve`, { reason, approval_reference: extra.ref }); }} onDone={onChanged} />
-      ) : null}
       {moves.filter((m) => m.to === tab).map((m) => (
         <ReasonForm key={m.to} id={`ent-${e.id}-${m.to}`} buttonLabel={m.label} danger={m.danger} onSubmit={async ({ reason }) => { await adminFetch("POST", `/entitlements/${e.id}/status`, { to: m.to, reason }); }} onDone={onChanged} />
       ))}

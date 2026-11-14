@@ -84,8 +84,8 @@ export function otpauthUri(opts: { issuer: string; account: string; secret: Uint
   return `otpauth://totp/${label}?${q.toString()}`;
 }
 
-// ---- the secret at rest: AES-256-GCM, key derived from SESSION_PEPPER ----
-const keyFor = (pepper: string): Buffer => createHmac("sha256", pepper).update("admin-mfa-secret-key-v1").digest();
+// ---- the secret at rest: AES-256-GCM, key derived from MFA_ENC_KEY (cfg.mfaKey) ----
+const keyFor = (key: string): Buffer => createHmac("sha256", key).update("admin-mfa-secret-key-v1").digest();
 
 export function sealSecret(pepper: string, secret: Uint8Array): string {
   const iv = randomBytes(12);

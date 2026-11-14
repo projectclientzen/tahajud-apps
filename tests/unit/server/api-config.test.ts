@@ -35,11 +35,40 @@ describe("configuration fails closed", () => {
 
   it("TRUSTED_PROXY_HOPS is required in production and must be 0 to 5 (AUTH-15)", () => {
     const base = { SESSION_PEPPER: "p".repeat(32) };
-    expect(() => loadAuthConfig({ ...base, NODE_ENV: "production" })).toThrow(/TRUSTED_PROXY_HOPS/);
+    const prod = { ...base, NODE_ENV: "production", PHONE_HASH_KEY: "q".repeat(32), MFA_ENC_KEY: "m".repeat(32) };
+    expect(() => loadAuthConfig({ ...prod })).toThrow(/TRUSTED_PROXY_HOPS/);
+    // T9 F3: in production the address must be knowable
+    expect(() => loadAuthConfig({ ...prod, TRUSTED_PROXY_HOPS: "0" })).toThrow(/at least 1 in production/);
     expect(() => loadAuthConfig({ ...base, TRUSTED_PROXY_HOPS: "9" })).toThrow(/0 to 5/);
     expect(() => loadAuthConfig({ ...base, TRUSTED_PROXY_HOPS: "x" })).toThrow(/0 to 5/);
-    expect(loadAuthConfig({ ...base, NODE_ENV: "production", TRUSTED_PROXY_HOPS: "2" }).trustedProxyHops).toBe(2);
+    expect(loadAuthConfig({ ...prod, TRUSTED_PROXY_HOPS: "2" }).trustedProxyHops).toBe(2);
     expect(loadAuthConfig({ ...base, TRUSTED_PROXY_HOPS: "0" }).trustedProxyHops).toBe(0);
+  });
+
+  it("T9 F5: production needs its own phone and MFA keys, dev and test fall back to the pepper", () => {
+    const base = { SESSION_PEPPER: "p".repeat(32), NODE_ENV: "production", TRUSTED_PROXY_HOPS: "1" };
+    expect(() => loadAuthConfig(base)).toThrow(/PHONE_HASH_KEY is not set/);
+    expect(() => loadAuthConfig({ ...base, PHONE_HASH_KEY: "q".repeat(32) })).toThrow(/MFA_ENC_KEY is not set/);
+    expect(() => loadAuthConfig({ ...base, PHONE_HASH_KEY: "short", MFA_ENC_KEY: "m".repeat(32) })).toThrow(/at least 32/);
+    const ok = loadAuthConfig({ ...base, PHONE_HASH_KEY: "q".repeat(32), MFA_ENC_KEY: "m".repeat(32), PHONE_HASH_KEY_VERSION: "2" });
+    expect(ok).toMatchObject({ phoneKey: "q".repeat(32), mfaKey: "m".repeat(32), phoneKeyVersion: 2, mfaKeyVersion: 1 });
+    expect(() => loadAuthConfig({ ...base, PHONE_HASH_KEY: "q".repeat(32), MFA_ENC_KEY: "m".repeat(32), MFA_ENC_KEY_VERSION: "0" })).toThrow(/1 to 9999/);
+    const dev = loadAuthConfig({ SESSION_PEPPER: "p".repeat(32) });
+    expect(dev.phoneKey).toBe(dev.pepper);
+    expect(dev.mfaKey).toBe(dev.pepper);
+  });
+
+  it("T9 F7: cookies are Secure in production unless ALLOW_INSECURE_COOKIES=true", () => {
+    const prod = {
+      SESSION_PEPPER: "p".repeat(32),
+      NODE_ENV: "production",
+      TRUSTED_PROXY_HOPS: "1",
+      PHONE_HASH_KEY: "q".repeat(32),
+      MFA_ENC_KEY: "m".repeat(32),
+    };
+    expect(loadAuthConfig(prod).forceSecureCookies).toBe(true);
+    expect(loadAuthConfig({ ...prod, ALLOW_INSECURE_COOKIES: "true" }).forceSecureCookies).toBe(false);
+    expect(loadAuthConfig({ SESSION_PEPPER: "p".repeat(32) }).forceSecureCookies).toBe(false);
   });
 
   it("the phone check of activation cannot be turned off", () => {

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { normalizeEmail } from "@/domain/auth/email";
+import { appBaseUrl } from "@/server/auth/config";
 import { hashPhone } from "@/server/auth/crypto";
 import { buildResetLink, issueAdminResetToken } from "@/server/auth/tokens";
 import { jsonResponse, readBody } from "@/server/api/http";
@@ -21,7 +22,6 @@ const noteBody = z.object({ note: text(300).optional() }).strict();
 const templateCreateBody = z.object({ category: text(40), title: text(200), body: text(1000) }).strict();
 const activeBody = z.object({ active: z.boolean(), reason: text(500) }).strict();
 const reasonBody = z.object({ reason: text(500) }).strict();
-const approveBody = z.object({ reason: text(500), approval_reference: text(200) }).strict();
 const transferBody = z.object({ to_email: text(254), reason: text(500) }).strict();
 const statusBody = z.object({ to: z.enum(["suspended", "active", "revoked"]), reason: text(500) }).strict();
 const grantBody = z.object({ email: text(254), role: z.enum(ADMIN_ROLES), reason: text(500) }).strict();
@@ -57,9 +57,16 @@ interface Def {
  * written with the reason). The link goes back in this response and nowhere else: not to a log, not to a table.
  */
 async function issueLink(c: AdminCtx, targetUserId: string, reason: string, perm: Permission): Promise<{ link: string; expires_at: string }> {
+  // Checked first, so a missing setting does not leave a used-up token and an audit row behind.
+  const base = appBaseUrl(c.url.origin);
+  if (!base) {
+    throw new AdminError(
+      "NOT_AVAILABLE",
+      "APP_BASE_URL belum diatur di server, jadi tautan reset tidak bisa dibuat. Minta pengelola server mengisinya (alamat publik app, contoh https://domain-kamu).",
+    );
+  }
   await rpc(c, perm, "admin_reset_precheck", ["uuid", "text"], [targetUserId, reason], { now: true });
   const issued = await issueAdminResetToken(c.d, { actorId: c.admin.userId, targetUserId, reason });
-  const base = process.env.APP_BASE_URL?.trim() || c.url.origin;
   return { link: buildResetLink(base, issued.token), expires_at: issued.expires_at };
 }
 
@@ -291,16 +298,6 @@ export const ROUTES: Def[] = [
   },
   {
     method: "POST",
-    path: "entitlements/:id/approve",
-    access: "admin",
-    perm: "support.write",
-    handler: async (c) => {
-      const b = await body(c, approveBody);
-      return rpc(c, "support.write", "admin_entitlement_approve", ["uuid", "text", "text"], [uuid(c.params.id), b.reason, b.approval_reference], { now: true });
-    },
-  },
-  {
-    method: "POST",
     path: "entitlements/:id/transfer",
     access: "admin",
     perm: "support.write",
@@ -320,16 +317,16 @@ export const ROUTES: Def[] = [
     },
   },
 
-  // --- orders (X8): detail, approve by hand, block activation, phone check ---
+  // --- orders: detail, recheck with Scalev (no manual approve), block activation, phone check ---
   { method: "GET", path: "orders/:id", access: "admin", perm: "support.read", handler: (c) => rpc(c, "support.read", "admin_order_detail", ["uuid"], [uuid(c.params.id)]) },
   {
     method: "POST",
-    path: "orders/:id/approve",
+    path: "orders/:id/recheck",
     access: "admin",
     perm: "support.write",
     handler: async (c) => {
-      const b = await body(c, approveBody);
-      return rpc(c, "support.write", "admin_order_approve", ["uuid", "text", "text"], [uuid(c.params.id), b.reason, b.approval_reference], { now: true });
+      const b = await body(c, reasonBody);
+      return rpc(c, "support.write", "admin_order_recheck", ["uuid", "text"], [uuid(c.params.id), b.reason], { now: true });
     },
   },
   {
@@ -350,7 +347,7 @@ export const ROUTES: Def[] = [
     handler: async (c) => {
       const b = await body(c, phoneBody);
       // Hashed here with the same function as activation. The number itself goes no further than this line.
-      const h = hashPhone(c.d.cfg.pepper, b.phone);
+      const h = hashPhone(c.d.cfg.phoneKey, b.phone);
       if (!h) throw new AdminError("VALIDATION_ERROR", "Nomor HP tidak valid.", { issues: [{ path: "phone", message: "bukan nomor HP" }] });
       return rpc(c, "support.phone", "admin_order_phone_check", ["uuid", "text"], [uuid(c.params.id), h], { now: true });
     },

@@ -27,7 +27,7 @@ describe("activation, reset and admin links", () => {
   // Every test starts with a clean clock and empty counters: the phone and email limits are shared by design.
   beforeEach(async () => {
     await env.setNow(T0);
-    await env.db.exec("delete from public.rate_limits");
+    await env.db.exec("with g as (delete from public.auth_fail_state) delete from public.rate_limits");
   });
 
   const act = (b: ReturnType<ApiEnv["browser"]>, email: string, phone: string, password = NEW_PW) =>
@@ -100,7 +100,7 @@ describe("activation, reset and admin links", () => {
       ];
       const answers: string[] = [];
       for (const [email, phone] of cases) {
-        await env.db.exec("delete from public.rate_limits"); // the shared phone would otherwise trip its own limit
+        await env.db.exec("with g as (delete from public.auth_fail_state) delete from public.rate_limits"); // the shared phone would otherwise trip its own limit
         const res = await act(env.browser(), email, phone);
         expect(res.status, `${email} ${phone}`).toBe(400);
         expect(res.headers.get("set-cookie")).toBeNull();
@@ -128,7 +128,7 @@ describe("activation, reset and admin links", () => {
       ];
       for (const [pw, reason] of cases) {
         if (pw === "passwordpassword") continue; // not on the small list: only length and list rules are guaranteed
-        await env.db.exec("delete from public.rate_limits"); // 3 tries per hour per email+phone is its own test
+        await env.db.exec("with g as (delete from public.auth_fail_state) delete from public.rate_limits"); // 3 tries per hour per email+phone is its own test
         const res = await act(env.browser(), "weak@ngajigaes.test", TEST_PHONE, pw);
         expect(res.status, pw).toBe(422);
         const err = (await res.json()).error;
@@ -181,28 +181,63 @@ describe("activation, reset and admin links", () => {
   });
 
   describe("ACT-04: limits", () => {
-    it("5 failures per email lock that email, whatever the address, and the answer does not say why", async () => {
+    it("a stepped wait per email (5 free failures, then 1, 2, 5, 15 min), the answer does not say why", async () => {
       await env.setNow(T0);
       await env.grantOrder("lim1@ngajigaes.test");
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 6; i++) {
         expect((await act(env.browser(), "lim1@ngajigaes.test", `08111000000${i}`)).status, `try ${i}`).toBe(400);
       }
       const locked = await act(env.browser(), "lim1@ngajigaes.test", TEST_PHONE);
       expect(locked.status).toBe(429);
       expect((await locked.json()).error).toMatchObject({ code: "RATE_LIMITED" });
-      await env.setNow(at(16 * MIN));
+      // never a hard lock: after the wait the real buyer gets in
+      await env.setNow(at(2 * MIN));
       expect((await act(env.browser(), "lim1@ngajigaes.test", TEST_PHONE)).status).toBe(200);
     });
 
-    it("5 failures per phone lock that phone across different emails", async () => {
+    it("a stepped wait per phone across different emails", async () => {
       await env.setNow(T0);
       await env.grantOrder("lim2@ngajigaes.test", { phone: "081377700000" });
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 6; i++) {
         expect((await act(env.browser(), `guess${i}@ngajigaes.test`, "081377700000")).status).toBe(400);
       }
       const res = await act(env.browser(), "lim2@ngajigaes.test", "081377700000");
       expect(res.status).toBe(429);
       expect(res.headers.get("retry-after")).toBeTruthy();
+    });
+
+    it("T9 F2: an attempt with the right email and phone is not counted against the failure budget", async () => {
+      await env.setNow(T0);
+      await env.grantOrder("own@ngajigaes.test");
+      expect((await act(env.browser(), "own@ngajigaes.test", TEST_PHONE)).status).toBe(200);
+      // The owner comes back to "activate" again: refused (account exists) but the pair matches, so no slot stays used.
+      for (let i = 0; i < 3; i++) {
+        await env.setNow(at(i * 70 * MIN));
+        expect((await act(env.browser(), "own@ngajigaes.test", TEST_PHONE)).status).toBe(400);
+      }
+      const rows = await env.db.exec("select fails::int as n from public.auth_fail_state");
+      expect(rows.every((r) => Number(r.n) === 0)).toBe(true);
+    });
+
+    it("T9 F1: parallel wrong guesses for one email do not all get through", async () => {
+      await env.setNow(T0);
+      await env.grantOrder("par2@ngajigaes.test");
+      const res = await Promise.all(
+        Array.from({ length: 24 }, (_, i) =>
+          act(env.browser(`198.51.100.${120 + i}`), "par2@ngajigaes.test", `0815000${String(i).padStart(4, "0")}`),
+        ),
+      );
+      expect(res.filter((r) => r.status === 400).length).toBeLessThanOrEqual(6);
+      expect(res.filter((r) => r.status === 429).length).toBeGreaterThanOrEqual(18);
+    });
+
+    it("T9 F3: successful activations do not use the address limit (many buyers behind one operator address)", async () => {
+      await env.setNow(T0);
+      const b = () => env.browser("198.51.100.150");
+      for (let i = 0; i < 23; i++) {
+        await env.grantOrder(`cg${i}@ngajigaes.test`, { phone: `0816000${String(i).padStart(4, "0")}` });
+        expect((await act(b(), `cg${i}@ngajigaes.test`, `0816000${String(i).padStart(4, "0")}`)).status, `buyer ${i}`).toBe(200);
+      }
     });
 
     it("20 attempts per hour per address", async () => {
@@ -216,11 +251,14 @@ describe("activation, reset and admin links", () => {
       expect((await act(env.browser("198.51.100.98"), "ipx-other@ngajigaes.test", "081222009998")).status).toBe(400);
     });
 
-    it("3 tries per hour for the same email and phone pair, even with a weak password", async () => {
+    it("a weak password is answered first and costs nothing; 3 real tries per hour for the same pair", async () => {
       await env.setNow(T0);
       await env.grantOrder("pair@ngajigaes.test");
-      for (let i = 0; i < 3; i++) expect((await act(env.browser(), "pair@ngajigaes.test", TEST_PHONE, "pendek")).status).toBe(422);
-      expect((await act(env.browser(), "pair@ngajigaes.test", TEST_PHONE)).status).toBe(429);
+      for (let i = 0; i < 5; i++) expect((await act(env.browser(), "pair@ngajigaes.test", TEST_PHONE, "pendek")).status).toBe(422);
+      expect((await act(env.browser(), "pair@ngajigaes.test", "081299900001")).status).toBe(400);
+      expect((await act(env.browser(), "pair@ngajigaes.test", "081299900001")).status).toBe(400);
+      expect((await act(env.browser(), "pair@ngajigaes.test", "081299900001")).status).toBe(400);
+      expect((await act(env.browser(), "pair@ngajigaes.test", "081299900001")).status).toBe(429);
       await env.setNow(at(61 * MIN));
       expect((await act(env.browser(), "pair@ngajigaes.test", TEST_PHONE)).status).toBe(200);
     });
@@ -279,7 +317,7 @@ describe("activation, reset and admin links", () => {
     it("checks the new password and is rate limited like activation", async () => {
       await activated("rs4@ngajigaes.test");
       expect((await reset("rs4@ngajigaes.test", TEST_PHONE, "pendek")).status).toBe(422);
-      for (let i = 0; i < 5; i++) await reset("rs4@ngajigaes.test", `08155500000${i}`, "sandi-pengganti-panjang");
+      for (let i = 0; i < 6; i++) await reset("rs4@ngajigaes.test", `08155500000${i}`, "sandi-pengganti-panjang");
       expect((await reset("rs4@ngajigaes.test", TEST_PHONE, "sandi-pengganti-panjang")).status).toBe(429);
     });
 

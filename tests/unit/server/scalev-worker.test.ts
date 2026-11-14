@@ -514,8 +514,8 @@ describe("Scalev is not configured yet", () => {
   });
 });
 
-describe("an order that an admin decided by hand is not overwritten", () => {
-  it("skips it, and marks the event done", async () => {
+describe("T9 B: an old admin_manual order is no longer special", () => {
+  it("keeps its access and its recorded proof; the worker only records what Scalev says now", async () => {
     const o = (
       await q(
         "insert into public.purchase_orders (scalev_order_id, customer_email_normalized, payment_status, verified_via) values ($1, 'admin@ngajigaes.test', 'paid', 'admin_manual') returning id::text as id",
@@ -529,12 +529,9 @@ describe("an order that an admin decided by hand is not overwritten", () => {
     fake.onOrder(ORDER_ID, { body: fixture("order-paid.json") });
     const w = makeWorkerEnv(db, fake, T0);
     await run(w, paidEvent("evt-adm"));
-    expect((await orders())[0]).toMatchObject({
-      customer_email_normalized: "admin@ngajigaes.test",
-      verified_via: "admin_manual",
-    });
+    expect((await orders())[0]).toMatchObject({ customer_email_normalized: "admin@ngajigaes.test" });
     expect(await ents()).toHaveLength(1);
-    expect((await events())[0]).toMatchObject({ process_status: "done", error_message: "admin_manual" });
+    expect((await events())[0]).toMatchObject({ process_status: "done" });
   });
 });
 

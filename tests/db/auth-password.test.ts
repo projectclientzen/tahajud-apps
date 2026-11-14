@@ -152,7 +152,7 @@ describe("X4 schema: email + password, activation, admin reset links", () => {
         await activate("d2-unverified@ngajigaes.test"),
         await activate("d2-blocked@ngajigaes.test"),
       ];
-      for (const r of results) expect(r).toEqual({ ok: false });
+      for (const r of results) expect(r).toMatchObject({ ok: false });
       expect(Number((await rows<{ n: string }>(pg, "select count(*) as n from auth.users"))[0]!.n)).toBe(before);
     });
 
@@ -164,14 +164,14 @@ describe("X4 schema: email + password, activation, admin reset links", () => {
       ] as const) {
         await order(email);
         await pg.query(`update public.access_entitlements set ${set} where email_normalized = $1`, [email]);
-        expect(await activate(email), email).toEqual({ ok: false });
+        expect(await activate(email), email).toMatchObject({ ok: false });
       }
     });
 
     it("a second call for the same email finds the account and fails; there is one account", async () => {
       await order("d4@ngajigaes.test");
       expect((await activate("d4@ngajigaes.test")).ok).toBe(true);
-      expect(await activate("d4@ngajigaes.test")).toEqual({ ok: false });
+      expect(await activate("d4@ngajigaes.test")).toMatchObject({ ok: false });
       expect(await rows(pg, "select 1 from auth.users where email = 'd4@ngajigaes.test'")).toHaveLength(1);
     });
 
