@@ -32,7 +32,9 @@ test("live: the real login, onboarding and a Level 1 night, saved on the server"
   // onboarding: welcome, region, confirm
   await expect(page).toHaveURL(/\/onboarding$/);
   await page.getByRole("button", { name: "Mulai", exact: true }).click();
-  await page.getByRole("radio", { name: /Jakarta/ }).check();
+  // 520 regions now: the list is searched, not scrolled (T9 C).
+  await page.getByLabel("Cari wilayah").fill("Jakarta (contoh)");
+  await page.getByRole("radio", { name: /Jakarta \(contoh\)/ }).check();
   await page.getByRole("button", { name: "Lanjut" }).click();
   await expect(page.getByTestId("confirm-fajr")).toContainText("04.30");
   await page.getByRole("button", { name: "Mulai perjalanan" }).click();
@@ -134,7 +136,9 @@ test("live: logout removes the session and the local copy, and the app pages clo
   await activateUi(page, email);
   await expect(page).toHaveURL(/\/onboarding$/);
   await page.getByRole("button", { name: "Mulai", exact: true }).click();
-  await page.getByRole("radio", { name: /Jakarta/ }).check();
+  // 520 regions now: the list is searched, not scrolled (T9 C).
+  await page.getByLabel("Cari wilayah").fill("Jakarta (contoh)");
+  await page.getByRole("radio", { name: /Jakarta \(contoh\)/ }).check();
   await page.getByRole("button", { name: "Lanjut" }).click();
   await page.getByRole("button", { name: "Mulai perjalanan" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
@@ -168,7 +172,9 @@ test("live: an email whose purchase is not verified yet waits on its own screen"
 test("live: a checklist tick is saved on the server and survives a reload", async ({ page }, info) => {
   await activateUi(page, mail("live-tick", info.project.name));
   await page.getByRole("button", { name: "Mulai", exact: true }).click();
-  await page.getByRole("radio", { name: /Jakarta/ }).check();
+  // 520 regions now: the list is searched, not scrolled (T9 C).
+  await page.getByLabel("Cari wilayah").fill("Jakarta (contoh)");
+  await page.getByRole("radio", { name: /Jakarta \(contoh\)/ }).check();
   await page.getByRole("button", { name: "Lanjut" }).click();
   await page.getByRole("button", { name: "Mulai perjalanan" }).click();
   await page.goto("/worship/session");
