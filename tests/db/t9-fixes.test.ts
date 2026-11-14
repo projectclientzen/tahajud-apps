@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PGlite } from "@electric-sql/pglite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { buildMigration, REGIONS_OUT } from "../../scripts/db-regions";
 import { attempt, createTestDb, createUser, rows } from "./harness";
 
 const NOW = "2026-11-18T03:00:00Z";
@@ -170,6 +172,33 @@ describe("T9 migration: failure gate, linking, roles, export", () => {
       await pg.query("select app_private.create_khatam($1::uuid, $2::timestamptz, 3)", [a, "2026-11-17T05:00:00Z"]);
       const x = (await rows<{ r: any }>(pg, "select app_private.export_user_data($1::uuid, $2::timestamptz) as r", [b, NOW]))[0]!.r;
       expect(x.khatam_targets).toEqual([]);
+    });
+  });
+
+  describe("C: the 517 EQuran regions are in the regions table", () => {
+    it("loads 517 regions with a valid zone next to the 3 demo regions, and the demo ones stay", async () => {
+      const n = await rows<{ n: number }>(pg, "select count(*)::int as n from public.regions where provider_region_code like '%::%'");
+      expect(n[0]!.n).toBe(517);
+      const demo = await rows<{ c: string }>(pg, "select provider_region_code as c from public.regions where provider_region_code like 'DEMO-%' order by 1");
+      expect(demo.map((d) => d.c)).toEqual(["DEMO-DJJ", "DEMO-JKT", "DEMO-MKS"]);
+      const bad = await rows(pg, "select 1 from public.regions where provider_region_code like '%::%' and (province_name = '' or city_name = '' or not is_supported)");
+      expect(bad).toHaveLength(0);
+    });
+
+    it("uses the same id the prayer provider uses, with the province's zone", async () => {
+      const r = await rows<any>(pg, "select province_name, city_name, timezone from public.regions where provider_region_code = 'DKI Jakarta::Kota Jakarta'");
+      expect(r).toEqual([{ province_name: "DKI Jakarta", city_name: "Kota Jakarta", timezone: "Asia/Jakarta" }]);
+    });
+
+    it("is idempotent: running the migration again adds nothing and keeps changed rows", async () => {
+      await pg.query("update public.regions set is_supported = false where provider_region_code = 'DKI Jakarta::Kota Jakarta'");
+      await pg.exec(readFileSync(REGIONS_OUT, "utf8"));
+      expect((await rows<{ n: number }>(pg, "select count(*)::int as n from public.regions where provider_region_code like '%::%'"))[0]!.n).toBe(517);
+      expect((await rows<any>(pg, "select is_supported from public.regions where provider_region_code = 'DKI Jakarta::Kota Jakarta'"))[0]).toEqual({ is_supported: false });
+    });
+
+    it("the migration file is what the generator makes from content/regions/*.json", () => {
+      expect(readFileSync(REGIONS_OUT, "utf8")).toBe(buildMigration());
     });
   });
 });

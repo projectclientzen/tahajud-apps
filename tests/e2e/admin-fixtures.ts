@@ -37,7 +37,7 @@ export function adminSql(pepper: string = LIVE_PEPPER): string {
          insert into public.user_roles (user_id, role) select id, ${quote(ADMIN_ROLE[kind])} from u;`,
       );
     }
-    // A paid order held back by the worker (spam flag): no entitlement until an admin approves it.
+    // A paid order held back by the worker (spam flag): no entitlement. An admin can only ask for a recheck with Scalev.
     lines.push(
       `insert into public.purchase_orders (scalev_order_id, scalev_order_number, customer_email_normalized, payment_status, verified_via,
          payment_verified_at, customer_phone_hash, quarantine_reason, amount, buyer_name)

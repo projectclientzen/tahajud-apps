@@ -170,7 +170,7 @@ describe("seed from content/amalan.v1.json", () => {
   it("labels sample regions as DEMO", async () => {
     const r = await rows<{ province_name: string; city_name: string }>(
       pg,
-      "select province_name, city_name from public.regions order by 2",
+      "select province_name, city_name from public.regions where provider_region_code like 'DEMO-%' order by 2",
     );
     expect(r.length).toBe(3);
     for (const x of r) {

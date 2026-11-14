@@ -94,6 +94,38 @@ export function verifyCounts(selected: VerseRecord[]): void {
   }
 }
 
+/**
+ * SHA-256 of the two Tanzil source files, pinned here in code (T9 F11). SOURCE.md is written by this same script, so
+ * on its own it cannot catch a change: someone could edit the source file and SOURCE.md in one commit, or delete the
+ * checksum line. A change to these two constants shows in review, and tests/unit/data/quran-pins.test.ts checks the
+ * files on disk against them. Update only together with `--refresh` and the owner's approval.
+ */
+export const PINNED_TEXT_SHA256 = "6933e133dd56db778c801bf738848454e43648105a151e8d84d86a7cae39ec5f";
+export const PINNED_META_SHA256 = "9e9930c592aaa34b5c7a79ff4e99ffdc782263a266090bfe2c49e4ed4bac4ca4";
+
+/**
+ * Without `--refresh` the file must equal the pin AND the line in SOURCE.md. A missing line is an error, not a pass.
+ * With `--refresh` a different file only warns (the owner approves the new pin before merge).
+ */
+export function verifySourceChecksum(args: {
+  label: string;
+  actual: string;
+  pinned: string;
+  recorded: string | null;
+  refresh: boolean;
+}): void {
+  const { label, actual, pinned, recorded, refresh } = args;
+  if (refresh) {
+    if (actual !== pinned) console.warn(`WARNING: ${label} changed (${pinned} -> ${actual}). Owner must approve the new pin before merge.`);
+    return;
+  }
+  if (!recorded) {
+    throw new Error(`${label}: SOURCE.md has no SHA-256 line. Refusing to import without one (use --refresh to rebuild it).`);
+  }
+  if (actual !== pinned) throw new Error(`${label} checksum mismatch: pinned ${pinned}, file is ${actual}`);
+  if (recorded !== actual) throw new Error(`${label} checksum mismatch: SOURCE.md has ${recorded}, file is ${actual}`);
+}
+
 export function readChecksumFromSourceMd(md: string): string | null {
   const m = /SHA-256 file sumber utuh:\s*`([0-9a-f]{64})`/.exec(md);
   return m ? (m[1] as string) : null;
@@ -314,21 +346,14 @@ async function main(): Promise<void> {
   }
   const metaSha = sha256Hex(metaBuf);
   const prevMetaSha = /SHA-256 file metadata:\s*`([0-9a-f]{64})`/.exec(prevMd)?.[1] ?? null;
-  if (!refresh && prevMetaSha && prevMetaSha !== metaSha) {
-    throw new Error(`Metadata checksum mismatch: SOURCE.md has ${prevMetaSha}, file is ${metaSha}`);
-  }
+  verifySourceChecksum({ label: "quran-data.js", actual: metaSha, pinned: PINNED_META_SHA256, recorded: prevMetaSha, refresh });
   const metaJs = metaBuf.toString("utf8");
   const metadata = parseQuranData(metaJs);
   verifyMetadata(metadata);
 
   const sha256 = sha256Hex(buf);
   const prevSha = existsSync(mdPath) ? readChecksumFromSourceMd(readFileSync(mdPath, "utf8")) : null;
-  if (!refresh && prevSha && prevSha !== sha256) {
-    throw new Error(`Checksum mismatch: SOURCE.md has ${prevSha}, file is ${sha256}`);
-  }
-  if (refresh && prevSha && prevSha !== sha256) {
-    console.warn(`WARNING: source changed (${prevSha} -> ${sha256}). Owner must approve before merge.`);
-  }
+  verifySourceChecksum({ label: "quran-uthmani.txt", actual: sha256, pinned: PINNED_TEXT_SHA256, recorded: prevSha, refresh });
 
   const text = buf.toString("utf8");
   const selected = selectWanted(parseSource(text));

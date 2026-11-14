@@ -13,6 +13,7 @@
     "test:e2e": "playwright test",
     "import:quran": "node --experimental-strip-types scripts/import-quran.ts",
     "db:seed": "tsx scripts/db-seed.ts",
+    "db:regions": "tsx scripts/db-regions.ts",
     "test:db": "vitest run tests/db",
     "import:regions": "node --experimental-strip-types scripts/import-regions.ts",
     "import:coordinates": "tsx scripts/import-coordinates.ts",

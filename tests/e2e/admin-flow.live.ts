@@ -174,16 +174,18 @@ test.describe.serial("support admin (CS)", () => {
     await expect(page.getByLabel("Nomor HP yang disebut pembeli")).toHaveValue("");
   });
 
-  test("approve by hand needs a reason and a reference; then the buyer can activate; block and unblock work", async ({}, info) => {
+  test("T9 B: no manual approve; recheck with Scalev needs a reason, queues the worker, and grants nothing; block and unblock work", async ({}, info) => {
     const p = info.project.name;
-    const approve = page.getByRole("button", { name: "Setujui dan beri akses" });
-    await expect(approve).toBeDisabled();
-    await page.getByLabel("Referensi persetujuan").fill("bukti-transfer-e2e");
+    await expect(page.getByRole("button", { name: "Setujui dan beri akses" })).toHaveCount(0);
+    await expect(page.getByText("Setujui manual")).toHaveCount(0);
+    const recheck = page.getByRole("button", { name: "Cek ulang ke Scalev" });
+    await expect(recheck).toBeDisabled();
     await page.getByLabel(/^Alasan/).first().fill(REASON);
-    await expect(approve).toBeEnabled();
-    await approve.click();
-    await expect(page.getByText("Disetujui manual admin")).toBeVisible();
-    await expect(page.getByText("Order disetujui manual").first()).toBeVisible();
+    await expect(recheck).toBeEnabled();
+    await recheck.click();
+    await expect(page.getByText("Order dicek ulang ke Scalev").first()).toBeVisible();
+    // No Scalev key in the test server: the worker cannot grant, and an admin click never could.
+    await expect(page.getByText("Order ditahan: Ditandai spam oleh Scalev")).toBeVisible();
 
     // The buyer is a different person: their own request context, so the CS cookie is not replaced by the buyer's session.
     const origin = new URL(page.url()).origin;
@@ -205,11 +207,11 @@ test.describe.serial("support admin (CS)", () => {
     await expect(page.getByText("Aktivasi diblokir").first()).toBeVisible();
     expect((await activate()).status()).toBe(400);
 
-    // Reopened: activation works, with the same email and phone as the order.
+    // Reopened: the toggle flips back. The order was never verified as paid by Scalev, so activation stays refused.
     await page.getByLabel(/^Alasan/).last().fill(REASON);
     await page.getByRole("button", { name: "Buka blokir" }).click();
     await expect(page.getByRole("button", { name: "Blokir aktivasi" })).toBeVisible();
-    expect((await activate()).status()).toBe(200);
+    expect((await activate()).status()).toBe(400);
   });
 
   test("a support admin sees no staff or role screens, and the server refuses them", async () => {
