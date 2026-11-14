@@ -202,3 +202,8 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Gerbang: lihat `docs/sessions/T9.md` (output asli).
 - Sisa: jalur CS untuk `needs_cs_review`; worker belum menulis versi kunci HP; nama field waktu bayar Scalev belum diverifikasi; Postgres nyata belum dicoba.
 - Pertanyaan untuk owner: lihat `docs/sessions/T9.md`.
+
+## Merge T9 (perbaikan audit Fable) oleh orchestrator (2026-11-14)
+- Merge `claude/t9-fix` (`24c3829`): F1..F11 dari `docs/AUDIT-FABLE-2026-11-14.md` (gerbang atomik + jeda bertingkat, batas IP hanya hitung gagal, tautan entitlement ke akun lama, kunci terpisah PHONE_HASH_KEY/MFA_ENC_KEY, Secure cookie paksa, normalisasi 620, sweep waktu bayar, APP_BASE_URL wajib, SHA Tanzil dipin), B: approve manual diganti "Cek ulang ke Scalev", C: khatam di ekspor + 517 wilayah (migration 20261118010000, 20261118020000).
+- Gerbang orchestrator di hasil gabungan: typecheck 0, lint 0, unit 1573 + 3 skip, db 362, e2e mock 352, live 38, admin 20, audit bersih.
+- Sisa: F5 alat rotasi hash HP untuk order lama; nama field waktu bayar Scalev NEEDS_VERIFICATION; jalur CS untuk `needs_cs_review`; nilai PROV baru (jeda 1/2/5/15 menit, jendela enrol MFA 24 jam).
