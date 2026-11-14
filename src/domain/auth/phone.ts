@@ -1,7 +1,7 @@
 /**
  * Indonesian mobile number normalization for account activation (CLAUDE.md, auth rules).
  * `08123`, `+628123`, `628123` and `8123` all become `628123`. Spaces, dashes, dots and brackets are dropped.
- * Numbers that start with another country code (`+44...`, `0044...`) keep their digits.
+ * `620812...` (country code plus the zero) becomes `62812...` too. Numbers that start with another country code (`+44...`, `0044...`) keep their digits.
  * Returns null when the input cannot be a phone number. Never throws, never logs.
  */
 export function normalizePhone(raw: string): string | null {
@@ -25,6 +25,8 @@ export function normalizePhone(raw: string): string | null {
     // "8123456789": the leading zero was dropped by a spreadsheet or a form.
     digits = `62${digits}`;
   }
+  // "620812...": a checkout form that already shows +62 and a buyer who typed the leading zero anyway.
+  if (digits.startsWith("620") && digits[3] === "8") digits = `62${digits.slice(3)}`;
   // E.164 allows up to 15 digits. Indonesian mobile numbers are 62 + 9 to 12 digits.
   if (digits.length < 8 || digits.length > 15) return null;
   if (digits.startsWith("62") && (digits.length < 11 || digits.length > 14)) return null;

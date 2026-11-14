@@ -67,9 +67,7 @@ export async function sweepOrders(svc: Services, opts: { windowHours: number }):
           pageSize: PAGE_SIZE,
         });
         out.listed += res.orders.length;
-        const inWindow = res.orders.filter(
-          (o) => !o.createdAt || Date.parse(o.createdAt) >= since || Number.isNaN(Date.parse(o.createdAt)),
-        );
+        const inWindow = res.orders.filter((o) => inSweepWindow(o, since));
         const candidates = inWindow.filter((o) => {
           // The list shows orders of every product in the store. One whose lines are all for other products is not ours.
           if (o.orderlines.length > 0 && !hasAllowedVariant(o.orderlines, rt.config.allowedVariants)) {
@@ -89,8 +87,9 @@ export async function sweepOrders(svc: Services, opts: { windowHours: number }):
           }
           if (await enqueueSynthetic(svc, o, paymentStatus, now)) out.enqueued += 1;
         }
-        // Newest first: once a page reaches back beyond the window there is nothing more to find.
-        if (inWindow.length < res.orders.length || !res.nextCursor) break;
+        // The list is ordered by creation, not by payment. An old order paid just now can sit deep in the list, so a
+        // page that is only partly outside the window does not end the walk. Only a page entirely outside does (T9 F9).
+        if ((res.orders.length > 0 && inWindow.length === 0) || !res.nextCursor) break;
         cursor = res.nextCursor;
       }
     }
@@ -102,6 +101,21 @@ export async function sweepOrders(svc: Services, opts: { windowHours: number }):
   }
   return out;
 }
+
+/** The time that decides whether an order is recent: when it was paid, else when it was made. No usable time = look at it. */
+export function sweepTimeOf(o: ScalevOrder): number | null {
+  for (const raw of [o.paidAt, o.createdAt]) {
+    if (!raw) continue;
+    const t = Date.parse(raw);
+    if (!Number.isNaN(t)) return t;
+  }
+  return null;
+}
+
+const inSweepWindow = (o: ScalevOrder, since: number): boolean => {
+  const t = sweepTimeOf(o);
+  return t === null || t >= since;
+};
 
 async function knownOrders(svc: Services, ids: string[]): Promise<Set<string>> {
   if (ids.length === 0) return new Set();

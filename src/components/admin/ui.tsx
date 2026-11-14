@@ -327,9 +327,10 @@ export const QUARANTINE_LABEL: Record<string, string> = {
   order_canceled: "Order dibatalkan",
   spam_flag: "Ditandai spam oleh Scalev",
   post_payment_change: "Berubah setelah dibayar (refund atau batal)",
+  needs_cs_review: "Email sudah punya akun, nomor HP tidak cocok (perlu CS)",
 };
 export const PAYMENT_LABEL: Record<string, string> = { paid: "Lunas", settled: "Lunas (settled)", unpaid: "Belum dibayar", pending: "Menunggu", canceled: "Dibatalkan", refunded: "Refund" };
-export const VERIFIED_LABEL: Record<string, string> = { scalev_api: "Diverifikasi ke Scalev", admin_manual: "Disetujui manual admin" };
+export const VERIFIED_LABEL: Record<string, string> = { scalev_api: "Diverifikasi ke Scalev", admin_manual: "Disetujui manual admin (lama)" };
 
 export function EntitlementTag({ status }: { status: string }) {
   const s = ENTITLEMENT_LABEL[status] ?? { label: status, tone: "neutral" as Tone };

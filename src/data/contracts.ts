@@ -674,6 +674,27 @@ export const dataExportSchema = z.object({
   quran_completions: z.array(
     z.object({ session_key: isoDate, surah: z.number().int(), type: z.string(), completed_at: isoInstant }),
   ),
+  // Khatam target and the slots the user ticked (T9 C). The user's own data, so it belongs in the export.
+  khatam_targets: z.array(
+    z.object({
+      id: z.string(),
+      khatam_count: z.number().int(),
+      start_date: isoDate,
+      timezone: z.string(),
+      adjustment: z.number().int(),
+      created_at: isoInstant,
+      ended_at: nullableInstant,
+    }),
+  ),
+  khatam_reads: z.array(
+    z.object({
+      target_id: z.string(),
+      day: z.number().int(),
+      prayer: z.string(),
+      pages: z.number().int(),
+      read_at: isoInstant,
+    }),
+  ),
   notification_preferences: notificationPreferencesSchema.nullable(),
   push_subscriptions: z.array(z.object({ id: z.string(), is_active: z.boolean(), created_at: isoInstant })),
   devices: z.array(

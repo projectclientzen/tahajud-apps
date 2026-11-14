@@ -139,7 +139,7 @@ describe("SCALEV-11 the sweeper finds paid orders whose webhook never came", () 
     expect(fake.seen.filter((r) => r.query.get("payment_status") === "paid")).toHaveLength(8);
   });
 
-  it("stops at the window: the list is newest first, so older orders are not read", async () => {
+  it("stops at a page that lies entirely outside the window; a partly old page is read on (T9 F9)", async () => {
     fake.onList(
       "paid",
       page(
@@ -150,16 +150,33 @@ describe("SCALEV-11 the sweeper finds paid orders whose webhook never came", () 
         "more",
       ),
     );
-    fake.onList("paid", page([orderRow(THIRD_ORDER)]), "more");
+    fake.onList("paid", page([orderRow(THIRD_ORDER, { created_at: "2026-11-02T00:00:00Z" })], "more2"), "more");
+    fake.onList("paid", page([orderRow("0192f3a0-7b1c-7d2e-8a41-5c6d7e8f9a04", { created_at: "2026-11-01T00:00:00Z" })]), "more2");
     const w = makeWorkerEnv(db, fake, T0);
     const out = await sweepOrders(w.svc, { windowHours: 72 });
     expect(out.enqueued).toBe(1);
-    expect(fake.seen.filter((r) => r.query.get("payment_status") === "paid")).toHaveLength(1); // did not ask for the next page
-    // the daily deep sweep looks 14 days back: it finds the older order and reads on to the next page.
+    // page 1 (partly old) was followed to page 2; page 2 is entirely old, so page 3 was not asked for
+    expect(fake.seen.filter((r) => r.query.get("payment_status") === "paid")).toHaveLength(2);
+    // the daily deep sweep looks 14 days back: it finds the older orders too.
     // The first order is not counted again: its event already exists.
     const deep = await sweepOrders(w.svc, { windowHours: 14 * 24 });
-    expect(deep.enqueued).toBe(2);
-    expect(await events()).toHaveLength(3);
+    expect(deep.enqueued).toBe(3);
+    expect(await events()).toHaveLength(4);
+  });
+
+  it("an old order paid just now is found: the window follows the payment time, with createdAt as the fallback (T9 F9)", async () => {
+    fake.onList(
+      "paid",
+      page([
+        orderRow(ORDER_ID, { created_at: "2026-10-01T00:00:00Z", paid_time: "2026-11-13T07:00:00Z" }),
+        orderRow(OTHER_ORDER, { created_at: "2026-11-13T06:00:00Z", paid_time: "2026-10-02T00:00:00Z" }),
+        orderRow(THIRD_ORDER, { created_at: "2026-11-13T06:00:00Z" }),
+      ]),
+    );
+    const w = makeWorkerEnv(db, fake, T0);
+    const out = await sweepOrders(w.svc, { windowHours: 72 });
+    expect(out.enqueued).toBe(2); // ORDER_ID (paid in window) and THIRD_ORDER (no payment time, created in window)
+    expect((await events()).map((e) => e.scalev_order_id).sort()).toEqual([ORDER_ID, THIRD_ORDER].sort());
   });
 
   it("the deep sweep is its own recurring job and uses the longer window", async () => {

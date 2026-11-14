@@ -45,7 +45,7 @@ export function route(opts: RouteOptions): (req: Request, ctx: NextCtx) => Promi
       if (!SAFE.has(req.method) && !originAllowed(req, d.cfg.allowedOrigins)) {
         throw new ApiError("FORBIDDEN_ORIGIN", "Permintaan ini tidak berasal dari aplikasi.", { reason: "origin" });
       }
-      const caller = callerOf(req, d.cfg.trustedProxyHops);
+      const caller = callerOf(req, d.cfg.trustedProxyHops, d.cfg.forceSecureCookies);
       const session = await resolveSession(d, req);
       if (opts.auth === "user" && session.state !== "ok") {
         throw new ApiError("UNAUTHENTICATED", "Masuk dulu untuk melanjutkan.");

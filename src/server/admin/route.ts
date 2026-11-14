@@ -62,7 +62,7 @@ export function adminRoute(opts: { access: Access; perm?: Permission | null; han
         url,
         params,
         d,
-        caller: callerOf(req),
+        caller: callerOf(req, d.cfg.trustedProxyHops, d.cfg.forceSecureCookies),
         state,
         admin: state.state === "ok" ? state.admin : (undefined as unknown as AdminSession),
         user: "user" in state ? state.user : (undefined as unknown as AuthedUser),

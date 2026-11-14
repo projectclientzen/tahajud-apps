@@ -151,6 +151,11 @@ export async function createApiEnv(startAt = "2026-11-12T02:00:00+07:00"): Promi
   // Cheap scrypt settings (the minimum the code accepts) keep the suite fast. Production uses ln=15.
   const cfg: AuthConfig = {
     pepper: "test-pepper-test-pepper-test-pepper-123",
+    phoneKey: "test-pepper-test-pepper-test-pepper-123",
+    mfaKey: "test-pepper-test-pepper-test-pepper-123",
+    phoneKeyVersion: 1,
+    mfaKeyVersion: 1,
+    forceSecureCookies: false,
     allowedOrigins: [],
     trustedProxyHops: 1,
     scrypt: { ln: 10, r: 8, p: 1 },
@@ -196,7 +201,7 @@ export async function createApiEnv(startAt = "2026-11-12T02:00:00+07:00"): Promi
             email,
             opts.paymentStatus ?? "paid",
             opts.verifiedVia === undefined ? "scalev_api" : opts.verifiedVia,
-            hashPhone(cfg.pepper, opts.phone ?? TEST_PHONE),
+            hashPhone(cfg.phoneKey, opts.phone ?? TEST_PHONE),
           ],
         )
       )[0]!.id as string;
@@ -222,7 +227,7 @@ export async function createApiEnv(startAt = "2026-11-12T02:00:00+07:00"): Promi
     async signIn(email, opts = {}) {
       const b = opts.browser ?? env.browser();
       // Tests that sign in several times for the same email are not testing the limits.
-      await db.exec("delete from public.rate_limits");
+      await db.exec("with g as (delete from public.auth_fail_state) delete from public.rate_limits");
       await env.createAccount(email);
       const r = await b.auth().login(email, TEST_PASSWORD, opts.label ?? "Chrome di Android");
       if (r.status !== "ok") throw new Error("device limit");

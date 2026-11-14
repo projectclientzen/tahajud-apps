@@ -57,7 +57,7 @@ function buildScalev(env: Record<string, string | undefined>): ScalevRuntime {
   }
   let pepper: string | null = null;
   try {
-    pepper = loadAuthConfig(env).pepper;
+    pepper = loadAuthConfig(env).phoneKey; // the key of the phone hash, see PHONE_HASH_KEY
   } catch (e) {
     problems.push(e instanceof Error ? e.message : String(e));
   }

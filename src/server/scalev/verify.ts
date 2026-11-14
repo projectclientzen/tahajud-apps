@@ -12,7 +12,8 @@ export type QuarantineReason =
   | "amount_below_min"
   | "order_canceled"
   | "spam_flag"
-  | "post_payment_change";
+  | "post_payment_change"
+  | "needs_cs_review";
 
 export const PAID_STATUSES: ReadonlySet<string> = new Set(["paid", "settled"]);
 const DEAD_STATUSES: ReadonlySet<string> = new Set(["canceled", "closed"]);

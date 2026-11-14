@@ -95,16 +95,29 @@ export const PROVISIONAL_AUTH = {
   adminResetTokenMinutes: 60,
   /** Windows are fixed windows in seconds. `fails` counts failures only, `hits` counts every attempt. */
   limits: {
+    /** Failed logins per IP per 10 minutes (successful ones do not count, so many buyers behind one operator IP are safe). */
     loginIpPer10Min: 30,
     loginFailsPerEmail: 10,
     loginFailWindowSeconds: 900,
     activateFailsPerEmail: 5,
     activateFailsPerPhone: 5,
     activateFailWindowSeconds: 900,
+    /** Failed activations or resets per IP per hour (failures only). */
     activateIpPerHour: 20,
     activatePairPerHour: 3,
     tokenIpPer10Min: 30,
     tokenPerHour: 10,
     changePasswordFailsPer15Min: 5,
+  },
+  /**
+   * Stepped delay per email (and per phone for activation), replacing a hard 15 minute lock (T9 F2).
+   * The first `freeAttempts` per key are free. After that each attempt sets the next wait from `delaySeconds`
+   * (1, 2, 5, 15 minutes; the last value repeats). A key left quiet for `idleResetSeconds` starts again from zero.
+   * A correct login, or an activation whose email and phone match one order, gives its slot back.
+   */
+  gate: {
+    freeAttempts: 5,
+    delaySeconds: [60, 120, 300, 900],
+    idleResetSeconds: 3600,
   },
 } as const;

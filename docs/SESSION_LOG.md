@@ -196,3 +196,14 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Orchestrator menerima perubahan X2-B pada `tests/db/auth-password.test.ts`: order `admin_manual` boleh diaktivasi (approve manual admin = jalur verifikasi sah di CLAUDE.md). Tetap ditanyakan ke owner (Q-X2B-5).
 - Gerbang: typecheck 0, lint 0, unit 1533 + 3 skip, db 344, e2e mock 352, e2e live 38, e2e admin 20, audit bersih.
 - Owner menjeda pekerjaan sampai domain + Scalev siap.
+
+## T9 (branch `claude/t9-fix`, 2026-11-14)
+- Dikerjakan: F1..F11 dari audit Fable (`docs/AUDIT-FABLE-2026-11-14.md`), B (Cek ulang ke Scalev menggantikan approve manual), C (data khatam di ekspor, 517 wilayah). Migration `20261118010000_t9_fixes.sql` dan `20261118020000_regions_equran.sql`. Detail per temuan, termasuk yang diubah atau tidak sepenuhnya: `docs/sessions/T9.md`. Keputusan: `docs/DECISIONS.md` T9-1..10. Prosedur rotasi kunci: `docs/DEPLOYMENT-NOTES.md`.
+- Gerbang: lihat `docs/sessions/T9.md` (output asli).
+- Sisa: jalur CS untuk `needs_cs_review`; worker belum menulis versi kunci HP; nama field waktu bayar Scalev belum diverifikasi; Postgres nyata belum dicoba.
+- Pertanyaan untuk owner: lihat `docs/sessions/T9.md`.
+
+## Merge T9 (perbaikan audit Fable) oleh orchestrator (2026-11-14)
+- Merge `claude/t9-fix` (`24c3829`): F1..F11 dari `docs/AUDIT-FABLE-2026-11-14.md` (gerbang atomik + jeda bertingkat, batas IP hanya hitung gagal, tautan entitlement ke akun lama, kunci terpisah PHONE_HASH_KEY/MFA_ENC_KEY, Secure cookie paksa, normalisasi 620, sweep waktu bayar, APP_BASE_URL wajib, SHA Tanzil dipin), B: approve manual diganti "Cek ulang ke Scalev", C: khatam di ekspor + 517 wilayah (migration 20261118010000, 20261118020000).
+- Gerbang orchestrator di hasil gabungan: typecheck 0, lint 0, unit 1573 + 3 skip, db 362, e2e mock 352, live 38, admin 20, audit bersih.
+- Sisa: F5 alat rotasi hash HP untuk order lama; nama field waktu bayar Scalev NEEDS_VERIFICATION; jalur CS untuk `needs_cs_review`; nilai PROV baru (jeda 1/2/5/15 menit, jendela enrol MFA 24 jam).

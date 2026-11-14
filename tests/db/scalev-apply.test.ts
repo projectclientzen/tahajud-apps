@@ -153,20 +153,21 @@ describe("X6 schema: applying a verified Scalev order", () => {
     ).toEqual({ e: "first@example.test", p: "1".repeat(64) });
   });
 
-  it("an order set by an admin is skipped", async () => {
+  it("T9 B: a row marked admin_manual is no longer skipped; Scalev's reading applies like any order", async () => {
     await pg.query(
       "insert into public.purchase_orders (scalev_order_id, customer_email_normalized, payment_status, verified_via) values ('ord-m', 'admin@example.test', 'paid', 'admin_manual')",
     );
     const r = await apply({ id: "ord-m", email: "other@example.test" });
-    expect(r).toMatchObject({ skipped: "admin_manual", entitlement_created: false });
+    expect(r).toMatchObject({ entitlement_created: true });
+    expect(r.skipped).toBeUndefined();
     expect(
       (
         await rows(
           pg,
-          "select customer_email_normalized as e from public.purchase_orders where scalev_order_id = 'ord-m'",
+          "select customer_email_normalized as e, verified_via as v from public.purchase_orders where scalev_order_id = 'ord-m'",
         )
       )[0],
-    ).toEqual({ e: "admin@example.test" });
+    ).toEqual({ e: "other@example.test", v: "scalev_api" });
   });
 
   it("marks the webhook event done in the same call, with the quarantine reason when there is one", async () => {

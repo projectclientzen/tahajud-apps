@@ -3,6 +3,7 @@ import { ApiError } from "@/data/contracts";
 import { createApiEnv, ORIGIN, TEST_PASSWORD, type ApiEnv, type TestBrowser } from "./api-harness";
 
 const MIN = 60_000;
+const SEC = 1000;
 const T0 = "2026-11-12T02:00:00+07:00";
 const at = (ms: number) => new Date(Date.parse(T0) + ms).toISOString();
 
@@ -100,23 +101,43 @@ describe("sign-in with email and password (CLAUDE.md auth rules)", () => {
       expect(res.status).toBe(400);
     });
 
-    it("AUTH-15: ten failures lock that email for the window, a correct password does not count and cannot bypass it", async () => {
+    it("AUTH-15 (T9 F2): five free failures, then a stepped wait (1, 2, 5, 15 min) instead of a hard lock", async () => {
       await fresh();
       await env.createAccount("lock@ngajigaes.test");
+      const bad = () => env.browser().json("/auth/login", "POST", { email: "lock@ngajigaes.test", password: "salah-salah-1" });
       // Different addresses so the IP limit is not what stops us.
-      for (let i = 0; i < 10; i++) {
-        const r = await env.browser().json("/auth/login", "POST", { email: "lock@ngajigaes.test", password: "salah-salah-1" });
-        expect(r.status, `try ${i}`).toBe(401);
-      }
+      for (let i = 0; i < 6; i++) expect((await bad()).status, `try ${i}`).toBe(401);
+      // The 6th failure set a 60 second wait. Even the right password waits.
       const locked = await env.browser().json("/auth/login", "POST", { email: "lock@ngajigaes.test", password: TEST_PASSWORD });
       expect(locked.status).toBe(429);
       expect((await locked.json()).error.code).toBe("RATE_LIMITED");
       // other emails are not affected
       await env.createAccount("free@ngajigaes.test");
       expect((await env.browser().auth().login("free@ngajigaes.test", TEST_PASSWORD)).status).toBe("ok");
-      // after the window the right password works again
-      await env.setNow(at(16 * MIN));
+      // refused attempts during the wait are not counted: it does not grow while someone hammers
+      for (let i = 0; i < 5; i++) expect((await bad()).status).toBe(429);
+      await env.setNow(at(61 * SEC));
+      expect((await bad()).status).toBe(401); // 7th failure: wait is now 2 minutes
+      expect((await bad()).status).toBe(429);
+      await env.setNow(at(61 * SEC + 121 * SEC));
+      // the owner is back in after the wait, and the right password clears everything
       expect((await env.browser().auth().login("lock@ngajigaes.test", TEST_PASSWORD)).status).toBe("ok");
+      for (let i = 0; i < 5; i++) expect((await bad()).status).toBe(401);
+    });
+
+    it("AUTH-15 (T9 F1): 30 parallel guesses for one email do not slip past the limit", async () => {
+      await fresh();
+      await env.createAccount("par@ngajigaes.test");
+      const results = await Promise.all(
+        Array.from({ length: 30 }, (_, i) =>
+          env.browser(`198.51.100.${100 + i}`).json("/auth/login", "POST", { email: "par@ngajigaes.test", password: "salah-salah-1" }),
+        ),
+      );
+      const reached = results.filter((r) => r.status === 401).length;
+      const refused = results.filter((r) => r.status === 429).length;
+      expect(reached + refused).toBe(30);
+      // five free attempts plus the one that sets the first wait
+      expect(reached).toBeLessThanOrEqual(6);
     });
 
     it("AUTH-15: successful logins do not add to the failure count", async () => {
@@ -170,6 +191,16 @@ describe("sign-in with email and password (CLAUDE.md auth rules)", () => {
       expect(callerOf(req, 0).ip).toBe("unknown");
     });
 
+    it("T9 F7: callerOf marks cookies Secure when forced, whatever the proxy header says", async () => {
+      const { callerOf } = await import("@/server/auth/service");
+      const plain = new Request("http://localhost/x", { headers: { "x-forwarded-for": "1.1.1.1" } });
+      expect(callerOf(plain, 1).secure).toBe(false);
+      expect(callerOf(plain, 1, true).secure).toBe(true);
+      const lying = new Request("http://localhost/x", { headers: { "x-forwarded-proto": "http" } });
+      expect(callerOf(lying, 1, true).secure).toBe(true);
+      expect(callerOf(new Request("https://app.test/x"), 1).secure).toBe(true);
+    });
+
     it("keeps the password and the email out of the rate limit table", async () => {
       await fresh();
       const b = env.browser("198.51.100.55");
@@ -178,6 +209,29 @@ describe("sign-in with email and password (CLAUDE.md auth rules)", () => {
       expect(dump).not.toContain("plain@ngajigaes.test");
       expect(dump).not.toContain("rahasia-sekali-123");
       expect(dump).not.toContain("198.51.100.55");
+      const gate = JSON.stringify(await env.db.exec("select * from public.auth_fail_state"));
+      expect(gate).not.toContain("plain@ngajigaes.test");
+    });
+
+    it("AUTH-15 (T9 F3): the address limit counts failures only, so good logins never use it up", async () => {
+      await fresh();
+      for (let i = 0; i < 35; i++) await env.createAccount(`cg${i}@ngajigaes.test`);
+      const b = env.browser("198.51.100.77");
+      for (let i = 0; i < 35; i++) {
+        const r = await b.json("/auth/login", "POST", { email: `cg${i}@ngajigaes.test`, password: TEST_PASSWORD });
+        expect(r.status, `try ${i}`).toBe(200);
+      }
+    });
+
+    it("AUTH-15 (T9 F3): an unknown address skips the address limit but not the email gate", async () => {
+      await fresh();
+      const { callerOf } = await import("@/server/auth/service");
+      expect(callerOf(new Request("http://localhost/x"), 1).ip).toBe("unknown");
+      await env.createAccount("noip@ngajigaes.test");
+      const bad = () =>
+        env.browser().json("/auth/login", "POST", { email: "noip@ngajigaes.test", password: "salah-salah-1" }, { "x-forwarded-for": "" });
+      for (let i = 0; i < 6; i++) await bad();
+      expect((await bad()).status).toBe(429);
     });
   });
 

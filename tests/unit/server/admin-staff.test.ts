@@ -150,26 +150,36 @@ describe("X8 reset links for buyers", () => {
 });
 
 describe("X8 orders: approve, block, phone check", () => {
-  it("a quarantined order can be approved by hand, then the buyer activates with the same phone", async () => {
+  it("T9 B: there is no manual approve; a held order can only be rechecked with Scalev, and the buyer still cannot activate", async () => {
     const { b } = await env.fullAdmin("cs-order@ngajigaes.test", ["support_admin"]);
     const email = "order-manual@ngajigaes.test";
     const id = (
       await env.db.exec(
         "insert into public.purchase_orders (scalev_order_id, customer_email_normalized, payment_status, verified_via, customer_phone_hash, quarantine_reason) values ('M-1', $1, 'paid', 'scalev_api', $2, 'spam_flag') returning id::text as id",
-        [email, (await import("@/server/auth/crypto")).hashPhone(env.cfg.pepper, TEST_PHONE)],
+        [email, (await import("@/server/auth/crypto")).hashPhone(env.cfg.phoneKey, TEST_PHONE)],
       )
     )[0]!.id as string;
 
     const detail = await env.call(b, "GET", `/orders/${id}`);
     expect(detail.body.order).toMatchObject({ quarantine_reason: "spam_flag", phone_on_file: true });
-    expect(detail.body.can_approve).toBe(true);
-    expect((await env.call(b, "POST", `/orders/${id}/approve`, { reason: REASON })).status).toBe(400);
-    const ok = await env.call(b, "POST", `/orders/${id}/approve`, { reason: REASON, approval_reference: "bukti-1" });
+    expect(detail.body.can_recheck).toBe(true);
+    expect(detail.body.can_approve).toBeUndefined();
+    // the old endpoints are gone
+    expect((await env.call(b, "POST", `/orders/${id}/approve`, { reason: REASON, approval_reference: "bukti-1" })).status).toBe(404);
+    // recheck: a reason is required, then a job for the Scalev worker is queued and the action is audited
+    expect((await env.call(b, "POST", `/orders/${id}/recheck`, {})).status).toBe(400);
+    expect((await env.call(b, "POST", `/orders/${id}/recheck`, { reason: "x" })).status).toBe(400);
+    const ok = await env.call(b, "POST", `/orders/${id}/recheck`, { reason: REASON });
     expect(ok.status).toBe(200);
-    expect(ok.body.order.verified_via).toBe("admin_manual");
-
-    const act = await env.browser().auth().activate({ email, phone: TEST_PHONE, password: "kata-sandi-aktivasi-99", deviceLabel: "HP" });
-    expect(act.status).toBe("ok");
+    expect(ok.body).toEqual({ queued: true });
+    expect(await env.db.exec("select 1 from public.jobs where job_type = 'scalev_event'")).toHaveLength(1);
+    expect(await env.db.exec("select 1 from public.admin_audit_logs where action = 'order.recheck_requested' and entity_id = $1", [id])).toHaveLength(1);
+    // nothing was granted by asking: no entitlement, activation still fails
+    expect(await env.db.exec("select 1 from public.access_entitlements where purchase_order_id = $1::uuid", [id])).toHaveLength(0);
+    const act = await env.browser().json("/auth/activate", "POST", { email, phone: TEST_PHONE, password: "kata-sandi-aktivasi-99", device_label: "HP" });
+    expect(act.status).toBe(400);
+    // a support admin of another role is refused, and the entitlement approve endpoint is gone too
+    expect((await env.call(b, "POST", `/entitlements/00000000-0000-4000-8000-000000000001/approve`, { reason: REASON, approval_reference: "x" })).status).toBe(404);
   });
 
   it("blocking makes activation fail; unblocking restores it; both are audited and need a reason", async () => {
@@ -203,7 +213,7 @@ describe("X8 orders: approve, block, phone check", () => {
       JSON.stringify((await env.call(b, "GET", "/audit-logs?limit=100")).body),
     ].join(" ");
     expect(bodies).not.toMatch(/81234567890|812-3456|phone_hash|customer_phone/);
-    const hash = (await import("@/server/auth/crypto")).hashPhone(env.cfg.pepper, TEST_PHONE)!;
+    const hash = (await import("@/server/auth/crypto")).hashPhone(env.cfg.phoneKey, TEST_PHONE)!;
     expect(bodies).not.toContain(hash);
 
     const { b: cb } = await env.fullAdmin("content-order3@ngajigaes.test", ["content_admin"]);

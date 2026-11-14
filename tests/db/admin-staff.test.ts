@@ -169,51 +169,59 @@ describe("X8 schema: staff accounts, order tools, level bypass, report exclusion
     });
   });
 
-  describe("orders: approve by hand", () => {
-    it("a quarantined order gets an active entitlement, verified_via admin_manual, and the buyer can then activate", async () => {
+  describe("orders: recheck with Scalev (T9 B: no manual approve)", () => {
+    it("the approve functions are gone, so no admin can grant access by hand", async () => {
+      const left = await rows<{ proname: string }>(
+        pg,
+        "select proname from pg_proc where pronamespace = 'app_private'::regnamespace and proname in ('admin_order_approve', 'admin_entitlement_approve')",
+      );
+      expect(left).toEqual([]);
+    });
+
+    it("a quarantined order shows can_recheck, not can_approve, and an admin_manual order cannot be activated", async () => {
       const id = await order("manual1@ngajigaes.test", { quarantine: "amount_below_min", paid: "paid" });
       expect(await activate("manual1@ngajigaes.test")).toMatchObject({ ok: false });
       const d0 = await ok<any>("admin_order_detail", ["uuid"], [id], supportId, SUPPORT);
-      expect(d0).toMatchObject({ can_approve: true, can_self_activate: false });
-      expect(d0.order.quarantine_reason).toBe("amount_below_min");
-      const r = await ok<any>("admin_order_approve", ["uuid", "text", "text", "timestamptz"], [id, REASON, "bukti-transfer-123", NOW], supportId, SUPPORT);
-      expect(r.order).toMatchObject({ verified_via: "admin_manual", quarantine_reason: null });
-      expect(r.entitlement).toMatchObject({ status: "active", entitlement_type: "lifetime" });
-      const audit = (await rows<any>(pg, "select * from public.admin_audit_logs where action = 'order.approved_manual' and entity_id = $1", [id]))[0];
-      expect(audit).toMatchObject({ reason: REASON, approval_reference: "bukti-transfer-123", actor_id: supportId });
-      expect(audit.before.quarantine_reason).toBe("amount_below_min");
-      expect(await activate("manual1@ngajigaes.test", OTHER_PHONE_HASH)).toMatchObject({ ok: false });
-      expect(await activate("manual1@ngajigaes.test")).toMatchObject({ ok: true });
+      expect(d0).toMatchObject({ can_recheck: true, can_self_activate: false });
+      expect(d0.can_approve).toBeUndefined();
+      // Even a row that says admin_manual (an old one) with a live entitlement is not accepted by activation.
+      const old = await order("manual2@ngajigaes.test", { ent: "active" });
+      await pg.query("update public.purchase_orders set verified_via = 'admin_manual' where id = $1::uuid", [old]);
+      expect(await activate("manual2@ngajigaes.test")).toMatchObject({ ok: false });
+      expect((await ok<any>("admin_order_detail", ["uuid"], [old], supportId, SUPPORT)).can_self_activate).toBe(false);
     });
 
-    it("an unpaid order approved by hand can be activated too (the admin attests, with a reference)", async () => {
-      const id = await order("manual2@ngajigaes.test", { paid: "unpaid" });
-      await ok("admin_order_approve", ["uuid", "text", "text", "timestamptz"], [id, REASON, "ref-2", NOW], supportId, SUPPORT);
-      expect(await activate("manual2@ngajigaes.test")).toMatchObject({ ok: true });
+    it("recheck queues the Scalev worker (a webhook-like event and a job), audits the reason, and grants nothing itself", async () => {
+      const id = await order("recheck1@ngajigaes.test", { quarantine: "spam_flag", paid: "paid" });
+      const r = await ok<any>("admin_order_recheck", ["uuid", "text", "timestamptz"], [id, REASON, NOW], supportId, SUPPORT);
+      expect(r).toEqual({ queued: true });
+      const ev = await rows<any>(pg, "select * from public.webhook_events where error_message = 'admin_recheck' and scalev_order_id = (select scalev_order_id from public.purchase_orders where id = $1::uuid)", [id]);
+      expect(ev).toHaveLength(1);
+      expect(ev[0]).toMatchObject({ provider: "scalev", process_status: "received", event_type: "payment.received" });
+      expect(ev[0].payload_minimal).toEqual({ source: "admin_recheck" });
+      const jobs = await rows<any>(pg, "select * from public.jobs where job_type = 'scalev_event' and payload ->> 'webhook_event_id' = $1", [ev[0].id]);
+      expect(jobs).toHaveLength(1);
+      const audit = (await rows<any>(pg, "select * from public.admin_audit_logs where action = 'order.recheck_requested' and entity_id = $1", [id]))[0];
+      expect(audit).toMatchObject({ reason: REASON, actor_id: supportId });
+      expect(await rows(pg, "select 1 from public.access_entitlements where purchase_order_id = $1::uuid", [id])).toHaveLength(0);
+      expect((await rows<any>(pg, "select quarantine_reason from public.purchase_orders where id = $1::uuid", [id]))[0]).toEqual({ quarantine_reason: "spam_flag" });
     });
 
-    it("needs a reason, a reference, the right role, an email on the order, and is refused twice", async () => {
-      const id = await order("manual3@ngajigaes.test", { quarantine: "spam_flag" });
-      const T = ["uuid", "text", "text", "timestamptz"];
-      expect((await call("admin_order_approve", T, [id, "pendek", "ref", NOW], supportId, SUPPORT)).ok).toBe(false);
-      expect((await call("admin_order_approve", T, [id, REASON, "", NOW], supportId, SUPPORT)).ok).toBe(false);
-      expect((await call("admin_order_approve", T, [id, REASON, "ref", NOW], supportId, ["content_admin"])).ok).toBe(false);
-      const noEmail = await order(null, { quarantine: "missing_email" });
-      expect(await call("admin_order_approve", T, [noEmail, REASON, "ref", NOW], supportId, SUPPORT)).toMatchObject({ ok: false, error: { message: "VALIDATION_ERROR" } });
-      await ok("admin_order_approve", T, [id, REASON, "ref", NOW], supportId, SUPPORT);
-      expect(await call("admin_order_approve", T, [id, REASON, "ref", NOW], supportId, SUPPORT)).toMatchObject({ ok: false, error: { message: "INVALID_TRANSITION" } });
-      expect(await rows(pg, "select 1 from public.access_entitlements where purchase_order_id = $1::uuid", [id])).toHaveLength(1);
+    it("needs a reason, the right role and an order that exists; is limited to 5 per 15 minutes per order", async () => {
+      const id = await order("recheck2@ngajigaes.test", { quarantine: "spam_flag" });
+      const T = ["uuid", "text", "timestamptz"];
+      expect((await call("admin_order_recheck", T, [id, "pendek", NOW], supportId, SUPPORT)).ok).toBe(false);
+      expect((await call("admin_order_recheck", T, [id, REASON, NOW], supportId, ["content_admin"])).ok).toBe(false);
+      expect(await call("admin_order_recheck", T, ["00000000-0000-4000-8000-000000000999", REASON, NOW], supportId, SUPPORT)).toMatchObject({ ok: false, error: { message: "NOT_FOUND" } });
+      for (let i = 0; i < 5; i++) {
+        await ok("admin_order_recheck", T, [id, REASON, new Date(Date.parse(NOW) + i * 1000).toISOString()], supportId, SUPPORT);
+      }
+      expect(await call("admin_order_recheck", T, [id, REASON, new Date(Date.parse(NOW) + 6000).toISOString()], supportId, SUPPORT)).toMatchObject({ ok: false, error: { message: "RATE_LIMITED" } });
     });
 
-    it("a pending_verification entitlement on the order becomes active instead of getting a second one", async () => {
-      const id = await order("manual4@ngajigaes.test", { ent: "pending_verification" });
-      await ok("admin_order_approve", ["uuid", "text", "text", "timestamptz"], [id, REASON, "ref", NOW], supportId, SUPPORT);
-      expect(await rows(pg, "select status from public.access_entitlements where purchase_order_id = $1::uuid", [id])).toEqual([{ status: "active" }]);
-    });
-
-    it("a revoked or suspended entitlement is not reopened through this function", async () => {
-      const id = await order("manual5@ngajigaes.test", { ent: "revoked" });
-      expect(await call("admin_order_approve", ["uuid", "text", "text", "timestamptz"], [id, REASON, "ref", NOW], supportId, SUPPORT)).toMatchObject({ ok: false, error: { message: "INVALID_TRANSITION" } });
+    it("an order with active access has no recheck button", async () => {
+      const id = await order("recheck3@ngajigaes.test", { ent: "active" });
+      expect((await ok<any>("admin_order_detail", ["uuid"], [id], supportId, SUPPORT)).can_recheck).toBe(false);
     });
   });
 
@@ -225,7 +233,7 @@ describe("X8 schema: staff accounts, order tools, level bypass, report exclusion
       expect((await call("admin_order_set_activation_blocked", T, [id, true, REASON, NOW], supportId, ["content_admin"])).ok).toBe(false);
       const blocked = await ok<any>("admin_order_set_activation_blocked", T, [id, true, REASON, NOW], supportId, SUPPORT);
       expect(blocked.activation_blocked).toBe(true);
-      expect(await activate("blok1@ngajigaes.test")).toEqual({ ok: false });
+      expect(await activate("blok1@ngajigaes.test")).toMatchObject({ ok: false });
       expect(await call("admin_order_set_activation_blocked", T, [id, true, REASON, NOW], supportId, SUPPORT)).toMatchObject({ ok: false, error: { message: "INVALID_TRANSITION" } });
       const detail = await ok<any>("admin_order_detail", ["uuid"], [id], supportId, SUPPORT);
       expect(detail.can_self_activate).toBe(false);

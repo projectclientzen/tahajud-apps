@@ -69,7 +69,7 @@ export async function beginMfa(d: Deps, user: AuthedUser): Promise<{ secret: str
   await d.db.asService((q) =>
     q.query("select app_private.admin_mfa_begin($1::uuid, $2, $3::timestamptz)", [
       user.userId,
-      sealSecret(d.cfg.pepper, secret),
+      sealSecret(d.cfg.mfaKey, secret),
       d.now().toISOString(),
     ]),
   );
@@ -98,7 +98,7 @@ async function checkCode(d: Deps, user: AuthedUser, code: string, confirm: boole
   );
   // Confirming needs a pending factor, signing in needs a finished one. Anything else is "not set up".
   if (!f || f.verified === confirm) throw new AdminError("MFA_SETUP_REQUIRED");
-  const step = verifyTotp(openSecret(d.cfg.pepper, f.secret_enc), code, d.now().getTime(), Number(f.last_used_step));
+  const step = verifyTotp(openSecret(d.cfg.mfaKey, f.secret_enc), code, d.now().getTime(), Number(f.last_used_step));
   if (step === null) throw new AdminError("INVALID_MFA_CODE");
   const accepted = await d.db.asService((q) =>
     one<boolean>(q, "app_private.admin_mfa_use($1::uuid, $2::bigint, $3::boolean, $4::timestamptz)", [
